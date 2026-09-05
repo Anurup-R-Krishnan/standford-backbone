@@ -1,4 +1,4 @@
-'''
+"""
     <Slice Class-- Part of HSA Library>
     Copyright (C) 2012  Stanford University
 
@@ -14,63 +14,61 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 Created on Jan 26, 2011
 
 @author: Peyman Kazemian
-'''
+"""
 
 
 class Slice:
-    '''
+    """
     classdocs
-    '''
+    """
+
     def __init__(self, length):
-        '''
+        """
         Constructor
-        '''
+        """
         self.length = length
         self.reservations = []
         self.port_to_reservation = {}
-        
-    def get_port_reservation(self,port):
+
+    def get_port_reservation(self, port):
         if f"{port}" in self.port_to_reservation:
             return self.port_to_reservation[f"{port}"]
         else:
             return []
 
     def set_hs_reservation(self, ports, hs):
-        '''
+        """
         set hs reservation on @port to new_hs
         NOTE: hs.hs_list MUST have only one wildcard expression
-        '''
+        """
         if hs.length != self.length:
             return
         hs_copy = hs.copy()
         port_list = list(ports)
-        self.reservations.append((port_list,hs_copy))
+        self.reservations.append((port_list, hs_copy))
         for port in ports:
             if f"{port}" not in self.port_to_reservation:
                 self.port_to_reservation[f"{port}"] = []
             self.port_to_reservation[f"{port}"].append(hs)
-    
-    def intersect(self,other_slice):
+
+    def intersect(self, other_slice):
         result = Slice(self.length)
-        for (port_list1,hs1) in other_slice.reservations:
-            for (port_list2,hs2) in self.reservations:
+        for port_list1, hs1 in other_slice.reservations:
+            for port_list2, hs2 in self.reservations:
                 port_isect = [p for p in port_list1 if p in port_list2]
                 if len(port_isect) > 0:
                     ihs = hs1.copy_intersect(hs2)
                     if ihs.count() > 0:
-                        result.set_hs_reservation(port_isect, ihs) 
-                    
+                        result.set_hs_reservation(port_isect, ihs)
+
         return result
-    
+
     def __str__(self):
         result = ""
-        for (p, hs) in self.reservations:
+        for p, hs in self.reservations:
             result = result + f"Port: {p} - Header Space:\n {hs}\n"
         return result
-
-
-        

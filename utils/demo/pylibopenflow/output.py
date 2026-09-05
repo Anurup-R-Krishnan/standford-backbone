@@ -15,69 +15,70 @@ MODE["WARN"] = 1
 MODE["INFO"] = 2
 MODE["DBG"] = 3
 
-#Global mode
+# Global mode
 global output_mode
 output_mode = None
+
 
 def set_mode(msg_mode, who=None):
     """Set the message mode for who
     If who is None, set global mode
     """
     global output_mode
-    if (output_mode == None):
+    if output_mode == None:
         output_mode = {}
         output_mode["global"] = MODE["WARN"]
         output_mode["DBG"] = []
         output_mode["INFO"] = []
         output_mode["WARN"] = []
 
-    #Set global mode
-    if (who == None):
+    # Set global mode
+    if who == None:
         output_mode["global"] = MODE[msg_mode]
         return
-    
-    #Individual mode
-    if (msg_mode == "ERR"):
+
+    # Individual mode
+    if msg_mode == "ERR":
         return
-    for mode in ["WARN","INFO","DBG"]:
-        if (not (who in mode[mode])):
+    for mode in ["WARN", "INFO", "DBG"]:
+        if not (who in mode[mode]):
             mode[mode].append(who)
-        if (msg_mode == mode):
+        if msg_mode == mode:
             return
-    
+
+
 def output(msg_mode, msg, who=None):
-    """Print message
-    """
+    """Print message"""
     global output_mode
-    if (output_mode == None):
+    if output_mode == None:
         raise RuntimeError("Output mode is not set")
 
-    #Indicate who string
-    if (who == None):
+    # Indicate who string
+    if who == None:
         whostr = ""
     else:
-        whostr = who+":"
+        whostr = who + ":"
 
-    #Print output 
+    # Print output
     if (MODE[msg_mode] <= output_mode["global"]) or (who in output_mode[msg_mode]):
-        print(msg_mode.ljust(4, ' ')+"|"+whostr+msg)
-        
+        print(msg_mode.ljust(4, " ") + "|" + whostr + msg)
+
+
 def err(msg, who=None):
-    """Print error messages
-    """
+    """Print error messages"""
     output("ERR", msg, who)
 
+
 def warn(msg, who=None):
-    """Print warning messages
-    """
+    """Print warning messages"""
     output("WARN", msg, who)
 
+
 def info(msg, who=None):
-    """Print informational messages
-    """
+    """Print informational messages"""
     output("INFO", msg, who)
 
+
 def dbg(msg, who=None):
-    """Print debug messages
-    """
+    """Print debug messages"""
     output("DBG", msg, who)

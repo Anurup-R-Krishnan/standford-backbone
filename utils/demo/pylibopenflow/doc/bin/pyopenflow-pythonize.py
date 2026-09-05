@@ -6,6 +6,7 @@ creates Python class for each data structure in openflow.h.
 Author ykk
 Date December 2009
 """
+
 import getopt
 import sys
 
@@ -14,50 +15,53 @@ from pylibopenflow import openflow
 
 
 def usage():
-    """Display usage
-    """
-    print("Usage "+sys.argv[0]+" <options> output_file\n"+\
-          "Options:\n"+\
-          "-i/--input\n\tSpecify (non-default) OpenFlow header\n"+\
-          "-t/--template\n\tSpecify (non-default) template file\n"+\
-          "-h/--help\n\tPrint this usage guide\n"+\
-          "")
-          
-#Parse options and arguments
+    """Display usage"""
+    print(
+        "Usage "
+        + sys.argv[0]
+        + " <options> output_file\n"
+        + "Options:\n"
+        + "-i/--input\n\tSpecify (non-default) OpenFlow header\n"
+        + "-t/--template\n\tSpecify (non-default) template file\n"
+        + "-h/--help\n\tPrint this usage guide\n"
+        + ""
+    )
+
+
+# Parse options and arguments
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hi:t:",
-                               ["help","input","template"])
+    opts, args = getopt.getopt(sys.argv[1:], "hi:t:", ["help", "input", "template"])
 except getopt.GetoptError:
     usage()
     sys.exit(2)
 
-#Check there is only output file
+# Check there is only output file
 if len(args) != 1:
     usage()
     sys.exit(2)
 
-#Parse options
+# Parse options
 ##Input
-headerfile=None
+headerfile = None
 ##Template file
-templatefile=None
-for opt,arg in opts:
-    if (opt in ("-h","--help")):
+templatefile = None
+for opt, arg in opts:
+    if opt in ("-h", "--help"):
         usage()
         sys.exit(0)
-    elif (opt in ("-i","--input")):
-        headerfile=arg
-    elif (opt in ("-t","--template")):
-        templatefile=arg
+    elif opt in ("-i", "--input"):
+        headerfile = arg
+    elif opt in ("-t", "--template"):
+        templatefile = arg
     else:
-        print("Unhandled option:"+opt)
+        print("Unhandled option:" + opt)
         sys.exit(2)
 
-#Generate Python code
+# Generate Python code
 ofmsg = openflow.messages(headerfile)
 pynizer = ofpythonize.pythonizer(ofmsg)
 
 fileRef = open(args[0], "w")
-fileRef.writelines(x+"\n" for x in pynizer.pycode(templatefile))
+fileRef.writelines(x + "\n" for x in pynizer.pycode(templatefile))
 fileRef.write("\n")
 fileRef.close()

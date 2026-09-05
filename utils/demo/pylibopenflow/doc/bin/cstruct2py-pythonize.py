@@ -4,6 +4,7 @@
 Author ykk
 Date Jan 2010
 """
+
 import getopt
 import sys
 
@@ -11,38 +12,40 @@ from pylibopenflow import cheader, cpythonize
 
 
 def usage():
-    """Display usage
-    """
-    print("Usage "+sys.argv[0]+" <options> header_files... output_file\n"+\
-          "Options:\n"+\
-          "-h/--help\n\tPrint this usage guide\n"+\
-          "")
+    """Display usage"""
+    print(
+        "Usage "
+        + sys.argv[0]
+        + " <options> header_files... output_file\n"
+        + "Options:\n"
+        + "-h/--help\n\tPrint this usage guide\n"
+        + ""
+    )
 
-#Parse options and arguments
+
+# Parse options and arguments
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "h",
-                               ["help"])
+    opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
 except getopt.GetoptError:
     usage()
     sys.exit(2)
-   
-#Parse options
-for opt,arg in opts:
-    if (opt in ("-h","--help")):
+
+# Parse options
+for opt, arg in opts:
+    if opt in ("-h", "--help"):
         usage()
         sys.exit(0)
     else:
-        print("Unhandled option :"+opt)
+        print("Unhandled option :" + opt)
         sys.exit(2)
 
-#Check there is at least 1 input file with 1 output file
-if (len(args) < 2):
+# Check there is at least 1 input file with 1 output file
+if len(args) < 2:
     usage()
     sys.exit(2)
 
 ch = cheader.cheaderfile(args[:-1])
 py = cpythonize.pythonizer(ch)
-fileRef = open(args[len(args)-1], "w")
-fileRef.writelines(l+"\n" for l in py.pycode())
+fileRef = open(args[len(args) - 1], "w")
+fileRef.writelines(l + "\n" for l in py.pycode())
 fileRef.close()
-

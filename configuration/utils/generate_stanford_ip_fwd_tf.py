@@ -1,4 +1,4 @@
-'''
+"""
     <Generates a set of transfer functions, only modeling IP forwarding behavior of Stanford Network>
     Copyright (C) 2012  Stanford University
 
@@ -18,7 +18,8 @@
 Created on May 29, 2012
 
 @author: Peyman Kazemian
-'''
+"""
+
 import os
 import sys
 
@@ -36,33 +37,35 @@ format["ip_dst_pos"] = 0
 format["ip_dst_len"] = 4
 format["length"] = 4
 
-rtr_names = [("bbra_rtr",0),
-             ("bbrb_rtr",0),
-             ("boza_rtr",0),
-             ("bozb_rtr",0),
-             ("coza_rtr",580),
-             ("cozb_rtr",580),
-             ("goza_rtr",0),
-             ("gozb_rtr",0),
-             ("poza_rtr",0),
-             ("pozb_rtr",0),
-             ("roza_rtr",0),
-             ("rozb_rtr",0),
-             ("soza_rtr",580),
-             ("sozb_rtr",580),
-             ("yoza_rtr",0),
-             ("yozb_rtr",0),
-             ]
+rtr_names = [
+    ("bbra_rtr", 0),
+    ("bbrb_rtr", 0),
+    ("boza_rtr", 0),
+    ("bozb_rtr", 0),
+    ("coza_rtr", 580),
+    ("cozb_rtr", 580),
+    ("goza_rtr", 0),
+    ("gozb_rtr", 0),
+    ("poza_rtr", 0),
+    ("pozb_rtr", 0),
+    ("roza_rtr", 0),
+    ("rozb_rtr", 0),
+    ("soza_rtr", 580),
+    ("sozb_rtr", 580),
+    ("yoza_rtr", 0),
+    ("yozb_rtr", 0),
+]
 
-def generate_fwd_table_tf(cisco_parser,tf):
+
+def generate_fwd_table_tf(cisco_parser, tf):
     print(" * Generating IP forwarding transfer function... * ")
     # generate the forwarding part of transfer fucntion, from the fwd_prt, to pre-output ports
-    for subnet in range(32,-1,-1):
+    for subnet in range(32, -1, -1):
         for fwd_rule in cisco_parser.fwd_table:
             if fwd_rule[1] == subnet:
-                #in -ports and match bytearray
-                match = byte_array_get_all_x(cisco_parser.hs_format["length"]*2)
-                cisco_parser.set_field(match, "ip_dst", int(fwd_rule[0]), 32-subnet)
+                # in -ports and match bytearray
+                match = byte_array_get_all_x(cisco_parser.hs_format["length"] * 2)
+                cisco_parser.set_field(match, "ip_dst", int(fwd_rule[0]), 32 - subnet)
                 in_ports = []
                 for p in cisco_parser.port_to_id:
                     in_ports.append(cisco_parser.port_to_id[p])
@@ -78,10 +81,12 @@ def generate_fwd_table_tf(cisco_parser,tf):
                     lines.extend(fwd_rule[4])
                 # set up out_ports
                 out_ports = []
-                m = re.split(r'\.',fwd_rule[2])
+                m = re.split(r"\.", fwd_rule[2])
                 # drop rules:
                 if fwd_rule[2] == "self":
-                    self_rule = TF.create_standard_rule(in_ports,match,[],None,None,file_name,lines)
+                    self_rule = TF.create_standard_rule(
+                        in_ports, match, [], None, None, file_name, lines
+                    )
                     tf.add_fwd_rule(self_rule)
                 # non drop rules
                 else:
@@ -94,7 +99,7 @@ def generate_fwd_table_tf(cisco_parser,tf):
                             print(f"ERROR: unrecognized port {m[0]}")
                             return -1
                     # vlan outputs
-                    elif fwd_rule[2].startswith('vlan'):
+                    elif fwd_rule[2].startswith("vlan"):
                         if fwd_rule[2] in cisco_parser.vlan_ports:
                             port_list = cisco_parser.vlan_ports[fwd_rule[2]]
                             for p in port_list:
@@ -112,11 +117,14 @@ def generate_fwd_table_tf(cisco_parser,tf):
                             print(f"ERROR: unrecognized port {fwd_rule[2]}")
                             return -1
 
-                    tf_rule = TF.create_standard_rule(in_ports, match, out_ports, None, None,file_name,lines)
+                    tf_rule = TF.create_standard_rule(
+                        in_ports, match, out_ports, None, None, file_name, lines
+                    )
                     tf.add_fwd_rule(tf_rule)
 
     print("=== Successfully Generated Transfer function ===")
     return 0
+
 
 id = 1
 cs_list = {}
@@ -125,28 +133,30 @@ WORK_DIR = "../work/tf_simple_stanford_backbone/"
 if not os.path.exists(WORK_DIR):
     os.makedirs(WORK_DIR)
 
-for (rtr_name,vlan) in rtr_names:
+for rtr_name, vlan in rtr_names:
     cs = ciscoRouter(id)
     cs.set_replaced_vlan(vlan)
     cs.set_hs_format(format)
-    tf = TF(format["length"]*2)
+    tf = TF(format["length"] * 2)
     tf.set_prefix_id(rtr_name)
     cs.read_arp_table_file(f"../data/Stanford_backbone/{rtr_name}_arp_table.txt")
     cs.read_mac_table_file(f"../data/Stanford_backbone/{rtr_name}_mac_table.txt")
     cs.read_config_file(f"../data/Stanford_backbone/{rtr_name}_config.txt")
-    cs.read_spanning_tree_file(f"../data/Stanford_backbone/{rtr_name}_spanning_tree.txt")
+    cs.read_spanning_tree_file(
+        f"../data/Stanford_backbone/{rtr_name}_spanning_tree.txt"
+    )
     cs.read_route_file(f"../data/Stanford_backbone/{rtr_name}_route.txt")
-    #cs.generate_port_ids([])
+    # cs.generate_port_ids([])
     cs.generate_port_ids_only_for_output_ports()
-    #if rtr_name == "coza_rtr" or rtr_name == "cozb_rtr" or rtr_name == "soza_rtr" or rtr_name == "sozb_rtr" or rtr_name == "yoza_rtr" or rtr_name == "yozb_rtr":
+    # if rtr_name == "coza_rtr" or rtr_name == "cozb_rtr" or rtr_name == "soza_rtr" or rtr_name == "sozb_rtr" or rtr_name == "yoza_rtr" or rtr_name == "yozb_rtr":
     cs.optimize_forwarding_table()
-    generate_fwd_table_tf(cs,tf)
-    #print tf
-    tf.save_object_to_file(WORK_DIR+f"/{rtr_name}.tf")
+    generate_fwd_table_tf(cs, tf)
+    # print tf
+    tf.save_object_to_file(WORK_DIR + f"/{rtr_name}.tf")
     id += 1
     cs_list[rtr_name] = cs
 
-f = open(WORK_DIR+"/port_map.txt",'w')
+f = open(WORK_DIR + "/port_map.txt", "w")
 for rtr in cs_list:
     cs = cs_list[rtr]
     f.write(f"${rtr}\n")
@@ -154,52 +164,68 @@ for rtr in cs_list:
 
 f.close()
 
-topology = [("bbra_rtr","te7/3","goza_rtr","te2/1"),
-            ("bbra_rtr","te7/3","pozb_rtr","te3/1"),
-            ("bbra_rtr","te1/3","bozb_rtr","te3/1"),
-            ("bbra_rtr","te1/3","yozb_rtr","te2/1"),
-            ("bbra_rtr","te1/3","roza_rtr","te2/1"),
-            ("bbra_rtr","te1/4","boza_rtr","te2/1"),
-            ("bbra_rtr","te1/4","rozb_rtr","te3/1"),
-            ("bbra_rtr","te6/1","gozb_rtr","te3/1"),
-            ("bbra_rtr","te6/1","cozb_rtr","te3/1"),
-            ("bbra_rtr","te6/1","poza_rtr","te2/1"),
-            ("bbra_rtr","te6/1","soza_rtr","te2/1"),
-            ("bbra_rtr","te7/2","coza_rtr","te2/1"),
-            ("bbra_rtr","te7/2","sozb_rtr","te3/1"),
-            ("bbra_rtr","te6/3","yoza_rtr","te1/3"),
-            ("bbra_rtr","te7/1","bbrb_rtr","te7/1"),
-            ("bbrb_rtr","te7/4","yoza_rtr","te7/1"),
-            ("bbrb_rtr","te1/1","goza_rtr","te3/1"),
-            ("bbrb_rtr","te1/1","pozb_rtr","te2/1"),
-            ("bbrb_rtr","te6/3","bozb_rtr","te2/1"),
-            ("bbrb_rtr","te6/3","roza_rtr","te3/1"),
-            ("bbrb_rtr","te6/3","yozb_rtr","te1/1"),
-            ("bbrb_rtr","te1/3","boza_rtr","te3/1"),
-            ("bbrb_rtr","te1/3","rozb_rtr","te2/1"),
-            ("bbrb_rtr","te7/2","gozb_rtr","te2/1"),
-            ("bbrb_rtr","te7/2","cozb_rtr","te2/1"),
-            ("bbrb_rtr","te7/2","poza_rtr","te3/1"),
-            ("bbrb_rtr","te7/2","soza_rtr","te3/1"),
-            ("bbrb_rtr","te6/1","coza_rtr","te3/1"),
-            ("bbrb_rtr","te6/1","sozb_rtr","te2/1"),
-            ("boza_rtr","te2/3","bozb_rtr","te2/3"),
-            ("coza_rtr","te2/3","cozb_rtr","te2/3"),
-            ("goza_rtr","te2/3","gozb_rtr","te2/3"),
-            ("poza_rtr","te2/3","pozb_rtr","te2/3"),
-            ("roza_rtr","te2/3","rozb_rtr","te2/3"),
-            ("soza_rtr","te2/3","sozb_rtr","te2/3"),
-            ("yoza_rtr","te1/1","yozb_rtr","te1/3"),
-            ("yoza_rtr","te1/2","yozb_rtr","te1/2"),
-            ]
+topology = [
+    ("bbra_rtr", "te7/3", "goza_rtr", "te2/1"),
+    ("bbra_rtr", "te7/3", "pozb_rtr", "te3/1"),
+    ("bbra_rtr", "te1/3", "bozb_rtr", "te3/1"),
+    ("bbra_rtr", "te1/3", "yozb_rtr", "te2/1"),
+    ("bbra_rtr", "te1/3", "roza_rtr", "te2/1"),
+    ("bbra_rtr", "te1/4", "boza_rtr", "te2/1"),
+    ("bbra_rtr", "te1/4", "rozb_rtr", "te3/1"),
+    ("bbra_rtr", "te6/1", "gozb_rtr", "te3/1"),
+    ("bbra_rtr", "te6/1", "cozb_rtr", "te3/1"),
+    ("bbra_rtr", "te6/1", "poza_rtr", "te2/1"),
+    ("bbra_rtr", "te6/1", "soza_rtr", "te2/1"),
+    ("bbra_rtr", "te7/2", "coza_rtr", "te2/1"),
+    ("bbra_rtr", "te7/2", "sozb_rtr", "te3/1"),
+    ("bbra_rtr", "te6/3", "yoza_rtr", "te1/3"),
+    ("bbra_rtr", "te7/1", "bbrb_rtr", "te7/1"),
+    ("bbrb_rtr", "te7/4", "yoza_rtr", "te7/1"),
+    ("bbrb_rtr", "te1/1", "goza_rtr", "te3/1"),
+    ("bbrb_rtr", "te1/1", "pozb_rtr", "te2/1"),
+    ("bbrb_rtr", "te6/3", "bozb_rtr", "te2/1"),
+    ("bbrb_rtr", "te6/3", "roza_rtr", "te3/1"),
+    ("bbrb_rtr", "te6/3", "yozb_rtr", "te1/1"),
+    ("bbrb_rtr", "te1/3", "boza_rtr", "te3/1"),
+    ("bbrb_rtr", "te1/3", "rozb_rtr", "te2/1"),
+    ("bbrb_rtr", "te7/2", "gozb_rtr", "te2/1"),
+    ("bbrb_rtr", "te7/2", "cozb_rtr", "te2/1"),
+    ("bbrb_rtr", "te7/2", "poza_rtr", "te3/1"),
+    ("bbrb_rtr", "te7/2", "soza_rtr", "te3/1"),
+    ("bbrb_rtr", "te6/1", "coza_rtr", "te3/1"),
+    ("bbrb_rtr", "te6/1", "sozb_rtr", "te2/1"),
+    ("boza_rtr", "te2/3", "bozb_rtr", "te2/3"),
+    ("coza_rtr", "te2/3", "cozb_rtr", "te2/3"),
+    ("goza_rtr", "te2/3", "gozb_rtr", "te2/3"),
+    ("poza_rtr", "te2/3", "pozb_rtr", "te2/3"),
+    ("roza_rtr", "te2/3", "rozb_rtr", "te2/3"),
+    ("soza_rtr", "te2/3", "sozb_rtr", "te2/3"),
+    ("yoza_rtr", "te1/1", "yozb_rtr", "te1/3"),
+    ("yoza_rtr", "te1/2", "yozb_rtr", "te1/2"),
+]
 
-tf = TF(format["length"]*2)
-for (from_router,from_port,to_router,to_port) in topology:
+tf = TF(format["length"] * 2)
+for from_router, from_port, to_router, to_port in topology:
     from_cs = cs_list[from_router]
     to_cs = cs_list[to_router]
-    rule = TF.create_standard_rule([from_cs.get_port_id(from_port)], None,[to_cs.get_port_id(to_port)], None, None, "", [])
+    rule = TF.create_standard_rule(
+        [from_cs.get_port_id(from_port)],
+        None,
+        [to_cs.get_port_id(to_port)],
+        None,
+        None,
+        "",
+        [],
+    )
     tf.add_link_rule(rule)
-    rule = TF.create_standard_rule([to_cs.get_port_id(to_port)], None,[from_cs.get_port_id(from_port)], None, None, "", [])
+    rule = TF.create_standard_rule(
+        [to_cs.get_port_id(to_port)],
+        None,
+        [from_cs.get_port_id(from_port)],
+        None,
+        None,
+        "",
+        [],
+    )
     tf.add_link_rule(rule)
-tf.save_object_to_file(WORK_DIR+"/backbone_topology.tf")
-
+tf.save_object_to_file(WORK_DIR + "/backbone_topology.tf")

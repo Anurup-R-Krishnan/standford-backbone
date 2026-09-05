@@ -4,16 +4,20 @@
 
 import os
 
-#asCount = 0
-#relCount = 0
-#nodes =  dict()
-#asNames = g.new_vertex_property("string")
-#relNames = g.new_edge_property("string")
+# asCount = 0
+# relCount = 0
+# nodes =  dict()
+# asNames = g.new_vertex_property("string")
+# relNames = g.new_edge_property("string")
 import sys
 
 from graph_tool.all import *
 
-inputFile = sys.argv[1] if len(sys.argv) > 1 else ("./net.txt" if os.path.exists("./net.txt") else "./net_samples.txt")
+inputFile = (
+    sys.argv[1]
+    if len(sys.argv) > 1
+    else ("./net.txt" if os.path.exists("./net.txt") else "./net_samples.txt")
+)
 edges = set()
 nodes = {}
 
@@ -54,16 +58,16 @@ print("Found %d edges, %d nodes" % (len(edges), len(nodes)))
 
 # Create graph
 for edge in edges:
-	#print edge
-	ports = edge.split(":")
-	#print ports
-	v1 = nodes[ports[0].split("-")[0]]
-	v2 = nodes[ports[1].split("-")[0]]
-	e = g.add_edge(v1, v2)
-	edge_names[e] = edge
+    # print edge
+    ports = edge.split(":")
+    # print ports
+    v1 = nodes[ports[0].split("-")[0]]
+    v2 = nodes[ports[1].split("-")[0]]
+    e = g.add_edge(v1, v2)
+    edge_names[e] = edge
 
 print(g)
-'''
+"""
         tokens = line.rstrip().split('|')
         v1 = addAS(tokens[0])
         v2 = addAS(tokens[1])
@@ -81,16 +85,25 @@ print(g)
         	# Provider > Customer
         	relNames[e] = "blue"
         	print "blue"
-        	'''
-'''
+        	"""
+"""
 # BFS
 print "bfs"
 bfs_search(g, nodes["1"], VisitorExample(asNames, asFilters))
-'''
+"""
 # Plot
 print("draw")
 g.set_vertex_filter(node_switch)
-#g.set_vertex_filter(asFilters)
-#pos = fruchterman_reingold_layout(g, n_iter=1000)
+# g.set_vertex_filter(asFilters)
+# pos = fruchterman_reingold_layout(g, n_iter=1000)
 pos = arf_layout(g, max_iter=100)
-graph_draw(g, pos=pos, vertex_text=node_names, vertex_color=node_types, edge_text=edge_names, vertex_font_size=25, output_size=(1000, 1000), output="net.png")
+graph_draw(
+    g,
+    pos=pos,
+    vertex_text=node_names,
+    vertex_color=node_types,
+    edge_text=edge_names,
+    vertex_font_size=25,
+    output_size=(1000, 1000),
+    output="net.png",
+)

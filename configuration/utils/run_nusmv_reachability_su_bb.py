@@ -1,4 +1,4 @@
-'''
+"""
     <Run reachability test using NuSMV>
     Copyright (C) 2012  Stanford University
 
@@ -14,24 +14,25 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 Created on Jan 4, 2012
 
 @author: Peyman Kazemian
-'''
+"""
+
 from time import time
 
 from headerspace.nu_smv_generator import *
 
 from utils.load_stanford_backbone import *
 
-(port_map,port_reverse_map) = load_stanford_backbone_port_to_id_map()
+(port_map, port_reverse_map) = load_stanford_backbone_port_to_id_map()
 src_port_id = port_map["bbra_rtr"]["te6/3"]
-dst_port_id = port_map["roza_rtr"]["te3/3"]+20000
-via_ports = [port_map["bbrb_rtr"]["te6/3"],port_map["bbrb_rtr"]["te6/3"]+20000]
+dst_port_id = port_map["roza_rtr"]["te3/3"] + 20000
+via_ports = [port_map["bbrb_rtr"]["te6/3"], port_map["bbrb_rtr"]["te6/3"] + 20000]
 nusmv = load_tf_to_nusmv()
 st = time()
-#print nusmv.run_nusmv_one_path_via_ports_reachability(src_port_id, dst_port_id,via_ports)
+# print nusmv.run_nusmv_one_path_via_ports_reachability(src_port_id, dst_port_id,via_ports)
 print(nusmv.run_nusmv_reachability(src_port_id, dst_port_id))
 en = time()
-print(en-st)
+print(en - st)

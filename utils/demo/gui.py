@@ -31,7 +31,7 @@ class StanfordTopo:
 
     dummy_switches = set()
 
-    def __init__( self ):
+    def __init__(self):
         # Read topology info
         self.switch_id_to_name = {}
         self.ports = self.load_ports(self.PORT_MAP_FILENAME)
@@ -69,9 +69,9 @@ class StanfordTopo:
         f = open(filename)
         for line in f:
             if line.startswith("link"):
-                tokens = line.split('$')
-                src_port_flat = int(tokens[1].strip('[]').split(', ')[0])
-                dst_port_flat = int(tokens[7].strip('[]').split(', ')[0])
+                tokens = line.split("$")
+                src_port_flat = int(tokens[1].strip("[]").split(", ")[0])
+                dst_port_flat = int(tokens[7].strip("[]").split(", ")[0])
                 link_id = tokens[-2]
                 links.add((src_port_flat, dst_port_flat, link_id))
         f.close()
@@ -82,25 +82,31 @@ class StanfordTopo:
         nodes = []
         links = []
 
-        for (src_port, dst_port, link_id) in topo.links:
+        for src_port, dst_port, link_id in topo.links:
             if link_id not in self.link_id_to_errors:
                 self.link_id_to_errors[link_id] = False
             if self.link_id_to_errors[link_id]:
-                links.append({"source": src_port // topo.SWITCH_ID_MULTIPLIER - 1,
-                  "target":dst_port // topo.SWITCH_ID_MULTIPLIER - 1,
-                  "value": 1,
-                  "problems": 1,
-                  "name" : link_id
-                  })
+                links.append(
+                    {
+                        "source": src_port // topo.SWITCH_ID_MULTIPLIER - 1,
+                        "target": dst_port // topo.SWITCH_ID_MULTIPLIER - 1,
+                        "value": 1,
+                        "problems": 1,
+                        "name": link_id,
+                    }
+                )
             else:
-                links.append({"source": src_port // topo.SWITCH_ID_MULTIPLIER - 1,
-                  "target":dst_port // topo.SWITCH_ID_MULTIPLIER - 1,
-                  "value": 1,
-                  "name" : link_id
-                  })
+                links.append(
+                    {
+                        "source": src_port // topo.SWITCH_ID_MULTIPLIER - 1,
+                        "target": dst_port // topo.SWITCH_ID_MULTIPLIER - 1,
+                        "value": 1,
+                        "name": link_id,
+                    }
+                )
 
         for index in range(len(topo.switch_id_to_name.keys())):
-            switch_name = topo.switch_id_to_name[index+1]
+            switch_name = topo.switch_id_to_name[index + 1]
             if switch_name not in self.switch_name_to_errors:
                 self.switch_name_to_errors[switch_name] = []
 
@@ -110,12 +116,18 @@ class StanfordTopo:
                 group = 1
 
             if self.switch_name_to_errors[switch_name] != []:
-                nodes.append({"name":switch_name,"group":group, "problems":str(self.switch_name_to_errors[switch_name])} )
+                nodes.append(
+                    {
+                        "name": switch_name,
+                        "group": group,
+                        "problems": str(self.switch_name_to_errors[switch_name]),
+                    }
+                )
             else:
-                nodes.append({"name":switch_name,"group":group} )
+                nodes.append({"name": switch_name, "group": group})
 
-        json_object = {"nodes":nodes,"links":links}
-        f = open(filename,'w')
+        json_object = {"nodes": nodes, "links": links}
+        f = open(filename, "w")
         json.dump(json_object, f)
         f.close
 
@@ -158,7 +170,7 @@ class Application:
     def main(self):
         gtk.main()
 
-    def __init__(self, controller='localhost', port=6633):
+    def __init__(self, controller="localhost", port=6633):
         self.controller = controller
         self.port = port
         self.received_packet_count = 0
@@ -192,7 +204,7 @@ class Application:
         gobject.timeout_add(100, self.processError)
 
     def createWidgets(self):
-        #Set the Glade file
+        # Set the Glade file
         filename = "./gui/gui.glade"
         builder = gtk.Builder()
         builder.add_from_file(filename)
@@ -219,7 +231,9 @@ class Application:
         self.draw_callback(None)
 
         button = builder.get_object("submit")
-        button.connect("clicked", self.submit_callback, builder.get_object("entry_input"))
+        button.connect(
+            "clicked", self.submit_callback, builder.get_object("entry_input")
+        )
         button = builder.get_object("refresh")
         button.connect("clicked", self.draw_callback)
         button = builder.get_object("inject")
@@ -245,9 +259,11 @@ class Application:
         self.topology_real.inject_errors(device_errors)
         self.topology_real.inject_link_errors(link_errors)
         self.topology_real.dump_json("web/data/data.json")
-        #self.browser.reload()
+        # self.browser.reload()
 
-        self.thread2 = threading.Thread(target=self.pinpoint, args=(test_packets, errors))
+        self.thread2 = threading.Thread(
+            target=self.pinpoint, args=(test_packets, errors)
+        )
         self.thread2.start()
 
     def draw_callback(self, widget):
@@ -263,7 +279,10 @@ class Application:
         context_id = self.statusbar.get_context_id("Eastzone")
         self.received_packet_count += 1
         self.statusbar.pop(context_id)
-        self.statusbar.push(context_id, "%d packets received from the controller" % self.received_packet_count)
+        self.statusbar.push(
+            context_id,
+            "%d packets received from the controller" % self.received_packet_count,
+        )
 
     def destroy(self, widget):
         self.running = False
@@ -297,16 +316,20 @@ class Application:
         self.topology_discovered.inject_errors(device_errors)
         self.topology_discovered.inject_link_errors(link_errors)
         self.topology_discovered.dump_json("web/data/dataDiscovered.json")
-        #self.browserDiscovered.reload()
+        # self.browserDiscovered.reload()
         return True
 
     def connectToController(self):
-        #Connect to controller
+        # Connect to controller
         ofmsg = openflow.messages()
         ofparser = of_msg.parser(ofmsg)
-        ofsw = of_simu.switch(ofmsg, self.controller, self.port,
-                              dpid=self.CONTROLLER_DPID,
-                              parser=ofparser)
+        ofsw = of_simu.switch(
+            ofmsg,
+            self.controller,
+            self.port,
+            dpid=self.CONTROLLER_DPID,
+            parser=ofparser,
+        )
         ofsw.send_hello()
 
         while self.running:
@@ -322,15 +345,18 @@ class Application:
             time.sleep(0.1)
 
     def pinpoint(self, test_packets, errors):
-        errors = self.pinpointer.pin_point_test ( test_packets, errors )
+        errors = self.pinpointer.pin_point_test(test_packets, errors)
         self.queue_pinpoint_to_GUI.put(errors)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Python backend to communicate with Beacon', epilog="Report any bugs to hyzeng@stanford.edu")
-    parser.add_argument('--controller', '-c', dest='controller', default="localhost")
-    parser.add_argument('--port', '-p', dest='port', default=6633)
-    parser.add_argument('--verbose', '-v', dest='verbose', action='count')
+    parser = argparse.ArgumentParser(
+        description="Python backend to communicate with Beacon",
+        epilog="Report any bugs to hyzeng@stanford.edu",
+    )
+    parser.add_argument("--controller", "-c", dest="controller", default="localhost")
+    parser.add_argument("--port", "-p", dest="port", default=6633)
+    parser.add_argument("--verbose", "-v", dest="verbose", action="count")
     args = parser.parse_args()
 
     port = args.port
@@ -344,5 +370,6 @@ def main():
     app = Application(controller=controller, port=port)
     app.main()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

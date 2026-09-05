@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 
 """
-    A pure python ping implementation using raw sockets.
+A pure python ping implementation using raw sockets.
 
-    Note that ICMP messages can only be send from processes running as root
-    (in Windows, you must run this script as 'Administrator').
+Note that ICMP messages can only be send from processes running as root
+(in Windows, you must run this script as 'Administrator').
 
-    Bugs are naturally mine. I'd be glad to hear about them. There are
-    certainly word - size dependencies here.
-    
-    :homepage: https://github.com/jedie/python-ping/
-    :copyleft: 1989-2011 by the python-ping team, see AUTHORS for more details.
-    :license: GNU GPL v2, see LICENSE for more details.
+Bugs are naturally mine. I'd be glad to hear about them. There are
+certainly word - size dependencies here.
+
+:homepage: https://github.com/jedie/python-ping/
+:copyleft: 1989-2011 by the python-ping team, see AUTHORS for more details.
+:license: GNU GPL v2, see LICENSE for more details.
 """
-
 
 import os
 import select
@@ -32,9 +31,9 @@ else:
 
 
 # ICMP parameters
-ICMP_ECHOREPLY = 0 # Echo reply (per RFC792)
-ICMP_ECHO = 8 # Echo request (per RFC792)
-ICMP_MAX_RECV = 2048 # Max size of incoming buffer
+ICMP_ECHOREPLY = 0  # Echo reply (per RFC792)
+ICMP_ECHO = 8  # Echo request (per RFC792)
+ICMP_MAX_RECV = 2048  # Max size of incoming buffer
 
 MAX_SLEEP = 1000
 
@@ -54,7 +53,7 @@ def calculate_checksum(source_string):
     loByte = 0
     hiByte = 0
     while count < countTo:
-        if (sys.byteorder == "little"):
+        if sys.byteorder == "little":
             loByte = source_string[count]
             hiByte = source_string[count + 1]
         else:
@@ -65,16 +64,16 @@ def calculate_checksum(source_string):
 
     # Handle last byte if applicable (odd-number of bytes)
     # Endianness should be irrelevant in this case
-    if countTo < len(source_string): # Check for odd length
+    if countTo < len(source_string):  # Check for odd length
         loByte = source_string[len(source_string) - 1]
         sum += ord(loByte)
 
-    sum &= 0xffffffff # Truncate sum to 32 bits (a variance from ping.c, which
-                      # uses signed ints, but overflow is unlikely in ping)
+    sum &= 0xFFFFFFFF  # Truncate sum to 32 bits (a variance from ping.c, which
+    # uses signed ints, but overflow is unlikely in ping)
 
-    sum = (sum >> 16) + (sum & 0xffff)    # Add high 16 bits to low 16 bits
-    sum += (sum >> 16)                    # Add carry from above (if any)
-    answer = ~sum & 0xffff                # Invert and truncate to 16 bits
+    sum = (sum >> 16) + (sum & 0xFFFF)  # Add high 16 bits to low 16 bits
+    sum += sum >> 16  # Add carry from above (if any)
+    answer = ~sum & 0xFFFF  # Invert and truncate to 16 bits
     answer = socket.htons(answer)
 
     return answer
@@ -92,6 +91,7 @@ def is_valid_ip4_address(addr):
         if number > 255:
             return False
     return True
+
 
 def to_ip(addr):
     if is_valid_ip4_address(addr):
@@ -124,10 +124,13 @@ class Ping:
         self.max_time = 0.0
         self.total_time = 0.0
 
-    #--------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     def print_start(self):
-        print("\nPYTHON-PING %s (%s): %d data bytes" % (self.destination, self.dest_ip, self.packet_size))
+        print(
+            "\nPYTHON-PING %s (%s): %d data bytes"
+            % (self.destination, self.dest_ip, self.packet_size)
+        )
 
     def print_unknown_host(self, e):
         print(f"\nPYTHON-PING: Unknown host: {self.destination} ({e.args[1]})\n")
@@ -139,11 +142,18 @@ class Ping:
         else:
             from_info = f"{self.destination} ({ip})"
 
-        print("%d bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms" % (
-            packet_size, from_info, icmp_header["seq_number"], ip_header["ttl"], delay)
+        print(
+            "%d bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms"
+            % (
+                packet_size,
+                from_info,
+                icmp_header["seq_number"],
+                ip_header["ttl"],
+                delay,
+            )
         )
-        #print("IP header: %r" % ip_header)
-        #print("ICMP header: %r" % icmp_header)
+        # print("IP header: %r" % ip_header)
+        # print("ICMP header: %r" % icmp_header)
 
     def print_failed(self):
         print("Request timed out.")
@@ -152,19 +162,22 @@ class Ping:
         print(f"\n----{self.destination} PYTHON PING Statistics----")
 
         lost_count = self.send_count - self.receive_count
-        #print("%i packets lost" % lost_count)
+        # print("%i packets lost" % lost_count)
         lost_rate = float(lost_count) / self.send_count * 100.0
 
-        print("%d packets transmitted, %d packets received, %0.1f%% packet loss" % (
-            self.send_count, self.receive_count, lost_rate
-        ))
+        print(
+            "%d packets transmitted, %d packets received, %0.1f%% packet loss"
+            % (self.send_count, self.receive_count, lost_rate)
+        )
 
         if self.receive_count > 0:
-            print(f"round-trip (ms)  min/avg/max = {self.min_time:0.3f}/{self.total_time / self.receive_count:0.3f}/{self.max_time:0.3f}")
+            print(
+                f"round-trip (ms)  min/avg/max = {self.min_time:0.3f}/{self.total_time / self.receive_count:0.3f}/{self.max_time:0.3f}"
+            )
 
         print()
 
-    #--------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     def signal_handler(self, signum, frame):
         """
@@ -175,19 +188,19 @@ class Ping:
         sys.exit(0)
 
     def setup_signal_handler(self):
-        signal.signal(signal.SIGINT, self.signal_handler)   # Handle Ctrl-C
+        signal.signal(signal.SIGINT, self.signal_handler)  # Handle Ctrl-C
         if hasattr(signal, "SIGBREAK"):
-            # Handle Ctrl-Break e.g. under Windows 
+            # Handle Ctrl-Break e.g. under Windows
             signal.signal(signal.SIGBREAK, self.signal_handler)
 
-    #--------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     def header2dict(self, names, struct_format, data):
-        """ unpack the raw received IP and ICMP header informations to a dict """
+        """unpack the raw received IP and ICMP header informations to a dict"""
         unpacked_data = struct.unpack(struct_format, data)
         return dict(zip(names, unpacked_data))
 
-    #--------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     def run(self, count=None, deadline=None):
         """
@@ -208,7 +221,7 @@ class Ping:
                 delay = 0
 
             # Pause for the remainder of the MAX_SLEEP period (if applicable)
-            if (MAX_SLEEP > delay):
+            if MAX_SLEEP > delay:
                 time.sleep((MAX_SLEEP - delay) / 1000.0)
 
         self.print_exit()
@@ -217,8 +230,10 @@ class Ping:
         """
         Send one ICMP ECHO_REQUEST and receive the response until self.timeout
         """
-        try: # One could use UDP here, but it's obscure
-            current_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.getprotobyname("icmp"))
+        try:  # One could use UDP here, but it's obscure
+            current_socket = socket.socket(
+                socket.AF_INET, socket.SOCK_RAW, socket.getprotobyname("icmp")
+            )
         except OSError as xxx_todo_changeme:
             (errno, _msg) = xxx_todo_changeme.args
             if errno == 1:
@@ -228,14 +243,16 @@ class Ping:
                     f"{evalue} - Note that ICMP messages can only be send from processes running as root."
                 )
                 raise evalue.with_traceback(etb)
-            raise # raise the original error
+            raise  # raise the original error
 
         send_time = self.send_one_ping(current_socket)
         if send_time == None:
             return
         self.send_count += 1
 
-        receive_time, packet_size, ip, ip_header, icmp_header = self.receive_one_ping(current_socket)
+        receive_time, packet_size, ip, ip_header, icmp_header = self.receive_one_ping(
+            current_socket
+        )
         current_socket.close()
 
         if receive_time:
@@ -265,11 +282,11 @@ class Ping:
         padBytes = []
         startVal = 0x42
         for i in range(startVal, startVal + (self.packet_size)):
-            padBytes += [(i & 0xff)]  # Keep chars in the 0-255 range
+            padBytes += [(i & 0xFF)]  # Keep chars in the 0-255 range
         data = bytes(padBytes)
 
         # Calculate the checksum on the data and the dummy header.
-        checksum = calculate_checksum(header + data) # Checksum is in network order
+        checksum = calculate_checksum(header + data)  # Checksum is in network order
 
         # Now that we have the right checksum, we put that in. It's just easier
         # to make up a new header than to stuff it into the dummy.
@@ -282,7 +299,9 @@ class Ping:
         send_time = default_timer()
 
         try:
-            current_socket.sendto(packet, (self.destination, 1)) # Port number is irrelevant for ICMP
+            current_socket.sendto(
+                packet, (self.destination, 1)
+            )  # Port number is irrelevant for ICMP
         except OSError as e:
             print(f"General failure ({e.args[1]})")
             current_socket.close()
@@ -296,11 +315,13 @@ class Ping:
         """
         timeout = self.timeout / 1000.0
 
-        while True: # Loop while waiting for packet or timeout
+        while True:  # Loop while waiting for packet or timeout
             select_start = default_timer()
-            inputready, _outputready, _exceptready = select.select([current_socket], [], [], timeout)
-            select_duration = (default_timer() - select_start)
-            if inputready == []: # timeout
+            inputready, _outputready, _exceptready = select.select(
+                [current_socket], [], [], timeout
+            )
+            select_duration = default_timer() - select_start
+            if inputready == []:  # timeout
                 return None, 0, 0, 0, 0
 
             receive_time = default_timer()
@@ -308,23 +329,27 @@ class Ping:
             packet_data, _address = current_socket.recvfrom(ICMP_MAX_RECV)
 
             icmp_header = self.header2dict(
-                names=[
-                    "type", "code", "checksum",
-                    "packet_id", "seq_number"
-                ],
+                names=["type", "code", "checksum", "packet_id", "seq_number"],
                 struct_format="!BBHHH",
-                data=packet_data[20:28]
+                data=packet_data[20:28],
             )
 
-            if icmp_header["packet_id"] == self.own_id: # Our packet
+            if icmp_header["packet_id"] == self.own_id:  # Our packet
                 ip_header = self.header2dict(
                     names=[
-                        "version", "type", "length",
-                        "id", "flags", "ttl", "protocol",
-                        "checksum", "src_ip", "dest_ip"
+                        "version",
+                        "type",
+                        "length",
+                        "id",
+                        "flags",
+                        "ttl",
+                        "protocol",
+                        "checksum",
+                        "src_ip",
+                        "dest_ip",
                     ],
                     struct_format="!BBHHHBBHII",
-                    data=packet_data[:20]
+                    data=packet_data[:20],
                 )
                 packet_size = len(packet_data) - 28
                 ip = socket.inet_ntoa(struct.pack("!I", ip_header["src_ip"]))
@@ -341,7 +366,7 @@ def verbose_ping(hostname, timeout=1000, count=3, packet_size=55):
     p.run(count)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # FIXME: Add a real CLI
     if len(sys.argv) == 1:
         print("DEMO")

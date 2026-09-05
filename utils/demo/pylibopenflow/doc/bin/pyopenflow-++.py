@@ -6,6 +6,7 @@ for each data structure in openflow.h.
 Author ykk
 Date April 2010
 """
+
 import getopt
 import sys
 
@@ -14,60 +15,66 @@ from pylibopenflow import openflow
 
 
 def usage():
-    """Display usage
-    """
-    print("Usage "+sys.argv[0]+" <options> output_file\n"+\
-          "Options:\n"+\
-          "-h/--help\n\tPrint this usage guide\n"+\
-          "-i/--input\n\tSpecify input header file\n"+\
-          "-t/--headertemplate\n\tSpecify template for header file\n"+\
-          "-c/--codetemplate\n\tSpecify template for code file\n"+\
-          "")
-          
-#Parse options and arguments
+    """Display usage"""
+    print(
+        "Usage "
+        + sys.argv[0]
+        + " <options> output_file\n"
+        + "Options:\n"
+        + "-h/--help\n\tPrint this usage guide\n"
+        + "-i/--input\n\tSpecify input header file\n"
+        + "-t/--headertemplate\n\tSpecify template for header file\n"
+        + "-c/--codetemplate\n\tSpecify template for code file\n"
+        + ""
+    )
+
+
+# Parse options and arguments
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hi:c:t:",
-                               ["help","input=",
-                                "codetemplate=","headertemplate="])
+    opts, args = getopt.getopt(
+        sys.argv[1:], "hi:c:t:", ["help", "input=", "codetemplate=", "headertemplate="]
+    )
 except getopt.GetoptError:
     usage()
     sys.exit(2)
 
-#Check there is only output file
+# Check there is only output file
 if len(args) != 1:
     usage()
     sys.exit(2)
 
-#Parse options
+# Parse options
 ##Input
-headerfile=None
+headerfile = None
 ##H Template file
-htemplatefile="include/openflow-pack.template.hh"
+htemplatefile = "include/openflow-pack.template.hh"
 ##C Template file
-ctemplatefile="include/openflow-pack.template.cc"
-for opt,arg in opts:
-    if (opt in ("-h","--help")):
+ctemplatefile = "include/openflow-pack.template.cc"
+for opt, arg in opts:
+    if opt in ("-h", "--help"):
         usage()
         sys.exit(0)
-    elif (opt in ("-i","--input")):
-        headerfile=arg
-    elif (opt in ("-x","--codetemplate")):
-        ctemplatefile=arg
-    elif (opt in ("-t","--headertemplate")):
-        htemplatefile=arg
+    elif opt in ("-i", "--input"):
+        headerfile = arg
+    elif opt in ("-x", "--codetemplate"):
+        ctemplatefile = arg
+    elif opt in ("-t", "--headertemplate"):
+        htemplatefile = arg
     else:
-        print("Unhandled option:"+opt)
+        print("Unhandled option:" + opt)
         sys.exit(2)
 
-#Generate Python code
+# Generate Python code
 ofmsg = openflow.messages(headerfile)
 cppizer = ofppize.cppizer(ofmsg)
 
-hfileRef = open(args[0]+".hh", "w")
-cfileRef = open(args[0]+".cc", "w")
-hfileRef.writelines(x+"\n" for x in cppizer.hcode(args[0], htemplatefile))
-cfileRef.writelines(x+"\n" for x in cppizer.ccode(ctemplatefile, None,
-                       ["#include \""+args[0]+".hh\""]))
+hfileRef = open(args[0] + ".hh", "w")
+cfileRef = open(args[0] + ".cc", "w")
+hfileRef.writelines(x + "\n" for x in cppizer.hcode(args[0], htemplatefile))
+cfileRef.writelines(
+    x + "\n"
+    for x in cppizer.ccode(ctemplatefile, None, ['#include "' + args[0] + '.hh"'])
+)
 hfileRef.write("\n")
 cfileRef.write("\n")
 cfileRef.close()

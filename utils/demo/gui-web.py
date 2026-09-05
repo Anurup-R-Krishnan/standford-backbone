@@ -31,7 +31,7 @@ class StanfordTopo:
 
     dummy_switches = set()
 
-    def __init__( self ):
+    def __init__(self):
         # Read topology info
         self.switch_id_to_name = {}
         self.ports = self.load_ports(self.PORT_MAP_FILENAME)
@@ -69,9 +69,9 @@ class StanfordTopo:
         f = open(filename)
         for line in f:
             if line.startswith("link"):
-                tokens = line.split('$')
-                src_port_flat = int(tokens[1].strip('[]').split(', ')[0])
-                dst_port_flat = int(tokens[7].strip('[]').split(', ')[0])
+                tokens = line.split("$")
+                src_port_flat = int(tokens[1].strip("[]").split(", ")[0])
+                dst_port_flat = int(tokens[7].strip("[]").split(", ")[0])
                 link_id = tokens[-2]
                 links.add((src_port_flat, dst_port_flat, link_id))
         f.close()
@@ -82,25 +82,31 @@ class StanfordTopo:
         nodes = []
         links = []
 
-        for (src_port, dst_port, link_id) in topo.links:
+        for src_port, dst_port, link_id in topo.links:
             if link_id not in self.link_id_to_errors:
                 self.link_id_to_errors[link_id] = False
             if self.link_id_to_errors[link_id]:
-                links.append({"source": src_port // topo.SWITCH_ID_MULTIPLIER - 1,
-                  "target":dst_port // topo.SWITCH_ID_MULTIPLIER - 1,
-                  "value": 1,
-                  "problems": 1,
-                  "name" : link_id
-                  })
+                links.append(
+                    {
+                        "source": src_port // topo.SWITCH_ID_MULTIPLIER - 1,
+                        "target": dst_port // topo.SWITCH_ID_MULTIPLIER - 1,
+                        "value": 1,
+                        "problems": 1,
+                        "name": link_id,
+                    }
+                )
             else:
-                links.append({"source": src_port // topo.SWITCH_ID_MULTIPLIER - 1,
-                  "target":dst_port // topo.SWITCH_ID_MULTIPLIER - 1,
-                  "value": 1,
-                  "name" : link_id
-                  })
+                links.append(
+                    {
+                        "source": src_port // topo.SWITCH_ID_MULTIPLIER - 1,
+                        "target": dst_port // topo.SWITCH_ID_MULTIPLIER - 1,
+                        "value": 1,
+                        "name": link_id,
+                    }
+                )
 
         for index in range(len(topo.switch_id_to_name.keys())):
-            switch_name = topo.switch_id_to_name[index+1]
+            switch_name = topo.switch_id_to_name[index + 1]
             if switch_name not in self.switch_name_to_errors:
                 self.switch_name_to_errors[switch_name] = []
 
@@ -112,15 +118,17 @@ class StanfordTopo:
             if self.switch_name_to_errors[switch_name] != []:
                 problems = self.switch_name_to_errors[switch_name]
                 json_string = "$".join(problems)
-                json_string.replace('\r','')
-                json_string.replace('\n','')
+                json_string.replace("\r", "")
+                json_string.replace("\n", "")
 
-                nodes.append({"name":switch_name,"group":group, "problems":json_string} )
+                nodes.append(
+                    {"name": switch_name, "group": group, "problems": json_string}
+                )
             else:
-                nodes.append({"name":switch_name,"group":group} )
+                nodes.append({"name": switch_name, "group": group})
 
-        json_object = {"nodes":nodes,"links":links}
-        f = open(filename,'w')
+        json_object = {"nodes": nodes, "links": links}
+        f = open(filename, "w")
         json.dump(json_object, f)
         f.close
 
@@ -130,7 +138,9 @@ class StanfordTopo:
         for rule in error_rules:
             tokens = rule.split("_")
             if rule not in self.switch_name_to_errors["_".join(tokens[0:2])]:
-                self.switch_name_to_errors["_".join(tokens[0:2])].extend(p.get_config_lines(rule))
+                self.switch_name_to_errors["_".join(tokens[0:2])].extend(
+                    p.get_config_lines(rule)
+                )
 
     def remove_errors(self, error_rules):
         p = Pinpointer()
@@ -164,7 +174,7 @@ class StanfordTopo:
 class DemoHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/web/data"):
-            last_time = os.path.getmtime('.' + self.path)
+            last_time = os.path.getmtime("." + self.path)
             elapse = time.time() - last_time
             if elapse > 5:
                 self.send_response(304)
@@ -179,15 +189,20 @@ class DemoHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         elif self.path.startswith("/web/detect"):
             self.do_detect_external()
         self.send_response(200)
+
     def do_inject_external(self):
         pass
+
     def do_reset_external(self):
         pass
+
     def do_detect_external(self):
         pass
 
+
 class TCPServer(SocketServer.TCPServer):
-     allow_reuse_address = True
+    allow_reuse_address = True
+
 
 class Application:
     CONTROLLER_DPID = 0xCAFECAFE
@@ -209,7 +224,7 @@ class Application:
 
             return -1
 
-    def __init__(self, controller='localhost', port=6633):
+    def __init__(self, controller="localhost", port=6633):
         self.controller = controller
         self.port = port
         self.received_packet_count = 0
@@ -226,7 +241,7 @@ class Application:
 
         # Thread 1: OF thread
         self.thread1 = threading.Thread(target=self.connectToController)
-        #self.thread1.start()
+        # self.thread1.start()
 
         # Thread 2: Connect to run pinpointer
         self.errors = []
@@ -255,7 +270,9 @@ class Application:
 
     def do_detect(self):
         if self.errors != []:
-            self.thread2 = threading.Thread(target=self.pinpoint, args=(self.test_packets, self.errors))
+            self.thread2 = threading.Thread(
+                target=self.pinpoint, args=(self.test_packets, self.errors)
+            )
             self.thread2.start()
             self.errors = []
         else:
@@ -287,8 +304,8 @@ class Application:
         self.topology_real.inject_link_errors(link_errors)
         self.topology_real.dump_json("web/data/data.json")
 
-        #self.thread2 = threading.Thread(target=self.pinpoint, args=(test_packets, errors))
-        #self.thread2.start()
+        # self.thread2 = threading.Thread(target=self.pinpoint, args=(test_packets, errors))
+        # self.thread2.start()
 
     def send_packet(self, packet="Hello, World!\n"):
         self.queue_GUI_to_OF.put(packet)
@@ -320,12 +337,16 @@ class Application:
         return True
 
     def connectToController(self):
-        #Connect to controller
+        # Connect to controller
         ofmsg = openflow.messages()
         ofparser = of_msg.parser(ofmsg)
-        ofsw = of_simu.switch(ofmsg, self.controller, self.port,
-                              dpid=self.CONTROLLER_DPID,
-                              parser=ofparser)
+        ofsw = of_simu.switch(
+            ofmsg,
+            self.controller,
+            self.port,
+            dpid=self.CONTROLLER_DPID,
+            parser=ofparser,
+        )
         ofsw.send_hello()
 
         while self.running:
@@ -341,16 +362,19 @@ class Application:
             time.sleep(0.1)
 
     def pinpoint(self, test_packets, errors):
-        errors = self.pinpointer.pin_point_test ( test_packets, errors )
+        errors = self.pinpointer.pin_point_test(test_packets, errors)
         print("Fuck!!")
         self.queue_pinpoint_to_GUI.put(errors)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Python backend to communicate with Beacon', epilog="Report any bugs to hyzeng@stanford.edu")
-    parser.add_argument('--controller', '-c', dest='controller', default="localhost")
-    parser.add_argument('--port', '-p', dest='port', default=6633)
-    parser.add_argument('--verbose', '-v', dest='verbose', action='count')
+    parser = argparse.ArgumentParser(
+        description="Python backend to communicate with Beacon",
+        epilog="Report any bugs to hyzeng@stanford.edu",
+    )
+    parser.add_argument("--controller", "-c", dest="controller", default="localhost")
+    parser.add_argument("--port", "-p", dest="port", default=6633)
+    parser.add_argument("--verbose", "-v", dest="verbose", action="count")
     args = parser.parse_args()
 
     port = args.port
@@ -364,5 +388,6 @@ def main():
     app = Application(controller=controller, port=port)
     app.main()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
