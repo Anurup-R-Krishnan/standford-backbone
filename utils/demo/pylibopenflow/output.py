@@ -50,7 +50,7 @@ def output(msg_mode, msg, who=None):
     """
     global output_mode
     if (output_mode == None):
-        raise RuntimeException("Output mode is not set")
+        raise RuntimeError("Output mode is not set")
 
     #Indicate who string
     if (who == None):
@@ -59,9 +59,7 @@ def output(msg_mode, msg, who=None):
         whostr = who+":"
 
     #Print output 
-    if (MODE[msg_mode] <= output_mode["global"]):
-        print(msg_mode.ljust(4, ' ')+"|"+whostr+msg)
-    elif (who in output_mode[msg_mode]):
+    if (MODE[msg_mode] <= output_mode["global"]) or (who in output_mode[msg_mode]):
         print(msg_mode.ljust(4, ' ')+"|"+whostr+msg)
         
 def err(msg, who=None):

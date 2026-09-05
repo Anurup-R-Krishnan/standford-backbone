@@ -19,9 +19,11 @@ Created on Jan 4, 2012
 
 @author: Peyman Kazemian
 '''
-from utils.load_stanford_backbone import *
-from headerspace.nu_smv_generator import *
 from time import time
+
+from headerspace.nu_smv_generator import *
+
+from utils.load_stanford_backbone import *
 
 (port_map,port_reverse_map) = load_stanford_backbone_port_to_id_map()
 src_port_id = port_map["bbra_rtr"]["te6/3"]

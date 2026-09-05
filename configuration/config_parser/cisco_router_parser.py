@@ -24,9 +24,11 @@ try:
     from config_parser.helper import *
 except ImportError:
     from .helper import *
-from headerspace.tf import *
-from headerspace.hs import *
 import re
+
+from headerspace.hs import *
+from headerspace.tf import *
+
 
 class ciscoRouter:
     '''
@@ -103,12 +105,12 @@ class ciscoRouter:
         fields = ["vlan","ip_src","ip_dst","ip_proto","transport_src","transport_dst","transport_ctrl"]
         out_string = ""
         for field in fields:
-            offset = self.hs_format["%s_pos"%field]
-            len = self.hs_format["%s_len"%field]
+            offset = self.hs_format[f"{field}_pos"]
+            len = self.hs_format[f"{field}_len"]
             ba = bytearray()
-            for i in range(0,len):
+            for i in range(len):
                 ba.append(byte_arr[offset+i])
-            out_string = "%s%s:%s, "%(out_string, field, byte_array_to_hs_string(ba))
+            out_string = f"{out_string}{field}:{byte_array_to_hs_string(ba)}, "
         return out_string
             
     def set_field(self, arr, field, value, right_mask):
@@ -120,9 +122,9 @@ class ciscoRouter:
         @right_mask: number of bits, from right that should be ignored when written to field.
         e.g. to have a /24 ip address, set mask to 8.
         '''
-        b_array = int_to_byte_array(value,8*self.hs_format["%s_len"%field])
-        start_pos = 2*self.hs_format["%s_pos"%field]
-        for i in range(2*self.hs_format["%s_len"%field]):
+        b_array = int_to_byte_array(value,8*self.hs_format[f"{field}_len"])
+        start_pos = 2*self.hs_format[f"{field}_pos"]
+        for i in range(2*self.hs_format[f"{field}_len"]):
             if right_mask <= 4*i:
                 arr[start_pos + i] = b_array[i]
             elif (right_mask > 4*i and right_mask < 4*i + 4):
@@ -207,13 +209,13 @@ class ciscoRouter:
     def get_protocol_number(proto_name):
         dict = {"ah":51, "eigrp":88, "esp":50, "gre":47, "icmp":1, "igmp":2, "igrp":9,
                 "ip": 0, "ipinip":94, "nos":4, "ospf":89, "tcp":6, "udp":17}
-        if proto_name in dict.keys():
+        if proto_name in dict:
             return dict[proto_name]
         else:
             try:
                 num = int(proto_name)
                 return num
-            except Exception as e:
+            except Exception:
                 return None
         
     @staticmethod
@@ -222,13 +224,13 @@ class ciscoRouter:
                 "echo":7, "mobile-ip":434, "nameserver":42, "netbios-dgm":137, "netbios-ns":138,
                 "ntp":123, "rip":520, "snmp":161, "snmptrap":162, "sunrpc":111, "syslog":514,
                 "tacacs-ds":49, "talk":517, "tftp":69, "time":37, "who":513, "xdmcp":177}
-        if port_name in dict.keys():
+        if port_name in dict:
             return dict[port_name]
         else:
             try:
                 num = int(port_name)
                 return num
-            except Exception as e:
+            except Exception:
                 return None
         
     @staticmethod
@@ -238,23 +240,15 @@ class ciscoRouter:
                 "irc":194, "klogin":543, "kshell":544, "lpd":515, "nntp":119, "pop2":109,
                 "pop3":110, "smtp":25, "sunrpc":111, "syslog":514, "tacacs-ds":65, "talk":517,
                 "telnet":23, "time": 37, "uucp":540, "whois":43, "www":80}
-        if port_name in dict.keys():
+        if port_name in dict:
             return dict[port_name]
         else:
             try:
                 num = int(port_name)
                 return num
-            except Exception as e:
+            except Exception:
                 return None
             
-    @staticmethod
-    def get_transport_port_number(port):
-        try:
-            num = int(port)
-            return num
-        except Exception as e:
-            return None
-        
     @staticmethod
     def get_ethernet_port_name(port):
         result = ""
@@ -270,7 +264,7 @@ class ciscoRouter:
             reminder = port[len("fastethernet"):]
         else:
             result = port
-        return "%s%s"%(result, reminder)
+        return f"{result}{reminder}"
                 
     def parse_access_list_entry(self, entry, line_counter):
         
@@ -336,7 +330,7 @@ class ciscoRouter:
         
         action = tokens.pop(0)
         if action.lower() == "permit" or action.lower() == "deny":
-            if not acl_number in self.acl.keys():
+            if not acl_number in self.acl:
                 self.acl[acl_number] = []
             
             new_entry = self.make_acl_dictionary_entry()
@@ -430,13 +424,13 @@ class ciscoRouter:
                         last_vlan = int(parts[1])
                         last_iface = parts[0]
                         self.config_vlans.append(last_vlan)
-                        if not "vlan%d"%last_vlan in self.vlan_ports.keys():
+                        if not "vlan%d"%last_vlan in self.vlan_ports:
                             self.vlan_ports["vlan%d"%last_vlan] = []
                         self.vlan_ports["vlan%d"%last_vlan].append(last_iface)
                     else:
                         last_vlan = None
                     self.config_ports.add(last_iface)
-                if last_vlan != None and "%d"%last_vlan not in self.port_subnets.keys():
+                if last_vlan != None and "%d"%last_vlan not in self.port_subnets:
                     self.port_subnets["%d"%last_vlan] = []
             elif line.startswith("switchport mode"):
                 tokens = line.split()
@@ -444,7 +438,7 @@ class ciscoRouter:
                 self.vlan_mode[last_iface] = vlan_mode
             elif line.startswith("ip access-group"):
                 tokens = line.split()
-                if not tokens[2] in self.acl_iface.keys():
+                if not tokens[2] in self.acl_iface:
                     self.acl_iface[tokens[2]] = []
                 self.acl_iface[tokens[2]].append((last_iface,tokens[3],last_vlan,file_path,[line_counter]))
             elif line.startswith("no ip address"):
@@ -516,7 +510,7 @@ class ciscoRouter:
                 if (seen_star):
                     self.mac_table[mac] = ports
                     ports = []
-                mac = "vlan%s,%s"%(tokens[1],tokens[2])
+                mac = f"vlan{tokens[1]},{tokens[2]}"
                 seen_star = True
                 if (len(tokens) >= 7):
                     ports.extend(tokens[6].split(","))
@@ -544,13 +538,13 @@ class ciscoRouter:
                     # next hop is a vlan, but also we know the ip adress. in this case we should find out which vlan port has that ip address
                     if port.lower().startswith("vlan") and is_ip_address(tokens[1]):
                         # look up next hop IP address in arp table to find the mac address and output port
-                        if (tokens[1] in self.arp_table.keys()):
+                        if (tokens[1] in self.arp_table):
                             (mac,vln) = self.arp_table[tokens[1]]
                             # if next hop output port is a vlan, look it up in mac table
                             if vln.startswith("vlan"):
-                                vm_key = "%s,%s"%(vln,mac)
+                                vm_key = f"{vln},{mac}"
                                 # if mac-address-table for that vlan has the mac address, find out the port
-                                if vm_key in self.mac_table.keys():
+                                if vm_key in self.mac_table:
                                     resolved_port = self.mac_table[vm_key][0]
                                     vlan_num = int(vln[4:])
                                     port = "%s.%d"%(ciscoRouter.get_ethernet_port_name(resolved_port),vlan_num)
@@ -559,14 +553,13 @@ class ciscoRouter:
                                 port = ciscoRouter.get_ethernet_port_name(vln)
                     # next hop is an attached vlan  
                     elif port.lower().startswith("vlan"):
-                        vlan = int(port[4:])
+                        int(port[4:])
                     else:
                         parts = re.split(r'\.',port)
                         if len(parts) > 1 and self.replaced_vlan != 0:
                             port = "%s.%d"%(parts[0],self.replaced_vlan)
-                            vlan = self.replaced_vlan
                         elif len(parts) > 1:
-                            vlan = int(parts[1])
+                            int(parts[1])
                 else:
                     port = "self"
                     
@@ -593,7 +586,7 @@ class ciscoRouter:
         s = set(additional_ports)
         for elem in self.config_ports:
             s.add(elem)
-        for vlan in self.vlan_ports.keys():
+        for vlan in self.vlan_ports:
             for elem in self.vlan_ports[vlan]:
                 s.add(elem)
         suffix = 1
@@ -611,7 +604,7 @@ class ciscoRouter:
             if len(m) > 1:
                 s.add(m[0])
             elif fwd_rule[2].startswith('vlan'):
-                if fwd_rule[2] in self.vlan_ports.keys():
+                if fwd_rule[2] in self.vlan_ports:
                     port_list = self.vlan_ports[fwd_rule[2]]
                     for p in port_list:
                         s.add(p)
@@ -625,7 +618,7 @@ class ciscoRouter:
 
         
     def get_port_id(self,port_name):
-        if port_name in self.port_to_id.keys():
+        if port_name in self.port_to_id:
             return self.port_to_id[port_name]
         else:
             return None
@@ -656,8 +649,8 @@ class ciscoRouter:
         # generate the input part of tranfer function from in_port to fwd_port
         # and output part from intermedite port s to output ports
         print(" * Generating ACL transfer function * ") 
-        for acl in self.acl_iface.keys():
-            if acl not in self.acl.keys():
+        for acl in self.acl_iface:
+            if acl not in self.acl:
                 continue
             for acl_instance in self.acl_iface[acl]:
                 file_name = acl_instance[3]
@@ -667,7 +660,7 @@ class ciscoRouter:
                 if acl_instance[0].startswith("vlan"):
                     for p in self.vlan_ports[acl_instance[0]]:
                         specified_ports.append(self.port_to_id[p])
-                        if p in self.vlan_mode.keys() and self.vlan_mode[p] == "access":
+                        if p in self.vlan_mode and self.vlan_mode[p] == "access":
                             access_ports.append(self.port_to_id[p])
                 else:
                     specified_ports = [self.port_to_id(acl_instance[0])]
@@ -726,7 +719,7 @@ class ciscoRouter:
         intermediate_port = [self.switch_id * self.SWITCH_ID_MULTIPLIER]
         vlan_ports = set()
         trunk_ports = set()
-        for vlan_name in self.vlan_ports.keys():
+        for vlan_name in self.vlan_ports:
             cnf_vlan = int(vlan_name[4:])
             if "vlan%d"%cnf_vlan in self.vlan_ports:
                 match = byte_array_get_all_x(self.hs_format["length"]*2)
@@ -736,7 +729,7 @@ class ciscoRouter:
                 for port in self.vlan_ports["vlan%d"%cnf_vlan]:
                     all_in_ports.append(self.port_to_id[port])
                     vlan_ports.add(self.port_to_id[port])
-                    if port in self.vlan_mode.keys() and self.vlan_mode[port] == "access":
+                    if port in self.vlan_mode and self.vlan_mode[port] == "access":
                         access_ports.append(self.port_to_id[port])
                     else:
                         trunk_ports.add(self.port_to_id[port])
@@ -787,7 +780,7 @@ class ciscoRouter:
                 
         # ... un-vlan-tagged port
         all_in_ports = []
-        for port in self.port_to_id.keys():
+        for port in self.port_to_id:
             if port != "self":
                 all_in_ports.append(self.port_to_id[port])
         for port in vlan_ports:
@@ -811,7 +804,7 @@ class ciscoRouter:
         ##################################
         print(" * Generating VLAN forwarding transfer function... * ")
         # generate VLAN forwarding entries
-        for vlan_num in self.port_subnets.keys():
+        for vlan_num in self.port_subnets:
             for (ip_addr,subnet_mask,file_name,lines,port) in self.port_subnets[vlan_num]:
                 match = byte_array_get_all_x(self.hs_format["length"]*2)
                 in_port = [self.switch_id * self.SWITCH_ID_MULTIPLIER]
@@ -824,7 +817,7 @@ class ciscoRouter:
                     self.set_field(match, "vlan", vlan, 0)
                 if not port.startswith("vlan"):
                     out_ports.append(self.port_to_id[port]+self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST)
-                elif "vlan%d"%vlan in self.vlan_ports.keys():
+                elif "vlan%d"%vlan in self.vlan_ports:
                     port_list = self.vlan_ports["vlan%d"%vlan]
                     for p in port_list:
                         out_ports.append(self.port_to_id[p]+self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST)
@@ -866,29 +859,29 @@ class ciscoRouter:
                     else:
                         # sub-ports: port.vlan
                         if len(m) > 1:
-                            if m[0] in self.port_to_id.keys():
+                            if m[0] in self.port_to_id:
                                 out_ports.append(self.port_to_id[m[0]]+self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST)
                                 vlan = int(m[1])
                             else:
-                                print("ERROR: unrecognized port %s"%m[0])
+                                print(f"ERROR: unrecognized port {m[0]}")
                                 return -1
                         # vlan outputs
                         elif fwd_rule[2].startswith('vlan'):
-                            if fwd_rule[2] in self.vlan_ports.keys():
+                            if fwd_rule[2] in self.vlan_ports:
                                 port_list = self.vlan_ports[fwd_rule[2]]
                                 for p in port_list:
                                     out_ports.append(self.port_to_id[p]+self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST)
                                 vlan = int(fwd_rule[2][4:])
                             else:
-                                print("ERROR: unrecognized vlan %s"%fwd_rule[2])
+                                print(f"ERROR: unrecognized vlan {fwd_rule[2]}")
                                 return -1
                         # physical ports - no vlan taging
                         else:
-                            if fwd_rule[2] in self.port_to_id.keys():
+                            if fwd_rule[2] in self.port_to_id:
                                 out_ports.append(self.port_to_id[fwd_rule[2]] + self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST)
                                 vlan = 0
                             else:
-                                print("ERROR: unrecognized port %s"%fwd_rule[2])
+                                print(f"ERROR: unrecognized port {fwd_rule[2]}")
                                 return -1
                         # now set the fields
                         self.set_field(mask, 'vlan', 0, 0)

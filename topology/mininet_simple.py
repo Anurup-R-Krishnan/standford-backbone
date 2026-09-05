@@ -1,15 +1,12 @@
 #!/usr/bin/python
 
-from mininet.topo import Topo
-from mininet.net import Mininet
-from mininet.util import dumpNodeConnections
-from mininet.log import setLogLevel
-from mininet.node import OVSController
-from mininet.node import Host
-from mininet.node import OVSSwitch
-from mininet.node import Controller
-from mininet.link import Link
 from mininet.cli import CLI
+from mininet.log import setLogLevel
+from mininet.net import Mininet
+from mininet.node import OVSController
+from mininet.topo import Topo
+from mininet.util import dumpNodeConnections
+
 
 class SimpleTopo(Topo):
     "Single switch connected to n hosts."

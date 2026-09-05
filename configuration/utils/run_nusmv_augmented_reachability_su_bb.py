@@ -18,9 +18,11 @@ Created on Jan 4, 2012
 
 @author: peymankazemian
 '''
-from utils.load_stanford_backbone import *
-from headerspace.nu_smv_generator import *
 from time import time
+
+from headerspace.nu_smv_generator import *
+
+from utils.load_stanford_backbone import *
 
 net_dir = "16xtf_stanford_backbone"
 

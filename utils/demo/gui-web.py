@@ -1,13 +1,19 @@
 #!/usr/bin/env python
-import sys, argparse, threading, time, math, random, json, os
-import SimpleHTTPServer, SocketServer, Queue
+import argparse
+import json
+import os
+import sys
+import threading
+import time
 
-import pylibopenflow.openflow as openflow
-import pylibopenflow.output as output
 import pylibopenflow.of.msg as of_msg
 import pylibopenflow.of.simu as of_simu
-
+import Queue
+import SimpleHTTPServer
+import SocketServer
 from pinpoint import Pinpointer
+from pylibopenflow import openflow, output
+
 
 class StanfordTopo:
     "Topology for Stanford backbone"
@@ -17,23 +23,23 @@ class StanfordTopo:
     OUTPUT_PORT_TYPE_CONST = 2
     PORT_TYPE_MULTIPLIER = 10000
     SWITCH_ID_MULTIPLIER = 100000
-    
+
     DUMMY_SWITCH_BASE = 1000
-    
+
     PORT_MAP_FILENAME = "data/stanford/port_map.txt"
     TOPO_FILENAME = "data/stanford/backbone_topology.tf"
-    
+
     dummy_switches = set()
 
     def __init__( self ):
         # Read topology info
         self.switch_id_to_name = {}
-        self.ports = self.load_ports(self.PORT_MAP_FILENAME)        
+        self.ports = self.load_ports(self.PORT_MAP_FILENAME)
         self.links = self.load_topology(self.TOPO_FILENAME)
         self.switches = self.ports.keys()
         self.switch_name_to_errors = {}
         self.link_id_to_errors = {}
-            
+
     def load_ports(self, filename):
         ports = {}
         f = open(filename)
@@ -44,20 +50,20 @@ class StanfordTopo:
             elif not line.startswith("$") and line != "":
                 tokens = line.strip().split(":")
                 port_flat = int(tokens[1])
-                
+
                 dpid = port_flat / self.SWITCH_ID_MULTIPLIER
                 port = port_flat % self.PORT_TYPE_MULTIPLIER
-                
-                if dpid not in ports.keys():
+
+                if dpid not in ports:
                     ports[dpid] = set()
                 if port not in ports[dpid]:
-                    ports[dpid].add(port)  
+                    ports[dpid].add(port)
                 if not stored:
                     self.switch_id_to_name[dpid] = switch_name
-                    stored = True          
+                    stored = True
         f.close()
         return ports
-        
+
     def load_topology(self, filename):
         links = set()
         f = open(filename)
@@ -70,49 +76,49 @@ class StanfordTopo:
                 links.add((src_port_flat, dst_port_flat, link_id))
         f.close()
         return links
-        
+
     def dump_json(self, filename):
         topo = StanfordTopo()
         nodes = []
         links = []
-        
+
         for (src_port, dst_port, link_id) in topo.links:
-            if link_id not in self.link_id_to_errors.keys():
+            if link_id not in self.link_id_to_errors:
                 self.link_id_to_errors[link_id] = False
             if self.link_id_to_errors[link_id]:
-                links.append({"source": src_port / topo.SWITCH_ID_MULTIPLIER - 1, 
-                  "target":dst_port / topo.SWITCH_ID_MULTIPLIER - 1,
+                links.append({"source": src_port // topo.SWITCH_ID_MULTIPLIER - 1,
+                  "target":dst_port // topo.SWITCH_ID_MULTIPLIER - 1,
                   "value": 1,
                   "problems": 1,
                   "name" : link_id
-                  })                     
-            else: 
-                links.append({"source": src_port / topo.SWITCH_ID_MULTIPLIER - 1, 
-                  "target":dst_port / topo.SWITCH_ID_MULTIPLIER - 1,
+                  })
+            else:
+                links.append({"source": src_port // topo.SWITCH_ID_MULTIPLIER - 1,
+                  "target":dst_port // topo.SWITCH_ID_MULTIPLIER - 1,
                   "value": 1,
                   "name" : link_id
-                  }) 
-                    
-        for index in xrange(0, len(topo.switch_id_to_name.keys())):
+                  })
+
+        for index in range(len(topo.switch_id_to_name.keys())):
             switch_name = topo.switch_id_to_name[index+1]
-            if switch_name not in self.switch_name_to_errors.keys():
+            if switch_name not in self.switch_name_to_errors:
                 self.switch_name_to_errors[switch_name] = []
-            
+
             if switch_name.startswith("bbr"):
                 group = 0
             else:
                 group = 1
-           
-            if not self.switch_name_to_errors[switch_name] == []:
+
+            if self.switch_name_to_errors[switch_name] != []:
                 problems = self.switch_name_to_errors[switch_name]
                 json_string = "$".join(problems)
                 json_string.replace('\r','')
                 json_string.replace('\n','')
-                
+
                 nodes.append({"name":switch_name,"group":group, "problems":json_string} )
             else:
                 nodes.append({"name":switch_name,"group":group} )
-        
+
         json_object = {"nodes":nodes,"links":links}
         f = open(filename,'w')
         json.dump(json_object, f)
@@ -134,26 +140,26 @@ class StanfordTopo:
             for line in lines:
                 try:
                     self.switch_name_to_errors["_".join(tokens[0:2])].remove(line)
-                except:
+                except Exception:
                     pass
-                
+
     def inject_link_errors(self, error_rules):
         for rule in error_rules:
             self.link_id_to_errors[rule] = True
-    
+
     def remove_link_errors(self, error_rules):
         for rule in error_rules:
             try:
                 self.link_id_to_errors[rule] = False
-            except:
+            except Exception:
                 pass
-                
+
     def clear_errors(self):
-        for switch in self.switch_name_to_errors.keys():
+        for switch in self.switch_name_to_errors:
             self.switch_name_to_errors[switch] = []
-        for link_id in self.link_id_to_errors.keys():
+        for link_id in self.link_id_to_errors:
             self.link_id_to_errors[link_id] = False
-        
+
 
 class DemoHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -164,7 +170,7 @@ class DemoHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.send_response(304)
                 return
         SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
-        
+
     def do_POST(self):
         if self.path.startswith("/web/inject"):
             self.do_inject_external()
@@ -172,7 +178,7 @@ class DemoHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.do_reset_external()
         elif self.path.startswith("/web/detect"):
             self.do_detect_external()
-        self.send_response(200)  
+        self.send_response(200)
     def do_inject_external(self):
         pass
     def do_reset_external(self):
@@ -180,16 +186,16 @@ class DemoHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_detect_external(self):
         pass
 
-class TCPServer(SocketServer.TCPServer): 
-     allow_reuse_address = True 
+class TCPServer(SocketServer.TCPServer):
+     allow_reuse_address = True
 
 class Application:
     CONTROLLER_DPID = 0xCAFECAFE
-    
+
     def main(self):
         # Start the periodic call in the GUI to check if the queue contains
-        # anything 
-        try:   
+        # anything
+        try:
             while True:
                 self.processOF()
                 self.processError()
@@ -197,11 +203,11 @@ class Application:
         except KeyboardInterrupt:
             # Stop Thread 1
             self.running = False
-            
+
             # Stop Thread 3
             self.httpd.shutdown()
-            
-            return -1      
+
+            return -1
 
     def __init__(self, controller='localhost', port=6633):
         self.controller = controller
@@ -210,24 +216,24 @@ class Application:
         self.topology_real = StanfordTopo()
         self.topology_discovered = StanfordTopo()
         self.pinpointer = Pinpointer()
-        
+
         # Content: String!
         self.queue_GUI_to_OF = Queue.Queue()
         # Contnet: OF message!
         self.queue_OF_to_GUI = Queue.Queue()
-        
+
         self.running = True
-        
+
         # Thread 1: OF thread
         self.thread1 = threading.Thread(target=self.connectToController)
         #self.thread1.start()
-        
+
         # Thread 2: Connect to run pinpointer
         self.errors = []
         self.test_packets = []
         self.queue_pinpoint_to_GUI = Queue.Queue()
         self.thread2 = None
-        
+
         # Thread 3: WebServer
         DemoHTTPHandler.do_inject_external = self.do_inject
         DemoHTTPHandler.do_reset_external = self.do_reset
@@ -235,18 +241,18 @@ class Application:
         self.httpd = TCPServer(("", 8000), DemoHTTPHandler)
         self.thread3 = threading.Thread(target=self.httpd.serve_forever)
         self.thread3.start()
-        
+
         self.draw_callback(None)
-        
+
     def do_inject(self):
-        self.inject_callback(None) 
-        
+        self.inject_callback(None)
+
     def do_reset(self):
         self.topology_real.clear_errors()
         self.topology_discovered.clear_errors()
         self.topology_real.dump_json("web/data/data.json")
         self.topology_discovered.dump_json("web/data/dataDiscovered.json")
-    
+
     def do_detect(self):
         if self.errors != []:
             self.thread2 = threading.Thread(target=self.pinpoint, args=(self.test_packets, self.errors))
@@ -255,15 +261,15 @@ class Application:
         else:
             # Touch!
             self.topology_discovered.dump_json("web/data/dataDiscovered.json")
-        
+
     def submit_callback(self, widget, entry):
         packet = entry.get_text()
         self.send_packet(packet)
-   
+
     def draw_callback(self, widget):
         self.topology_real.dump_json("web/data/data.json")
         self.topology_discovered.dump_json("web/data/dataDiscovered.json")
-    
+
     def inject_callback(self, widget):
         self.topology_real.clear_errors()
         self.topology_discovered.clear_errors()
@@ -280,14 +286,14 @@ class Application:
         self.topology_real.inject_errors(device_errors)
         self.topology_real.inject_link_errors(link_errors)
         self.topology_real.dump_json("web/data/data.json")
-        
+
         #self.thread2 = threading.Thread(target=self.pinpoint, args=(test_packets, errors))
         #self.thread2.start()
-                
+
     def send_packet(self, packet="Hello, World!\n"):
         self.queue_GUI_to_OF.put(packet)
 
-    def processOF(self):        
+    def processOF(self):
         while not self.queue_OF_to_GUI.empty():
             msg = self.queue_OF_to_GUI.get()
             self.msgCallback(msg)
@@ -295,13 +301,13 @@ class Application:
             sys.exit(1)
         return True
 
-    def processError(self):     
+    def processError(self):
         if self.queue_pinpoint_to_GUI.empty():
             return True
-        
+
         link_errors = []
         device_errors = []
-        
+
         errors = self.queue_pinpoint_to_GUI.get()
         for error in errors:
             if error.startswith("_"):
@@ -312,8 +318,8 @@ class Application:
         self.topology_discovered.inject_link_errors(link_errors)
         self.topology_discovered.dump_json("web/data/dataDiscovered.json")
         return True
-    
-    def connectToController(self):   
+
+    def connectToController(self):
         #Connect to controller
         ofmsg = openflow.messages()
         ofparser = of_msg.parser(ofmsg)
@@ -321,7 +327,7 @@ class Application:
                               dpid=self.CONTROLLER_DPID,
                               parser=ofparser)
         ofsw.send_hello()
-        
+
         while self.running:
             msg = ofsw.connection.msgreceive(blocking=False)
             # OF to GUI
@@ -333,12 +339,12 @@ class Application:
                 packet = self.queue_GUI_to_OF.get()
                 ofsw.send_packet(inport=0, packet=packet)
             time.sleep(0.1)
-            
+
     def pinpoint(self, test_packets, errors):
-        errors = self.pinpointer.pin_point_test ( test_packets, errors ) 
-        print("Fuck!!")   
-        self.queue_pinpoint_to_GUI.put(errors)    
-    
+        errors = self.pinpointer.pin_point_test ( test_packets, errors )
+        print("Fuck!!")
+        self.queue_pinpoint_to_GUI.put(errors)
+
 
 def main():
     parser = argparse.ArgumentParser(description='Python backend to communicate with Beacon', epilog="Report any bugs to hyzeng@stanford.edu")
@@ -346,15 +352,15 @@ def main():
     parser.add_argument('--port', '-p', dest='port', default=6633)
     parser.add_argument('--verbose', '-v', dest='verbose', action='count')
     args = parser.parse_args()
-    
+
     port = args.port
     controller = args.controller
     if args.verbose == None:
         output.set_mode("INFO")
     else:
         output.set_mode("DBG")
-    
-    # Main Loop here 
+
+    # Main Loop here
     app = Application(controller=controller, port=port)
     app.main()
 

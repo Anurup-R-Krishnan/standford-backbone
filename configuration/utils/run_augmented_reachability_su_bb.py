@@ -19,12 +19,13 @@ Created on Aug 14, 2011
 
 @author: Peyman Kazemian
 '''
-from utils.load_stanford_backbone import *
-from config_parser.cisco_router_parser import ciscoRouter
-from headerspace.hs import *
-from headerspace.applications import *
-from time import time, clock
+from time import time
 
+from config_parser.cisco_router_parser import ciscoRouter
+from headerspace.applications import *
+from headerspace.hs import *
+
+from utils.load_stanford_backbone import *
 
 (ntf,ttf,port_map,port_reverse_map) = load_replicated_stanford_network(16,"16xtf_stanford_backbone")
 cs = ciscoRouter(1)

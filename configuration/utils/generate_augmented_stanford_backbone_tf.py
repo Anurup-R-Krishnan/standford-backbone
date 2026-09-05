@@ -19,9 +19,10 @@ Created on Aug 10, 2011
 
 @author: Peyman Kazemian
 '''
+from time import time
+
 from config_parser.cisco_router_parser import *
 from headerspace.tf import *
-from time import time, clock
 
 replication_factor = 16
 output_dir = "16xtf_stanford_backbone"
@@ -88,7 +89,7 @@ topology = [("bbra_rtr","te7/3","goza_rtr","te2/1"),
             ]
 
 id = 1
-f = open("%s/port_map.txt"%output_dir,'w')
+f = open(f"{output_dir}/port_map.txt",'w')
 dummy_cs = ciscoRouter(1)
 ttf = TF(dummy_cs.HS_FORMAT()["length"]*2)
 ttf.set_prefix_id("topology")
@@ -103,11 +104,11 @@ for replicate in range(replication_factor):
         cs.set_replaced_vlan(vlan)
         tf = TF(cs.HS_FORMAT()["length"]*2)
         tf.set_prefix_id(rtr_name)
-        cs.read_arp_table_file("Stanford_backbone/%s_arp_table.txt"%rtr_name)
-        cs.read_mac_table_file("Stanford_backbone/%s_mac_table.txt"%rtr_name)
-        cs.read_config_file("Stanford_backbone/%s_config.txt"%rtr_name)
-        cs.read_spanning_tree_file("Stanford_backbone/%s_spanning_tree.txt"%rtr_name)
-        cs.read_route_file("Stanford_backbone/%s_route.txt"%rtr_name)
+        cs.read_arp_table_file(f"Stanford_backbone/{rtr_name}_arp_table.txt")
+        cs.read_mac_table_file(f"Stanford_backbone/{rtr_name}_mac_table.txt")
+        cs.read_config_file(f"Stanford_backbone/{rtr_name}_config.txt")
+        cs.read_spanning_tree_file(f"Stanford_backbone/{rtr_name}_spanning_tree.txt")
+        cs.read_route_file(f"Stanford_backbone/{rtr_name}_route.txt")
         cs.generate_port_ids([])
         #if rtr_name == "coza_rtr" or rtr_name == "cozb_rtr" or rtr_name == "soza_rtr" or rtr_name == "sozb_rtr" or rtr_name == "yoza_rtr" or rtr_name == "yozb_rtr":
         cs.optimize_forwarding_table()
@@ -139,11 +140,10 @@ for replicate in range(replication_factor):
     rule = TF.create_standard_rule([root_port + bbra_cs.PORT_TYPE_MULTIPLIER * bbra_cs.OUTPUT_PORT_TYPE_CONST], None,[out_port], None, None, "", [])
     ttf.add_link_rule(rule)
     
-    for rtr in cs_list.keys():
+    for rtr in cs_list:
         cs = cs_list[rtr]
-        f.write("$%s\n"%rtr)
-        for p in cs.port_to_id.keys():
-            f.write("%s:%s\n"%(p,cs.port_to_id[p]))
+        f.write(f"${rtr}\n")
+        f.writelines(f"{p}:{cs.port_to_id[p]}\n" for p in cs.port_to_id)
 
     for (from_router,from_port,to_router,to_port) in topology:
         from_cs = cs_list["%s%d"%(from_router,replicate+1)]
@@ -164,8 +164,8 @@ for port in root_tf_ports:
                                 None, None, "", [])
     root_tf.add_fwd_rule(r)
 
-ttf.save_object_to_file("%s/backbone_topology.tf"%output_dir)
-root_tf.save_object_to_file("%s/root.tf"%output_dir)
+ttf.save_object_to_file(f"{output_dir}/backbone_topology.tf")
+root_tf.save_object_to_file(f"{output_dir}/root.tf")
 en = time()
 print(en - st)
 f.close()

@@ -4,8 +4,9 @@
 Date December 2009
 Created by ykk
 """
-import pylibopenflow.cpythonize as cpythonize
+from pylibopenflow import cpythonize
 from pylibopenflow.config import *
+
 
 class rules(cpythonize.rules):
     """Class that specify rules for pythonization of OpenFlow messages

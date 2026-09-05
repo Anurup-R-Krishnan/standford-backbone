@@ -4,7 +4,9 @@ Date June 2009
 Created by ykk
 """
 import re
+
 from pylibopenflow.config import *
+
 
 class textfile:
     """Class to handle text file.
@@ -78,7 +80,6 @@ class cprimitive(ctype):
     def expand(self, cheader):
         """Expand type if applicable
         """
-        pass
     
     def get_names(self):
         """Return name of variables
@@ -201,7 +202,7 @@ class carray(ctype):
         """Return name of variables
         """
         namelist = []
-        for i in range(0,self.size):
+        for i in range(self.size):
             namelist.append(self.object.name)
         return namelist
 
@@ -227,10 +228,7 @@ class ctype_parser:
 
         Return true if valid, and false otherwise
         """
-        if (type in self.CPrimitives):
-            return True
-        else:
-            return False
+        return type in self.CPrimitives
 
     def is_array(self, string):
         """Check if string declares an array
@@ -239,19 +237,16 @@ class ctype_parser:
         if (len(parts) <= 1):
             return False
         else:
-            pattern = re.compile("\[.*?\]", re.MULTILINE)
+            pattern = re.compile(r"\[.*?\]", re.MULTILINE)
             values = pattern.findall(string)
-            if (len(values) == 1):
-                return True
-            else:
-                return False
+            return len(values) == 1
 
     def parse_array(self, string):
         """Parse array from string.
         Return occurrence and name.
         """
-        pattern = re.compile("\[.*?\]", re.MULTILINE)
-        namepattern = re.compile(".*?\[", re.MULTILINE)
+        pattern = re.compile(r"\[.*?\]", re.MULTILINE)
+        namepattern = re.compile(r".*?\[", re.MULTILINE)
         values = pattern.findall(string)
         if (len(values) != 1):
             return (1,string)
@@ -332,7 +327,7 @@ class cheaderfile(textfile):
         """
         try:
             return eval(value, self.enum_values)
-        except:
+        except Exception:
             return value.strip()
 
     def get_value(self, name):
@@ -352,7 +347,7 @@ class cheaderfile(textfile):
         """Remove all comments
         """
         fileStr = "".join(self.content)
-        pattern = re.compile("\\\.*?\n", re.MULTILINE)
+        pattern = re.compile("\\\\.*?\n", re.MULTILINE)
         fileStr = pattern.sub("",fileStr)
         pattern = re.compile(r"/\*.*?\*/", re.MULTILINE|re.DOTALL)
         fileStr = pattern.sub("",fileStr)
@@ -366,12 +361,12 @@ class cheaderfile(textfile):
         typeparser = ctype_parser()
         fileStr = "".join(self.content)
         #Remove attribute
-        attrpattern = re.compile("} __attribute__ \(\((.+?)\)\);", re.MULTILINE)
+        attrpattern = re.compile(r"} __attribute__ \(\((.+?)\)\);", re.MULTILINE)
         attrmatches = attrpattern.findall(fileStr)
         for amatch in attrmatches:
             fileStr=fileStr.replace(" __attribute__ (("+amatch+"));",";")
         #Find all structs
-        pattern = re.compile("struct\s[\w\s]*?{.*?};", re.MULTILINE)
+        pattern = re.compile(r"struct\s[\w\s]*?{.*?};", re.MULTILINE)
         matches = pattern.findall(fileStr)
         #Process each struct
         namepattern = re.compile("struct(.+?)[ {]", re.MULTILINE)
@@ -395,7 +390,7 @@ class cheaderfile(textfile):
         """
         fileStr = "".join(self.content)
         #Find all enumerations
-        pattern = re.compile("enum[\w\s]*?{.*?}", re.MULTILINE)
+        pattern = re.compile(r"enum[\w\s]*?{.*?}", re.MULTILINE)
         matches = pattern.findall(fileStr)
         #Process each enumeration
         namepattern = re.compile("enum(.+?){", re.MULTILINE)
@@ -406,7 +401,7 @@ class cheaderfile(textfile):
             enumList = []
             value = 0
             for val in values:
-                if not (val.strip() == ""):
+                if val.strip() != "":
                     valList=val.strip().split("=")
                     enumList.append(valList[0].strip())
                     if (len(valList) == 1):

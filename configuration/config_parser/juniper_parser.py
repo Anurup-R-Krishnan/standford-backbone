@@ -20,11 +20,14 @@ Created on Mar 11, 2012
 @author: James Hongyi Zeng
 '''
 
-from .helper import *
-from headerspace.tf import *
-from headerspace.hs import *
-from xml.etree.ElementTree import ElementTree
 import re
+from xml.etree.ElementTree import ElementTree
+
+from headerspace.hs import *
+from headerspace.tf import *
+
+from .helper import *
+
 
 class juniperRouter:
     '''
@@ -92,12 +95,12 @@ class juniperRouter:
         fields = ["vlan","ip_src","ip_dst","ip_proto","tcp_src","tcp_dst","tcp_ctrl"]
         out_string = ""
         for field in fields:
-            offset = self.hs_format["%s_pos"%field]
-            len = self.hs_format["%s_len"%field]
+            offset = self.hs_format[f"{field}_pos"]
+            len = self.hs_format[f"{field}_len"]
             ba = bytearray()
-            for i in range(0,len):
+            for i in range(len):
                 ba.append(byte_arr[offset+i])
-            out_string = "%s%s:%s, "%(out_string, field, byte_array_to_hs_string(ba))
+            out_string = f"{out_string}{field}:{byte_array_to_hs_string(ba)}, "
         return out_string
             
     def set_field(self, arr, field, value, right_mask):
@@ -109,9 +112,9 @@ class juniperRouter:
         @right_mask: number of bits, from right that should be ignored when written to field.
         e.g. to have a /24 ip address, set mask to 8.
         '''
-        b_array = int_to_byte_array(value,8*self.hs_format["%s_len"%field])
-        start_pos = 2*self.hs_format["%s_pos"%field]
-        for i in range(2*self.hs_format["%s_len"%field]):
+        b_array = int_to_byte_array(value,8*self.hs_format[f"{field}_len"])
+        start_pos = 2*self.hs_format[f"{field}_pos"]
+        for i in range(2*self.hs_format[f"{field}_len"]):
             if right_mask <= 4*i:
                 arr[start_pos + i] = b_array[i]
             elif (right_mask > 4*i and right_mask < 4*i + 4):
@@ -196,13 +199,13 @@ class juniperRouter:
     def get_protocol_number(proto_name):
         dict = {"ah":51, "eigrp":88, "esp":50, "gre":47, "icmp":1, "igmp":2, "igrp":9,
                 "ip": 0, "ipinip":94, "nos":4, "ospf":89, "tcp":6, "udp":17}
-        if proto_name in dict.keys():
+        if proto_name in dict:
             return dict[proto_name]
         else:
             try:
                 num = int(proto_name)
                 return num
-            except Exception as e:
+            except Exception:
                 return None
         
     @staticmethod
@@ -211,13 +214,13 @@ class juniperRouter:
                 "echo":7, "mobile-ip":434, "nameserver":42, "netbios-dgm":137, "netbios-ns":138,
                 "ntp":123, "rip":520, "snmp":161, "snmptrap":162, "sunrpc":111, "syslog":514,
                 "tacacs-ds":49, "talk":517, "tftp":69, "time":37, "who":513, "xdmcp":177}
-        if port_name in dict.keys():
+        if port_name in dict:
             return dict[port_name]
         else:
             try:
                 num = int(port_name)
                 return num
-            except Exception as e:
+            except Exception:
                 return None
         
     @staticmethod
@@ -227,13 +230,13 @@ class juniperRouter:
                 "irc":194, "klogin":543, "kshell":544, "lpd":515, "nntp":119, "pop2":109,
                 "pop3":110, "smtp":25, "sunrpc":111, "syslog":514, "tacacs-ds":65, "talk":517,
                 "telnet":23, "time": 37, "uucp":540, "whois":43, "www":80}
-        if port_name in dict.keys():
+        if port_name in dict:
             return dict[port_name]
         else:
             try:
                 num = int(port_name)
                 return num
-            except Exception as e:
+            except Exception:
                 return None
             
     @staticmethod
@@ -241,7 +244,7 @@ class juniperRouter:
         try:
             num = int(port)
             return num
-        except Exception as e:
+        except Exception:
             return None
         
     @staticmethod
@@ -259,7 +262,7 @@ class juniperRouter:
             reminder = port[len("fastethernet"):]
         else:
             result = port
-        return "%s%s"%(result, reminder)
+        return f"{result}{reminder}"
                 
     def parse_access_list_entry(self, entry, line_counter):
         
@@ -325,7 +328,7 @@ class juniperRouter:
         
         action = tokens.pop(0)
         if action.lower() == "permit" or action.lower() == "deny":
-            if not acl_number in self.acl.keys():
+            if not acl_number in self.acl:
                 self.acl[acl_number] = []
             
             new_entry = self.make_acl_dictionary_entry()
@@ -414,7 +417,7 @@ class juniperRouter:
         print("=== DONE generating port IDs ===")
         
     def get_port_id(self,port_name):
-        if port_name in self.port_to_id.keys():
+        if port_name in self.port_to_id:
             return self.port_to_id[port_name]
         else:
             return None
@@ -447,8 +450,8 @@ class juniperRouter:
         # generate the input part of tranfer function from in_port to fwd_port
         # and output part from intermedite ports to output ports
         print(" * Generating ACL transfer function * ") 
-        for acl in self.acl_iface.keys():
-            if acl not in self.acl.keys():
+        for acl in self.acl_iface:
+            if acl not in self.acl:
                 continue
             for acl_instance in self.acl_iface[acl]:
                 file_name = acl_instance[3]
@@ -504,7 +507,7 @@ class juniperRouter:
                 tf.add_fwd_rule(def_rule)
         # ... un-vlan-tagged port
         all_in_ports = []
-        for port in self.port_to_id.keys():
+        for port in self.port_to_id:
             if port != "self":
                 all_in_ports.append(self.port_to_id[port])
 #        match = byte_array_get_all_x(self.hs_format["length"]*2)
@@ -592,7 +595,7 @@ class juniperRouter:
                     # fwd_rule[2] is a list, thanks to LAG
                     for output_port in fwd_rule[2]:
                         vlan = 0
-                        m = re.split('\.',output_port)
+                        m = re.split(r'\.',output_port)
                         # drop rules:
                         if output_port == "self":
                             self_rule = TF.create_standard_rule(in_port,match,[],None,None,file_name,lines)
@@ -601,29 +604,29 @@ class juniperRouter:
                         else:
                             # sub-ports: port.vlan
                             if len(m) > 1:
-                                if m[0] in self.port_to_id.keys():
+                                if m[0] in self.port_to_id:
                                     out_ports.append(self.port_to_id[m[0]]+self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST)
                                     vlan = int(m[1])
                                 else:
-                                    print("ERROR: unrecognized port %s"%m[0])
+                                    print(f"ERROR: unrecognized port {m[0]}")
                                     return -1
                             # vlan outputs
                             elif output_port.startswith('vlan'):
-                                if output_port in self.vlan_ports.keys():
+                                if output_port in self.vlan_ports:
                                     port_list = self.vlan_ports[output_port]
                                     for p in port_list:
                                         out_ports.append(self.port_to_id[p]+self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST)
                                     vlan = int(output_port[4:])
                                 else:
-                                    print("ERROR: unrecognized vlan %s"%output_port)
+                                    print(f"ERROR: unrecognized vlan {output_port}")
                                     return -1
                             # physical ports - no vlan taging
                             else:
-                                if output_port in self.port_to_id.keys():
+                                if output_port in self.port_to_id:
                                     out_ports.append(self.port_to_id[output_port] + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST)
                                     vlan = 0
                                 else:
-                                    print("ERROR: unrecognized port %s"%output_port)
+                                    print(f"ERROR: unrecognized port {output_port}")
                                     return -1
                         
                         # now set the fields
@@ -659,7 +662,7 @@ class juniperRouter:
                         line_counter += 1
                         port = line.split()[-1]
                         
-                        if port in self.ae_bundles.keys():
+                        if port in self.ae_bundles:
                             ports_new = self.ae_bundles[port]
                             self.fwd_table.append([ip_subnet[0],ip_subnet[1],ports_new,port+file_path,[line_counter]])
                         else:
@@ -667,7 +670,7 @@ class juniperRouter:
                     elif len(tokens) == 8:
                         ip_subnet = dotted_subnet_to_int(tokens[0])
                         port = tokens[-1]
-                        if port in self.ae_bundles.keys():
+                        if port in self.ae_bundles:
                             ports_new = self.ae_bundles[port]
                             self.fwd_table.append([ip_subnet[0],ip_subnet[1],ports_new,port+file_path,[line_counter]])
                         else:
@@ -723,18 +726,18 @@ class juniperRouter:
                             # Only process IPv4 Port
                             continue
                     
-                        vlan = int(re.split('\.',logical_interface_name)[1])
+                        vlan = int(re.split(r'\.',logical_interface_name)[1])
                         
                         if vlan >= 0 and vlan < 4096:   
                             if vlan not in self.config_vlans:
                                 self.config_vlans.append(vlan)
                             
-                            if not "vlan%d"%vlan in self.vlan_ports.keys():
+                            if not "vlan%d"%vlan in self.vlan_ports:
                                 self.vlan_ports["vlan%d"%vlan] = []
                                 
                             self.vlan_ports["vlan%d"%vlan].append(physical_interface_name)  
                             
-                            if "%d"%vlan not in self.port_subnets.keys():
+                            if "%d"%vlan not in self.port_subnets:
                                 self.port_subnets["%d"%vlan] = []  
                                 
                             ip_address = address.find(f"{ns}interface-address/{ns}ifa-local")        

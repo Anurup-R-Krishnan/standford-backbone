@@ -20,7 +20,6 @@ Created on Jan 26, 2011
 @author: Peyman Kazemian
 '''
 
-from headerspace.tf import TF
 
 class Slice:
     '''
@@ -35,8 +34,8 @@ class Slice:
         self.port_to_reservation = {}
         
     def get_port_reservation(self,port):
-        if "%s"%port in self.port_to_reservation:
-            return self.port_to_reservation["%s"%port]
+        if f"{port}" in self.port_to_reservation:
+            return self.port_to_reservation[f"{port}"]
         else:
             return []
 
@@ -46,14 +45,14 @@ class Slice:
         NOTE: hs.hs_list MUST have only one wildcard expression
         '''
         if hs.length != self.length:
-            return None
+            return
         hs_copy = hs.copy()
         port_list = list(ports)
         self.reservations.append((port_list,hs_copy))
         for port in ports:
-            if "%s"%port not in self.port_to_reservation.keys():
-                self.port_to_reservation["%s"%port] = []
-            self.port_to_reservation["%s"%port].append(hs)
+            if f"{port}" not in self.port_to_reservation:
+                self.port_to_reservation[f"{port}"] = []
+            self.port_to_reservation[f"{port}"].append(hs)
     
     def intersect(self,other_slice):
         result = Slice(self.length)
@@ -70,7 +69,7 @@ class Slice:
     def __str__(self):
         result = ""
         for (p, hs) in self.reservations:
-            result = result + "Port: %s - Header Space:\n %s\n"%(p,hs)
+            result = result + f"Port: {p} - Header Space:\n {hs}\n"
         return result
 
 

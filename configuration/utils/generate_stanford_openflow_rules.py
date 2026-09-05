@@ -19,11 +19,11 @@ Created on Mar 31, 2012
 
 @author: Peyman Kazemian
 '''
-import sys, os
+import sys
+
 sys.path.append("../")
 
 from config_parser.transfer_function_to_openflow import OpenFlow_Rule_Generator
-from config_parser.cisco_router_parser import ciscoRouter
 from headerspace.tf import TF
 
 format = {}
@@ -51,7 +51,7 @@ rtr_names = ["bbra_rtr",
 
 for rtr_name in rtr_names:
     f = TF(1)
-    f.load_object_from_file("../work/tf_simple_stanford_backbone/%s.tf"%rtr_name)
+    f.load_object_from_file(f"../work/tf_simple_stanford_backbone/{rtr_name}.tf")
     #OFG = OpenFlow_Rule_Generator(f,ciscoRouter(1).HS_FORMAT())
     OFG = OpenFlow_Rule_Generator(f,format)
-    OFG.generate_of_rules("%s.of"%rtr_name)
+    OFG.generate_of_rules(f"{rtr_name}.of")

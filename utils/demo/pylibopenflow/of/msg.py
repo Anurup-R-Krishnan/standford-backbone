@@ -55,7 +55,7 @@ class parser:
     def match_describe(self, dic, nameprefix="", prefix=""):
         """Return description for ofp match
         """
-        return prefix+"match wildcards:%x" % dic[nameprefix+"wildcards"][0]+\
+        return prefix+"match wildcards:{:x}".format(dic[nameprefix+"wildcards"][0])+\
                " inport="+str(dic[nameprefix+"in_port"][0])+\
                prefix+"     "+\
                " ethertype="+str(dic[nameprefix+"dl_type"][0])+\
@@ -93,7 +93,7 @@ class parser:
         """Return string for ip address
         """
         desc = ""
-        for i in range(0,4):
+        for i in range(4):
             (value, cv) = divmod(value, 256)
             desc = str(cv).strip() +"." + desc
         return desc
@@ -103,7 +103,7 @@ class parser:
         """
         desc = ""
         for value in etheraddr:
-            desc += ":"+("%x" % value).zfill(2)
+            desc += ":"+(f"{value:x}").zfill(2)
         return desc[1:]
 
     def __assert_dic(self, packet, typename):

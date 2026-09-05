@@ -10,7 +10,7 @@ epoch_dict = {}
 for line in input_file:
     epoch_time = int(line.split('.')[0].strip('\"'))
     epoch_time_bucket = epoch_time / granularity
-    if epoch_time_bucket not in epoch_dict.keys():
+    if epoch_time_bucket not in epoch_dict:
         epoch_dict[epoch_time_bucket] = 0
     epoch_dict[epoch_time_bucket] += 1
     

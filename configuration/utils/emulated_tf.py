@@ -21,6 +21,7 @@ Created on Aug 14, 2011
 '''
 from headerspace.hs import byte_array_list_contained_in
 
+
 class emulated_tf:
     
     def __init__(self,n_reapet,duplicate_removal=True):
@@ -54,13 +55,13 @@ class emulated_tf:
         to_be_removed = []
         for input_index in range(len(input_hs_list)):
             (cur_hs,cur_ports) = input_hs_list[input_index]
-            bucket_name = "%s_%s"%(cur_hs.applied_rule_ids[len(cur_hs.applied_rule_ids) - self.fwd_engine_stage -1],cur_ports)
-            if bucket_name not in hs_buckets.keys():
+            bucket_name = f"{cur_hs.applied_rule_ids[len(cur_hs.applied_rule_ids) - self.fwd_engine_stage -1]}_{cur_ports}"
+            if bucket_name not in hs_buckets:
                 hs_buckets[bucket_name] = [input_index]
             else:
                 renew_bucket = []
                 for i in hs_buckets[bucket_name]:
-                    (prev_hs,prev_ports) = input_hs_list[i]
+                    (prev_hs,_prev_ports) = input_hs_list[i]
                     if byte_array_list_contained_in(prev_hs.hs_list,cur_hs.hs_list) and byte_array_list_contained_in(cur_hs.hs_diff,prev_hs.hs_diff):
                         to_be_removed.append(i)
                     else:
@@ -68,19 +69,19 @@ class emulated_tf:
                 renew_bucket.append(input_index)
                 hs_buckets[bucket_name] = renew_bucket
                 
-        to_be_removed.sort(cmp=None, key=None, reverse=True)
+        to_be_removed.sort(reverse=True)
         for i in to_be_removed:
             input_hs_list.pop(i)
         #print "Start Removing Duplicates - len: %d"%len(input_hs_list)
                 
         
     def T(self,hs,port):
-        sw_id = port / self.switch_id_mul - 1
+        sw_id = port // self.switch_id_mul - 1
         if sw_id >= len(self.tf_list):
             return []
         tf = self.tf_list[sw_id]
         phase = [(hs,[port])]
-        for i in range(0,self.num_repeat):
+        for i in range(self.num_repeat):
             #print "we are in phase %d - input is %s at port %d"%(i,hs,port)
             tmp = []
             for (hs,port_list) in phase:
@@ -99,12 +100,12 @@ class emulated_tf:
         return result 
     
     def T_inv(self,hs,port):
-        sw_id = port / self.switch_id_mul - 1
+        sw_id = port // self.switch_id_mul - 1
         if sw_id >= len(self.tf_list):
             return []
         tf = self.tf_list[sw_id]
         phase = [(hs,[port])]
-        for i in range(0,self.num_repeat):
+        for i in range(self.num_repeat):
             tmp = []
             for (hs,port_list) in phase:
                 for p in port_list:

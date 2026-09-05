@@ -19,13 +19,13 @@ Created on Aug 13, 2011
 
 @author: Peyman Kazemian
 '''
-from headerspace.tf import *
+from config_parser.cisco_router_parser import ciscoRouter
+from config_parser.helper import compose_standard_rules, dotted_ip_to_int
 from headerspace.hs import *
 from headerspace.nu_smv_generator import *
+from headerspace.tf import *
+
 from utils.emulated_tf import *
-from config_parser.helper import dotted_ip_to_int
-from config_parser.cisco_router_parser import ciscoRouter
-from config_parser.helper import compose_standard_rules
 
 rtr_names = ["bbra_rtr",
              "bbrb_rtr",
@@ -53,7 +53,7 @@ def load_stanford_backbone_ntf():
     emul_tf.set_fwd_engine_stage(1)
     for rtr_name in rtr_names:
         f = TF(1)
-        f.load_object_from_file("work/tf_stanford_backbone/%s.tf"%rtr_name)
+        f.load_object_from_file(f"work/tf_stanford_backbone/{rtr_name}.tf")
         f.activate_hash_table([15,14])
         emul_tf.append_tf(f)
     emul_tf.length = f.length
@@ -76,7 +76,7 @@ def load_stanford_ip_fwd_ntf():
     emul_tf.output_port_const = 0
     for rtr_name in rtr_names:
         f = TF(1)
-        f.load_object_from_file("work/tf_simple_stanford_backbone/%s.tf"%rtr_name)
+        f.load_object_from_file(f"work/tf_simple_stanford_backbone/{rtr_name}.tf")
         #f.activate_hash_table([3,2])
         emul_tf.append_tf(f)
     emul_tf.length = f.length
@@ -95,7 +95,7 @@ def load_port_to_id_map(path):
     '''
     load the map from port ID to name of box-port name.
     '''
-    f = open("%s/port_map.txt"%path)
+    f = open(f"{path}/port_map.txt")
     id_to_name = {}
     map = {}
     rtr = ""
@@ -107,9 +107,9 @@ def load_port_to_id_map(path):
         elif line != "":
             tokens = line.strip().split(":")
             map[rtr][tokens[0]] = int(tokens[1])
-            id_to_name[tokens[1]] = "%s-%s"%(rtr,tokens[0])
+            id_to_name[tokens[1]] = f"{rtr}-{tokens[0]}"
             out_port = int(tokens[1]) + cs.PORT_TYPE_MULTIPLIER * cs.OUTPUT_PORT_TYPE_CONST
-            id_to_name["%s"%out_port] = "%s-%s"%(rtr,tokens[0])
+            id_to_name[f"{out_port}"] = f"{rtr}-{tokens[0]}"
     return (map,id_to_name)
     
 def load_stanford_backbone_port_to_id_map():
@@ -120,7 +120,7 @@ def load_replicated_stanford_network(replicate,path):
     Load the transfer functions created by generate_augmented_stanford_backbone_tf.py
     '''
     ttf = TF(1)
-    ttf.load_object_from_file("%s/backbone_topology.tf"%path)
+    ttf.load_object_from_file(f"{path}/backbone_topology.tf")
     (name_to_id,id_to_name) = load_port_to_id_map(path)
     emul_tf = emulated_tf(3)
     for i in range(replicate):
@@ -130,7 +130,7 @@ def load_replicated_stanford_network(replicate,path):
             #f.activate_hash_table([15,14])
             emul_tf.append_tf(f)
     f = TF(1)
-    f.load_object_from_file("%s/root.tf"%(path))
+    f.load_object_from_file(f"{path}/root.tf")
     f.activate_hash_table([15,14])
     emul_tf.append_tf(f)
     return (emul_tf,ttf,name_to_id,id_to_name)
@@ -245,7 +245,7 @@ def get_end_ports(name_to_id,index):
     end_ports = []
     cs = ciscoRouter(1)
     for rtr_name in rtr_names:
-        mod_rtr_name = "%s%s"%(rtr_name,index)
+        mod_rtr_name = f"{rtr_name}{index}"
         for rtr_port in name_to_id[mod_rtr_name]:
             if (rtr_name,rtr_port) not in linked_ports:
                 end_ports.append(name_to_id[mod_rtr_name][rtr_port] + cs.PORT_TYPE_MULTIPLIER * cs.OUTPUT_PORT_TYPE_CONST)
@@ -262,10 +262,10 @@ def load_tf_to_nusmv():
     nusmv.set_output_port_offset(cs.PORT_TYPE_MULTIPLIER * cs.OUTPUT_PORT_TYPE_CONST)
     for rtr_name in rtr_names:
         f = TF(1)
-        f.load_object_from_file("work/tf_stanford_backbone/%s.tf"%rtr_name)
+        f.load_object_from_file(f"work/tf_stanford_backbone/{rtr_name}.tf")
         nusmv.generate_nusmv_trans(f, [])
     
-    (port_map,port_reverse_map) = load_stanford_backbone_port_to_id_map()
+    (port_map,_port_reverse_map) = load_stanford_backbone_port_to_id_map()
     end_ports = get_end_ports(port_map,"")         
     f = TF(1)
     f.load_object_from_file("work/tf_stanford_backbone/backbone_topology.tf")
@@ -282,7 +282,7 @@ def load_augmented_tf_to_nusmv(replication_factor,dir_path):
     nusmv = NuSMV()
     cs = ciscoRouter(1)
     nusmv.set_output_port_offset(cs.PORT_TYPE_MULTIPLIER * cs.OUTPUT_PORT_TYPE_CONST)
-    (port_map,port_reverse_map) = load_port_to_id_map(dir_path)
+    (port_map,_port_reverse_map) = load_port_to_id_map(dir_path)
     end_ports = []
     for replicate in range(1,replication_factor+1):
         for rtr_name in rtr_names:
@@ -293,11 +293,11 @@ def load_augmented_tf_to_nusmv(replication_factor,dir_path):
         end_ports.extend(end_ports_subset)
       
     f = TF(1)
-    f.load_object_from_file("%s/root.tf"%(dir_path))
+    f.load_object_from_file(f"{dir_path}/root.tf")
     nusmv.generate_nusmv_trans(f, [])
         
     f = TF(1)
-    f.load_object_from_file("%s/backbone_topology.tf"%dir_path)
+    f.load_object_from_file(f"{dir_path}/backbone_topology.tf")
     nusmv.generate_nusmv_trans(f,end_ports)
     nusmv.generate_nusmv_input()
     
@@ -310,7 +310,7 @@ def generate_stanford_backbne_one_layer_tf():
     '''
     for rtr_name in rtr_names:
         f = TF(1)
-        f.load_object_from_file("../work/tf_stanford_backbone/%s.tf"%rtr_name)
+        f.load_object_from_file(f"../work/tf_stanford_backbone/{rtr_name}.tf")
         stage1_rules = []
         stage2_rules = []
         stage3_rules = []
@@ -335,7 +335,7 @@ def generate_stanford_backbne_one_layer_tf():
                         f.add_fwd_rule(r)
                     else:
                         f.add_rewrite_rule(r)
-        f.save_object_to_file("../work/tf_stanford_backbone/%s_one_layer.tf"%rtr_name)
+        f.save_object_to_file(f"../work/tf_stanford_backbone/{rtr_name}_one_layer.tf")
        
             
     

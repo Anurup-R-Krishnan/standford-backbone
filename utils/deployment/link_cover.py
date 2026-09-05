@@ -1,13 +1,16 @@
 #!/usr/bin/python
+import copy
+import random
+import time
+
 import networkx as nx
-import time, random, copy
 
 topology_file = open("data/topology.data")
 G=nx.read_edgelist(topology_file)
 topology_file.close()
 
 #Only numbers are end terminals
-end_terminals = [unicode(str(x)) for x in range(1, 100)]
+end_terminals = [str(x) for x in range(1, 100)]
 
 links = G.edges()
 shortest_paths = nx.shortest_path(G)
@@ -18,7 +21,7 @@ for source in end_terminals:
         try:
             if destination != source:
                 rule_lists.append(shortest_paths[source][destination])
-        except:
+        except Exception:
             pass
 
 start_packets = len(rule_lists)
@@ -41,7 +44,7 @@ while len(links) > 0:
     lucky_path = rule_lists[lucky_index]
     
     # Break the path into links, excluding the end terminals
-    for index in xrange(1, len(lucky_path)-2):
+    for index in range(1, len(lucky_path)-2):
         new = False
         if (lucky_path[index],lucky_path[index+1]) in links:
             new = True 
@@ -49,7 +52,7 @@ while len(links) > 0:
             
         # Rules that have been hit already
         if new: 
-            for index2 in xrange(1, len(lucky_path)-2):
+            for index2 in range(1, len(lucky_path)-2):
                 if (lucky_path[index],lucky_path[index+1]) in links:
                     links.remove((lucky_path[index],lucky_path[index+1]))
             break
@@ -76,7 +79,7 @@ ips_file.close()
 # Step 2: Build test pairs
 test_pairs = []
 for rule_list in result_rule_lists:
-    test_pairs.append(("swan-ap%s"%rule_list[0], "swan-ap%s"%rule_list[-1]))
+    test_pairs.append((f"swan-ap{rule_list[0]}", f"swan-ap{rule_list[-1]}"))
 
 # Step 3: Filter
 results_file = open('data/output.csv')
@@ -86,7 +89,7 @@ for line in results_file:
     source = components[1].strip('\"')
     try:
         destination = ip_to_host_dict[components[2].strip('\"')]
-    except:
+    except Exception:
         continue
     if (source, destination) in test_pairs or (destination, source) in test_pairs:
         new_results_file.write(line)

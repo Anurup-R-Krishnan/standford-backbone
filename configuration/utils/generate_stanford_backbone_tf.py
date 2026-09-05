@@ -19,12 +19,15 @@ Created on Aug 10, 2011
 
 @author: Peyman Kazemian
 '''
-import sys, os
+import os
+import sys
+
 sys.path.append("../")
+
+from time import time
 
 from config_parser.cisco_router_parser import *
 from headerspace.tf import *
-from time import time, clock
 
 st = time()
 output_path = "tf_stanford_backbone"
@@ -57,26 +60,25 @@ for (rtr_name,vlan) in rtr_names:
     cs.set_replaced_vlan(vlan)
     tf = TF(cs.HS_FORMAT()["length"]*2)
     tf.set_prefix_id(rtr_name)
-    cs.read_arp_table_file("../data/Stanford_backbone/%s_arp_table.txt"%rtr_name)
-    cs.read_mac_table_file("../data/Stanford_backbone/%s_mac_table.txt"%rtr_name)
-    cs.read_config_file("../data/Stanford_backbone/%s_config.txt"%rtr_name)
-    cs.read_spanning_tree_file("../data/Stanford_backbone/%s_spanning_tree.txt"%rtr_name)
-    cs.read_route_file("../data/Stanford_backbone/%s_route.txt"%rtr_name)
+    cs.read_arp_table_file(f"../data/Stanford_backbone/{rtr_name}_arp_table.txt")
+    cs.read_mac_table_file(f"../data/Stanford_backbone/{rtr_name}_mac_table.txt")
+    cs.read_config_file(f"../data/Stanford_backbone/{rtr_name}_config.txt")
+    cs.read_spanning_tree_file(f"../data/Stanford_backbone/{rtr_name}_spanning_tree.txt")
+    cs.read_route_file(f"../data/Stanford_backbone/{rtr_name}_route.txt")
     cs.generate_port_ids([])
     #if rtr_name == "coza_rtr" or rtr_name == "cozb_rtr" or rtr_name == "soza_rtr" or rtr_name == "sozb_rtr" or rtr_name == "yoza_rtr" or rtr_name == "yozb_rtr":
     cs.optimize_forwarding_table()
     cs.generate_transfer_function(tf)
     #print tf
-    tf.save_object_to_file(WORK_DIR+"/%s.tf"%rtr_name)
+    tf.save_object_to_file(WORK_DIR+f"/{rtr_name}.tf")
     id += 1
     cs_list[rtr_name] = cs
     
 f = open(WORK_DIR+"/port_map.txt",'w')
-for rtr in cs_list.keys():
+for rtr in cs_list:
     cs = cs_list[rtr]
-    f.write("$%s\n"%rtr)
-    for p in cs.port_to_id.keys():
-        f.write("%s:%s\n"%(p,cs.port_to_id[p]))
+    f.write(f"${rtr}\n")
+    f.writelines(f"{p}:{cs.port_to_id[p]}\n" for p in cs.port_to_id)
     
 f.close()
     

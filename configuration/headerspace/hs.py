@@ -21,7 +21,7 @@ Created on Jan 24, 2011
 '''
 
 from math import ceil
-from operator import xor
+
 
 def byte_array_intersect(a1, a2):
     '''
@@ -192,7 +192,7 @@ def byte_array_to_pretty_hs_string(byte_array):
     if byte_array == None:
         return "None"
     str = ""
-    ln = len(byte_array)
+    len(byte_array)
     cntr = -1
     pretty_flag = False
     for b in byte_array:
@@ -232,7 +232,7 @@ def hs_string_to_byte_array(str):
     if str == "None":
         return None
     strlen = len(str)
-    ln = int(ceil(strlen / 4.0))
+    ln = ceil(strlen / 4.0)
     br = bytearray()
     for j in range(ln):
         substr = str[max(0,strlen-4*j-4):strlen-4*j]
@@ -257,7 +257,7 @@ def int_to_byte_array(int_value, len):
     reads len bits from int_value and converts it to a bytearray of len ceil(len/4).
     Note: len should be a multiple of 4.
     '''
-    ln = int(ceil(len/4.0))
+    ln = ceil(len/4.0)
     br = bytearray()
     for j in range(ln):
         nible = (int_value >> 4*j) & 0xf
@@ -392,9 +392,8 @@ class headerspace:
         @return: True
         '''
         for value in values:
-            if value.__class__ == bytearray:
-                if len(value) == self.length:
-                    self.hs_diff.append(bytearray(value))
+            if value.__class__ == bytearray and len(value) == self.length:
+                self.hs_diff.append(bytearray(value))
         return True
             
     def count(self):
@@ -447,7 +446,7 @@ class headerspace:
             union2 = union2 + " U\n" + str
         if len(union2) > 0:
             union2 = union2[3:]
-            union1 = "(%s) \n-\n(%s)"%(union1,union2)
+            union1 = f"({union1}) \n-\n({union2})"
    
         return union1
         
@@ -551,10 +550,7 @@ class headerspace:
         cpy = self.copy()
         cpy.minus(other_fs)
         cpy.self_diff()
-        if len(cpy.hs_list) > 0:
-            return False
-        else:
-            return True
+        return not len(cpy.hs_list) > 0
     
     def compress(self):
         ''''
@@ -564,9 +560,7 @@ class headerspace:
         pop_index = []
         for i in range(len(self.hs_list)):
             for j in range(i+1,len(self.hs_list)):
-                if byte_array_equal(self.hs_list[i], self.hs_list[j]):
-                    pop_index.append(i)
-                elif byte_array_subset(self.hs_list[i], self.hs_list[j]):
+                if byte_array_equal(self.hs_list[i], self.hs_list[j]) or byte_array_subset(self.hs_list[i], self.hs_list[j]):
                     pop_index.append(i)
                 elif byte_array_subset(self.hs_list[j], self.hs_list[i]):
                     pop_index.append(j)

@@ -19,14 +19,15 @@ Created on Sep 26, 2011
 
 @author: Peyman Kazemian
 '''
-from headerspace.hs import *
-from headerspace.tf import *
-from headerspace.slice import *
-from config_parser.cisco_router_parser import ciscoRouter
-from config_parser.helper import *
-from time import time
 import math
 import random
+from time import time
+
+from config_parser.cisco_router_parser import ciscoRouter
+from config_parser.helper import *
+from headerspace.hs import *
+from headerspace.slice import *
+from headerspace.tf import *
 
 cs = ciscoRouter(1)
 rtr_port_const = 100
@@ -153,7 +154,7 @@ def generate_random_fwd_rule(slice_chunk,base_ip,range_ip,max_right_subnet):
     slice_ports = {}
     for (box,prt) in slice_chunk:
         box_list.add(box)
-        if box not in slice_ports.keys():
+        if box not in slice_ports:
             slice_ports[box] = []
         slice_ports[box].append(rtr_ids[box] + port_ids[box][prt])
     box_list = list(box_list)
@@ -221,7 +222,7 @@ def run_slice_isolation(repeat):
                     else:
                         other_slices.set_hs_reservation(list(slice_port_ids),hs)
                 st = time()
-                isect = other_slices.intersect(primary_slice)
+                other_slices.intersect(primary_slice)
                 en = time()
                 repeat_results.append(en-st)
             #print "result: %s"%isect
@@ -273,7 +274,7 @@ def run_slice_leakage_test(repeat):
                     ohs = f.T(primary_hs,in_port)
                     for (hs,p_list) in ohs:
                         transformed_slice.set_hs_reservation(p_list, hs)
-                leak = transformed_slice.intersect(other_slices)
+                transformed_slice.intersect(other_slices)
                 en = time()
                 #print leak
                 repeat_results.append(en-st)

@@ -19,12 +19,13 @@ Created on March 12, 2012
 
 @author: James Hongyi Zeng
 '''
-from headerspace.tf import *
-from headerspace.hs import *
-from utils.emulated_tf import *
-from config_parser.helper import dotted_ip_to_int
-from config_parser.juniper_parser import juniperRouter
 from multiprocessing import Pool
+
+from config_parser.juniper_parser import juniperRouter
+from headerspace.hs import *
+from headerspace.tf import *
+
+from utils.emulated_tf import *
 
 rtr_names = ["atla",
              "chic",
@@ -64,7 +65,7 @@ def load_internet2_backbone_ntf():
 
 def load_ntf(rtr_name):
     f = TF(1)
-    f.load_object_from_file("work/Internet2/%s.tf"%rtr_name)
+    f.load_object_from_file(f"work/Internet2/{rtr_name}.tf")
     f.activate_exact_match_hash(range(5,8))
     return f
 
@@ -86,7 +87,7 @@ def load_internet2_backbone_port_to_id_map():
         elif line != "":
             tokens = line.strip().split(":")
             map[rtr][tokens[0]] = int(tokens[-1])
-            id_to_name[tokens[-1]] = "%s-%s"%(rtr,":".join(tokens[0:-1]))
+            id_to_name[tokens[-1]] = "{}-{}".format(rtr,":".join(tokens[0:-1]))
             out_port = int(tokens[-1]) + cs.PORT_TYPE_MULTIPLIER * cs.OUTPUT_PORT_TYPE_CONST
-            id_to_name["%s"%out_port] = "%s-%s"%(rtr,":".join(tokens[0:-1]))
+            id_to_name[f"{out_port}"] = "{}-{}".format(rtr,":".join(tokens[0:-1]))
     return (map,id_to_name)

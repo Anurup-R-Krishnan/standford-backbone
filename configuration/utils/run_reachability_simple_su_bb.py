@@ -19,11 +19,12 @@ Created on Aug 14, 2011
 
 @author: Peyman Kazemian
 '''
-from utils.load_stanford_backbone import *
-from config_parser.cisco_router_parser import ciscoRouter
-from headerspace.hs import *
+from time import time
+
 from headerspace.applications import *
-from time import time, clock
+from headerspace.hs import *
+
+from utils.load_stanford_backbone import *
 
 ntf = load_stanford_ip_fwd_ntf()
 ttf = load_stanford_ip_fwd_ttf()

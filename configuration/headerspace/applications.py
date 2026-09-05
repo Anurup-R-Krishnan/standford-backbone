@@ -20,9 +20,11 @@ Created on Jan 27, 2011
 
 @author: Peyman Kazemian
 '''
+from utils.load_stanford_backbone import *
+
 from headerspace.hs import *
 from headerspace.tf import *
-from utils.load_stanford_backbone import *
+
 
 def print_p_node(p_node):
     print("-----")
@@ -42,7 +44,7 @@ def find_reachability(NTF, TTF, in_port, out_ports, input_pkt):
     p_node["hs_history"] = []
     propagation.append(p_node)
     loop_count = 0
-    (port_map,port_reverse_map) = load_stanford_backbone_port_to_id_map()
+    (_port_map,_port_reverse_map) = load_stanford_backbone_port_to_id_map()
     while len(propagation)>0:
         #get the next node in propagation graph and apply it to NTF and TTF
         print("Propagation has length: %d"%len(propagation))
@@ -146,10 +148,10 @@ def print_reachability(paths, reverse_map):
             if str == "":
                 str = reverse_map["%d"%port]
             else:
-                str = "%s ---> %s"%(str,reverse_map["%d"%port])
-        str = "%s ---> %s"%(str,reverse_map["%d"%p_node["port"]])
-        print("Path: %s"%str)
-        print("HS Received: %s"%p_node["hdr"])
+                str = "{} ---> {}".format(str,reverse_map["%d"%port])
+        str = "{} ---> {}".format(str,reverse_map["%d"%p_node["port"]])
+        print(f"Path: {str}")
+        print("HS Received: {}".format(p_node["hdr"]))
         print("----------------------------------------------")
         
         
@@ -161,12 +163,12 @@ def print_loops(loops, reverse_map):
             if str == "":
                 str = reverse_map["%d"%port]
             else:
-                str = "%s ---> %s"%(str,reverse_map["%d"%port])
-        str = "%s ---> %s"%(str,reverse_map["%d"%p_node["port"]])
-        print("Path: %s"%str)
+                str = "{} ---> {}".format(str,reverse_map["%d"%port])
+        str = "{} ---> {}".format(str,reverse_map["%d"%p_node["port"]])
+        print(f"Path: {str}")
         rl_id =  "applied rules: "
         for (n,r,s) in p_node["hdr"].applied_rule_ids:
-            rl_id = rl_id + " -> %s"%r
+            rl_id = rl_id + f" -> {r}"
         print(rl_id)
         i = 0
         for i in range(len(p_node["hs_history"])):
@@ -181,8 +183,8 @@ def loop_path_to_str(p_node, reverse_map):
         if str == "":
             str = reverse_map["%d"%port]
         else:
-            str = "%s ---> %s"%(str,reverse_map["%d"%port])
-    str = "%s ---> %s"%(str,reverse_map["%d"%p_node["port"]])
+            str = "{} ---> {}".format(str,reverse_map["%d"%port])
+    str = "{} ---> {}".format(str,reverse_map["%d"%p_node["port"]])
     return str
         
 def trace_hs_back(applied_rule_list,hs,last_port):

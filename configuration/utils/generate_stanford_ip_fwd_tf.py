@@ -14,19 +14,22 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 Created on May 29, 2012
 
 @author: Peyman Kazemian
 '''
-import sys, os
+import os
+import sys
+
 sys.path.append("../")
 
-from config_parser.helper import *
-from headerspace.tf import *
-from headerspace.hs import *
-from config_parser.cisco_router_parser import *
 import re
+
+from config_parser.cisco_router_parser import *
+from config_parser.helper import *
+from headerspace.hs import *
+from headerspace.tf import *
 
 format = {}
 format["ip_dst_pos"] = 0
@@ -52,7 +55,7 @@ rtr_names = [("bbra_rtr",0),
              ]
 
 def generate_fwd_table_tf(cisco_parser,tf):
-    print(" * Generating IP forwarding transfer function... * ")  
+    print(" * Generating IP forwarding transfer function... * ")
     # generate the forwarding part of transfer fucntion, from the fwd_prt, to pre-output ports
     for subnet in range(32,-1,-1):
         for fwd_rule in cisco_parser.fwd_table:
@@ -61,7 +64,7 @@ def generate_fwd_table_tf(cisco_parser,tf):
                 match = byte_array_get_all_x(cisco_parser.hs_format["length"]*2)
                 cisco_parser.set_field(match, "ip_dst", int(fwd_rule[0]), 32-subnet)
                 in_ports = []
-                for p in cisco_parser.port_to_id.keys():                    
+                for p in cisco_parser.port_to_id:
                     in_ports.append(cisco_parser.port_to_id[p])
                 # find out the file-line it represents:
                 lines = []
@@ -75,8 +78,7 @@ def generate_fwd_table_tf(cisco_parser,tf):
                     lines.extend(fwd_rule[4])
                 # set up out_ports
                 out_ports = []
-                vlan = 0
-                m = re.split('\.',fwd_rule[2])
+                m = re.split(r'\.',fwd_rule[2])
                 # drop rules:
                 if fwd_rule[2] == "self":
                     self_rule = TF.create_standard_rule(in_ports,match,[],None,None,file_name,lines)
@@ -85,37 +87,36 @@ def generate_fwd_table_tf(cisco_parser,tf):
                 else:
                     # sub-ports: port.vlan
                     if len(m) > 1:
-                        if m[0] in cisco_parser.port_to_id.keys():
+                        if m[0] in cisco_parser.port_to_id:
                             out_ports.append(cisco_parser.port_to_id[m[0]])
-                            vlan = int(m[1])
+                            int(m[1])
                         else:
-                            print("ERROR: unrecognized port %s"%m[0])
+                            print(f"ERROR: unrecognized port {m[0]}")
                             return -1
                     # vlan outputs
                     elif fwd_rule[2].startswith('vlan'):
-                        if fwd_rule[2] in cisco_parser.vlan_ports.keys():
+                        if fwd_rule[2] in cisco_parser.vlan_ports:
                             port_list = cisco_parser.vlan_ports[fwd_rule[2]]
                             for p in port_list:
-                                if p in cisco_parser.port_to_id.keys():
+                                if p in cisco_parser.port_to_id:
                                     out_ports.append(cisco_parser.port_to_id[p])
-                            vlan = int(fwd_rule[2][4:])
+                            int(fwd_rule[2][4:])
                         else:
-                            print("ERROR: unrecognized vlan %s"%fwd_rule[2])
+                            print(f"ERROR: unrecognized vlan {fwd_rule[2]}")
                             return -1
                     # physical ports - no vlan taging
                     else:
-                        if fwd_rule[2] in cisco_parser.port_to_id.keys():
+                        if fwd_rule[2] in cisco_parser.port_to_id:
                             out_ports.append(cisco_parser.port_to_id[fwd_rule[2]])
-                            vlan = 0
                         else:
-                            print("ERROR: unrecognized port %s"%fwd_rule[2])
+                            print(f"ERROR: unrecognized port {fwd_rule[2]}")
                             return -1
 
                     tf_rule = TF.create_standard_rule(in_ports, match, out_ports, None, None,file_name,lines)
-                    tf.add_fwd_rule(tf_rule) 
-                        
+                    tf.add_fwd_rule(tf_rule)
+
     print("=== Successfully Generated Transfer function ===")
-    return 0     
+    return 0
 
 id = 1
 cs_list = {}
@@ -130,30 +131,29 @@ for (rtr_name,vlan) in rtr_names:
     cs.set_hs_format(format)
     tf = TF(format["length"]*2)
     tf.set_prefix_id(rtr_name)
-    cs.read_arp_table_file("../data/Stanford_backbone/%s_arp_table.txt"%rtr_name)
-    cs.read_mac_table_file("../data/Stanford_backbone/%s_mac_table.txt"%rtr_name)
-    cs.read_config_file("../data/Stanford_backbone/%s_config.txt"%rtr_name)
-    cs.read_spanning_tree_file("../data/Stanford_backbone/%s_spanning_tree.txt"%rtr_name)
-    cs.read_route_file("../data/Stanford_backbone/%s_route.txt"%rtr_name)
+    cs.read_arp_table_file(f"../data/Stanford_backbone/{rtr_name}_arp_table.txt")
+    cs.read_mac_table_file(f"../data/Stanford_backbone/{rtr_name}_mac_table.txt")
+    cs.read_config_file(f"../data/Stanford_backbone/{rtr_name}_config.txt")
+    cs.read_spanning_tree_file(f"../data/Stanford_backbone/{rtr_name}_spanning_tree.txt")
+    cs.read_route_file(f"../data/Stanford_backbone/{rtr_name}_route.txt")
     #cs.generate_port_ids([])
     cs.generate_port_ids_only_for_output_ports()
     #if rtr_name == "coza_rtr" or rtr_name == "cozb_rtr" or rtr_name == "soza_rtr" or rtr_name == "sozb_rtr" or rtr_name == "yoza_rtr" or rtr_name == "yozb_rtr":
     cs.optimize_forwarding_table()
     generate_fwd_table_tf(cs,tf)
     #print tf
-    tf.save_object_to_file(WORK_DIR+"/%s.tf"%rtr_name)
+    tf.save_object_to_file(WORK_DIR+f"/{rtr_name}.tf")
     id += 1
     cs_list[rtr_name] = cs
-    
+
 f = open(WORK_DIR+"/port_map.txt",'w')
-for rtr in cs_list.keys():
+for rtr in cs_list:
     cs = cs_list[rtr]
-    f.write("$%s\n"%rtr)
-    for p in cs.port_to_id.keys():
-        f.write("%s:%s\n"%(p,cs.port_to_id[p]))
-    
+    f.write(f"${rtr}\n")
+    f.writelines(f"{p}:{cs.port_to_id[p]}\n" for p in cs.port_to_id)
+
 f.close()
-    
+
 topology = [("bbra_rtr","te7/3","goza_rtr","te2/1"),
             ("bbra_rtr","te7/3","pozb_rtr","te3/1"),
             ("bbra_rtr","te1/3","bozb_rtr","te3/1"),

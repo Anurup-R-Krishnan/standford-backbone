@@ -4,9 +4,11 @@
 Author ykk
 Date June 2009
 """
-import sys
 import getopt
-import pylibopenflow.cheader as cheader
+import sys
+
+from pylibopenflow import cheader
+
 
 def usage():
     """Display usage
@@ -28,8 +30,8 @@ def usage():
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hMm:Ee:Ss:nP",
                                ["help","macros","macro=","enums","enum=",
-                                "structs","struct="
-                                "name-only","print-no-comment"])
+                                "structs",("struct="
+                                "name-only"),"print-no-comment"])
 except getopt.GetoptError:
     usage()
     sys.exit(2)
@@ -77,7 +79,7 @@ for opt,arg in opts:
     elif (opt in ("-P","--print-no-comment")): 
         printNoComment = True
     else:
-        assert (False,"Unhandled option :"+opt)
+        assert False, "Unhandled option :" + opt
 
 headerfile = cheader.cheaderfile(args)
 if (printNoComment):

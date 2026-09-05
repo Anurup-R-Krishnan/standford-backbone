@@ -22,22 +22,18 @@ Created on Jun 1, 2011
 
 import re
 from math import pow
+
 from headerspace.hs import *
 from headerspace.tf import TF
-    
+
+
 def is_ip_address(str):
     ips = re.match(r'(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', str)
-    if ips == None:
-        return False
-    else:
-        return True
+    return ips != None
     
 def is_ip_subnet(str):
     ips = re.match(r'(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})/(?:[\d]{1,2})', str)
-    if ips == None:
-        return False
-    else:
-        return True
+    return ips != None
     
 def int_to_dotted_ip( intip ):
         octet = ''
@@ -113,16 +109,16 @@ class node:
         ind = ""
         for i in range(indent):
             ind = ind + "\t";
-        str_ip = "%sIPs: "%ind
+        str_ip = f"{ind}IPs: "
         for i in self.ips:
             str_ip = str_ip + int_to_dotted_ip(i[0]) + "/%d"%i[1] + ", "
         print(str_ip)
-        print("%sAction: %s"%(ind,self.action))
+        print(f"{ind}Action: {self.action}")
         if self.zero != None:
-            print("%sZero:"%(ind))
+            print(f"{ind}Zero:")
             self.zero.printSelf(indent+1)
         if self.one != None:
-            print("%sOne:"%(ind))
+            print(f"{ind}One:")
             self.one.printSelf(indent+1)
     
     def is_leaf(self):
@@ -253,7 +249,7 @@ def compose_standard_rules(rule1,rule2):
     if rule1["file"] == rule2["file"]:
         file_name = rule1["file"]
     else:
-        file_name = "%s , %s"%(rule1["file"],rule2["file"])
+        file_name = "{} , {}".format(rule1["file"],rule2["file"])
     
     lines = rule1["line"]
     lines.extend(rule2["line"])

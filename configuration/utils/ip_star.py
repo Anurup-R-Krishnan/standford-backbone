@@ -17,13 +17,13 @@
     
     @Author: Peyman Kazemian
 '''
+import random
+from time import time
+
+from config_parser.helper import *
+from headerspace.applications import *
 from headerspace.hs import *
 from headerspace.tf import TF
-from headerspace.applications import *
-from config_parser.helper import *
-import random
-from time import time, clock
-
 
 NUM_MBOX = 2
 format = {}
@@ -101,9 +101,9 @@ def make_TTF(num_mbox):
     return TTF
 
 def set_field(arr, field, value, right_mask):
-    b_array = int_to_byte_array(value,8*format["%s_len"%field])
-    start_pos = 2*format["%s_pos"%field]
-    for i in range(2*format["%s_len"%field]):
+    b_array = int_to_byte_array(value,8*format[f"{field}_len"])
+    start_pos = 2*format[f"{field}_pos"]
+    for i in range(2*format[f"{field}_len"]):
         if right_mask <= 4*i:
             arr[start_pos + i] = b_array[i]
         elif (right_mask > 4*i and right_mask < 4*i + 4):
@@ -137,7 +137,7 @@ def make_byte_array_ip_star_hdr(num_stack,stack_ip_list,stack_subnet_list,ip_src
 
 def make_mbox_match(ip_dst, ip_dst_subnet, in_port):
     ip_match = make_byte_array_ip_star_hdr(None,[],[],0,0,ip_dst,ip_dst_subnet)
-    hs_len = format["length"] * 2
+    format["length"] * 2
     def mbox_match(hs,port):
         '''
         match function for a middle box
@@ -153,7 +153,7 @@ def make_mbox_match(ip_dst, ip_dst_subnet, in_port):
 
 def make_mbox_inv_match(ip_src, ip_src_subnet, out_port):
     ip_match = make_byte_array_ip_star_hdr(None,[],[],ip_src,ip_src_subnet,0,0)
-    hs_len = format["length"] * 2
+    format["length"] * 2
     def mbox_inv_match(hs,port):
         if port == out_port:
             new_hs = hs.copy()
@@ -197,7 +197,7 @@ def make_IP_str_match(_in_ports):
 
 def make_IP_str_transform(ip_dst, ip_dst_subnet, _out_ports):     
     out_ports = list(_out_ports)
-    hs_len = format["length"] * 2
+    format["length"] * 2
     ip_match = make_byte_array_ip_star_hdr(None,[],[],0,0,ip_dst,ip_dst_subnet)
     def IP_str_transform(hs,port):
         if hs.count() == 0:
@@ -233,7 +233,7 @@ def make_IP_str_transform(ip_dst, ip_dst_subnet, _out_ports):
 
 def make_IP_str_inv_match(out_ports, ip_dst, ip_dst_subnet):
     ip_match = make_byte_array_ip_star_hdr(None,[],[],0,0,ip_dst,ip_dst_subnet)
-    hs_len = format["length"] * 2
+    format["length"] * 2
     def IP_str_inv_match(hs,port):
         if port in out_ports:
             new_hs = hs.copy()
@@ -269,7 +269,7 @@ def make_IP_str_inv_transform(_in_ports):
 
 def make_NTF(num_mbox):
     line_counter = 1
-    num_stack = num_mbox + 1
+    num_mbox + 1
     NTF = TF(format["length"])
     
     m_addr = [dotted_ip_to_int("10.1.1.1"),
@@ -478,7 +478,7 @@ for size in sizes:
         print("$$$$$$$$ time is %d"%(en-st))
         for i in range(len(loops)):
             print("---------------------")
-            print("PATH: %s"%loop_path_to_str(loops[i],reverse_map))
+            print(f"PATH: {loop_path_to_str(loops[i],reverse_map)}")
             print("ORIGINATED BY:")
             for h in loop_origins[i]:
                 print(h)

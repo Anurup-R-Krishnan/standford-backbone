@@ -1,11 +1,13 @@
 #!/usr/bin/python
-import sqlite3, time, random
+import random
+import sqlite3
+import time
 
 DATABASE_FILE = "work/internet2.sqlite"
 
 rule_lists = []
 query = "SELECT rules FROM test_packets_globally_compressed"
-conn = sqlite3.connect(DATABASE_FILE, 6000)
+conn = sqlite3.connect(DATABASE_FILE, timeout=6000)
 rows = conn.execute(query)
 for row in rows:
     rule_lists.append(row[0].split())
@@ -35,9 +37,8 @@ while(len(rule_ids_set) > 0):
             # Rules that have been hit already
             if new: 
                 for r2 in rule_list:
-                    if r2.startswith("link"):
-                        if r2 in rule_ids_set:
-                            rule_ids_set.remove(r2)
+                    if r2.startswith("link") and r2 in rule_ids_set:
+                        rule_ids_set.remove(r2)
                 del rule_lists[lucky_index]                
                 break
     

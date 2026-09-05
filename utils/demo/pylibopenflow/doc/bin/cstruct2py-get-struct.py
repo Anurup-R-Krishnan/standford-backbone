@@ -4,10 +4,10 @@
 Author ykk
 Date June 2009
 """
-import sys
 import getopt
-import pylibopenflow.cheader as cheader
-import pylibopenflow.c2py as c2py
+import sys
+
+from pylibopenflow import c2py, cheader
 
 
 def usage():

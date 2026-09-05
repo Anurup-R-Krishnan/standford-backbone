@@ -3,13 +3,14 @@
 Date January 2010
 Created by ykk
 """
-import sys
-import pylibopenflow.cheader as cheader
-import pylibopenflow.c2py as c2py
 import datetime
-import struct
 import re
+import struct
+import sys
+
+from pylibopenflow import c2py, cheader
 from pylibopenflow.config import *
+
 
 def _space_to(n, str):
     """
@@ -112,8 +113,8 @@ class pythonizer:
                 code.append(l[:-1])
             fileRef.close()
         code.append("# Structure definitions")
-        for name,struct in self.cheader.structs.items():
-            code.extend(self.pycode_struct(struct))
+        for name, c_struct in self.cheader.structs.items():
+            code.extend(self.pycode_struct(c_struct))
             code.append("")
         code.append("# Enumerated type definitions")
         for name,enum in self.cheader.enums.items():
@@ -122,7 +123,7 @@ class pythonizer:
                 code.extend(self.pycode_enum_map(name,enum))
             code.append("")
         code.append("# Values from macro definitions")
-        for name,macro in self.cheader.macros.items():
+        for name in self.cheader.macros:
             code.extend(self.pycode_macro(name))
         code.append("")
         code.append("# Basic structure size definitions.")
@@ -149,7 +150,7 @@ class pythonizer:
         for e in enum:
             v = self.cheader.get_value(e)
             ev.append(v)
-            code.append(e+"%s= "%_space_to(36,e)+str(v))
+            code.append(e+f"{_space_to(36,e)}= "+str(v))
         if GEN_ENUM_VALUES_LIST:
             code.append(name+"_values = "+str(ev))
         return code
@@ -167,12 +168,10 @@ class pythonizer:
                 prev_v = v
                 first = 0
             else:
-                code.append(self.tab + "%s%s: '%s'," %
-                            (prev_v, _space_to(32, str(prev_v)), prev_e))
+                code.append(self.tab + f"{prev_v}{_space_to(32, str(prev_v))}: '{prev_e}',")
                 prev_e = e
                 prev_v = v
-        code.append(self.tab + "%s%s: '%s'" %
-                            (prev_v, _space_to(32, str(prev_v)), prev_e))
+        code.append(self.tab + f"{prev_v}{_space_to(32, str(prev_v))}: '{prev_e}'")
         code.append("}")
         return code
 
@@ -284,13 +283,13 @@ class pythonizer:
         print(file=file)
         print("# Class to array member map", file=file)
         print("class_to_members_map = {", file=file)
-        for name, struct in self.cheader.structs.items():
-            if not len(struct.members):
+        for name, c_struct in self.cheader.structs.items():
+            if not len(c_struct.members):
                 continue
             s =  "    '" + name + "'"
             print(s + _space_to(36, s) + ": [", file=file)
             prev = None
-            for member in struct.members:
+            for member in c_struct.members:
                 if re.search('pad', member.name):
                     continue
                 if prev:
@@ -380,7 +379,7 @@ class pythonizer:
                     #Array of Primitives
                     expandedarr = ""
                     if (member.size != 0):
-                        for x in range(0, member.size):
+                        for x in range(member.size):
                             expandedarr += ", self."+member.name+"["+\
                                            str(x).strip()+"]"
                         code.append(self.tab*2+"packed += struct.pack(\""+prefix+\
@@ -395,7 +394,7 @@ class pythonizer:
                       isinstance(member.object, cheader.cstruct)):
                     #Array of struct
                     if (member.size != 0):
-                        for x in range(0, member.size):
+                        for x in range(member.size):
                             code.append(self.tab*2+"packed += self."+member.name+"["+\
                                         str(x).strip()+"].pack()")
                     else:
@@ -529,7 +528,7 @@ class pythonizer:
                     expandedarr = ""
                     if (member.size != 0):
                         arrpattern = self.__c2py.structmap[member.object.typename]*member.size
-                        for x in range(0, member.size):
+                        for x in range(member.size):
                             expandedarr += "self."+member.name+"["+\
                                            str(x).strip()+"], "
                         code.append(self.tab*2 + "fmt = '" + prefix+arrpattern + "'")
@@ -542,7 +541,7 @@ class pythonizer:
                       isinstance(member.object, cheader.cstruct)):
                     #Array of struct
                     astructlen = self.__c2py.get_size("!"+self.__c2py.get_pattern(member.object))
-                    for x in range(0, member.size):
+                    for x in range(member.size):
                         code.append(self.tab*2+"self."+member.name+"["+str(x)+"]"+\
                                 ".unpack(binaryString["+str(offset)+":])")
                         offset += astructlen

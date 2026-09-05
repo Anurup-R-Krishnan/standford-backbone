@@ -4,8 +4,11 @@ Date April 2010
 Created by ykk
 """
 import datetime
-import pylibopenflow.cheader as cheader
 import os.path
+
+from pylibopenflow import cheader
+from pylibopenflow.cpythonize import rules
+
 
 class cppizer:
     """Class that put C++ wrapper around C structures
@@ -65,7 +68,7 @@ class cppizer:
         code.append("")
         code.append("namespace "+self.namespace)
         code.append("{")
-        for name,struct in self.cheader.structs.items():
+        for struct in self.cheader.structs.values():
             code.extend(self.code_struct(struct,True))
         code.append("}")
         return code
@@ -203,7 +206,7 @@ class cppizer:
                         code.append(indent+self.tab+member.name+".assign(buffer->"+\
                                     member.name+");")
                     else:
-                        for i in range(0,member.size):
+                        for i in range(member.size):
                             if (isinstance(member.object, cheader.cprimitive)):
                                 code.append(indent+self.tab+member.name+"["+str(i)+"]"\
                                             " = "+self.__determinehton(member.object)+"(buffer->"+\
@@ -251,7 +254,7 @@ class cppizer:
                         code.append(indent+self.tab+"buffer->"+member.name+"["+\
                                     str(member.size-1)+"] = '\\0';")
                     else:
-                        for i in range(0,member.size):
+                        for i in range(member.size):
                             if (isinstance(member.object, cheader.cprimitive)):
                                 code.append(indent+self.tab+"buffer->"+member.name+"["+str(i)+"]"\
                                             " = "+self.__determinehton(member.object)+"("+\
@@ -334,8 +337,8 @@ class cppizer:
             code.append(indent+"{")
             for member in struct_in.members:
                 if (isinstance(member, cheader.carray) and
-                    (not member.object.typename == "char")):
-                    for i in range(0, member.size):
+                    (member.object.typename != "char")):
+                    for i in range(member.size):
                         code.append(indent+self.tab+member.name +\
                                     "["+str(i)+"] = peer_." + member.name+"["+str(i)+"];")
                 else:
@@ -369,8 +372,8 @@ class cppizer:
             cstr = indent+self.tab+"return "
             for member in struct_in.members:
                 if (isinstance(member, cheader.carray) and
-                    (not member.object.typename == "char")):
-                    for i in range(0, member.size):
+                    (member.object.typename != "char")):
+                    for i in range(member.size):
                         cstr += "\\\n"+indent+self.tab+self.tab+\
                                 "("+member.name+"["+str(i)+"] == peer_."+\
                                 member.name+"["+str(i)+"]) &&"
@@ -414,7 +417,7 @@ class cppizer:
                         code.append(indent+self.tab+"(*this)"+sd+";")
                 elif (isinstance(member, cheader.carray)):
                     if (member.size != 0 and member.object.typename != "char"):
-                        for i in range(0, member.size):
+                        for i in range(member.size):
                             if (isinstance(member.object, cheader.cprimitive)):
                                 code.append(indent+self.tab+member.name+"["+str(i)+"] = "+\
                                             str(self.rules.get_default_value(member.object.typename, member.name))+\
@@ -451,8 +454,8 @@ class cppizer:
             code.append(indent+"{")
             for member in struct_in.members:
                 if (isinstance(member, cheader.carray) and
-                    (not member.object.typename == "char")):
-                    for i in range(0, member.size):
+                    (member.object.typename != "char")):
+                    for i in range(member.size):
                         code.append(indent+self.tab+member.name +\
                                     "["+str(i)+"] = " + member.name+"_["+str(i)+"];")
                 else:

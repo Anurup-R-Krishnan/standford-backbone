@@ -4,10 +4,11 @@
 Author ykk
 Date Jan 2010
 """
-import sys
 import getopt
-import pylibopenflow.cpythonize as cpythonize
-import pylibopenflow.cheader as cheader
+import sys
+
+from pylibopenflow import cheader, cpythonize
+
 
 def usage():
     """Display usage
@@ -42,7 +43,6 @@ if (len(args) < 2):
 ch = cheader.cheaderfile(args[:-1])
 py = cpythonize.pythonizer(ch)
 fileRef = open(args[len(args)-1], "w")
-for l in py.pycode():
-    fileRef.write(l+"\n")
+fileRef.writelines(l+"\n" for l in py.pycode())
 fileRef.close()
 

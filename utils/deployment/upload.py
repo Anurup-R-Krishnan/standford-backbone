@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import sqlite3
+
 DATABASE = 'result/result.sqlite'
 
 start_date = 1008

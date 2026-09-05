@@ -1,4 +1,3 @@
-import socket
 
 class ofsocket:
 	"""OpenFlow scoket
@@ -12,7 +11,7 @@ class ofsocket:
 	def send(self, msg):
 		"""Send message
 		"""
-		ofph = ofp_header()
+		ofph = ofp_header()  # noqa: F821
 		remaining = ofph.unpack(msg)
 		if (ofph.length != len(msg)):
 			ofph.length = len(msg)

@@ -23,7 +23,6 @@ import struct
 import sys
 import time
 
-
 if sys.platform.startswith("win32"):
     # On Windows, the best timer is time.clock()
     default_timer = time.clock
@@ -83,7 +82,7 @@ def calculate_checksum(source_string):
 
 def is_valid_ip4_address(addr):
     parts = addr.split(".")
-    if not len(parts) == 4:
+    if len(parts) != 4:
         return False
     for part in parts:
         try:
@@ -131,14 +130,14 @@ class Ping:
         print("\nPYTHON-PING %s (%s): %d data bytes" % (self.destination, self.dest_ip, self.packet_size))
 
     def print_unknown_host(self, e):
-        print("\nPYTHON-PING: Unknown host: %s (%s)\n" % (self.destination, e.args[1]))
+        print(f"\nPYTHON-PING: Unknown host: {self.destination} ({e.args[1]})\n")
         sys.exit(-1)
 
     def print_success(self, delay, ip, packet_size, ip_header, icmp_header):
         if ip == self.destination:
             from_info = ip
         else:
-            from_info = "%s (%s)" % (self.destination, ip)
+            from_info = f"{self.destination} ({ip})"
 
         print("%d bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms" % (
             packet_size, from_info, icmp_header["seq_number"], ip_header["ttl"], delay)
@@ -150,7 +149,7 @@ class Ping:
         print("Request timed out.")
 
     def print_exit(self):
-        print("\n----%s PYTHON PING Statistics----" % (self.destination))
+        print(f"\n----{self.destination} PYTHON PING Statistics----")
 
         lost_count = self.send_count - self.receive_count
         #print("%i packets lost" % lost_count)
@@ -161,11 +160,9 @@ class Ping:
         ))
 
         if self.receive_count > 0:
-            print("round-trip (ms)  min/avg/max = %0.3f/%0.3f/%0.3f" % (
-                self.min_time, self.total_time / self.receive_count, self.max_time
-            ))
+            print(f"round-trip (ms)  min/avg/max = {self.min_time:0.3f}/{self.total_time / self.receive_count:0.3f}/{self.max_time:0.3f}")
 
-        print("")
+        print()
 
     #--------------------------------------------------------------------------
 
@@ -223,12 +220,12 @@ class Ping:
         try: # One could use UDP here, but it's obscure
             current_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.getprotobyname("icmp"))
         except OSError as xxx_todo_changeme:
-            (errno, msg) = xxx_todo_changeme.args
+            (errno, _msg) = xxx_todo_changeme.args
             if errno == 1:
                 # Operation not permitted - Add more information to traceback
                 etype, evalue, etb = sys.exc_info()
                 evalue = etype(
-                    "%s - Note that ICMP messages can only be send from processes running as root." % evalue
+                    f"{evalue} - Note that ICMP messages can only be send from processes running as root."
                 )
                 raise evalue.with_traceback(etb)
             raise # raise the original error
@@ -245,10 +242,8 @@ class Ping:
             self.receive_count += 1
             delay = (receive_time - send_time) * 1000.0
             self.total_time += delay
-            if self.min_time > delay:
-                self.min_time = delay
-            if self.max_time < delay:
-                self.max_time = delay
+            self.min_time = min(self.min_time, delay)
+            self.max_time = max(self.max_time, delay)
 
             self.print_success(delay, ip, packet_size, ip_header, icmp_header)
             return delay
@@ -289,7 +284,7 @@ class Ping:
         try:
             current_socket.sendto(packet, (self.destination, 1)) # Port number is irrelevant for ICMP
         except OSError as e:
-            print("General failure (%s)" % (e.args[1]))
+            print(f"General failure ({e.args[1]})")
             current_socket.close()
             return
 
@@ -303,14 +298,14 @@ class Ping:
 
         while True: # Loop while waiting for packet or timeout
             select_start = default_timer()
-            inputready, outputready, exceptready = select.select([current_socket], [], [], timeout)
+            inputready, _outputready, _exceptready = select.select([current_socket], [], [], timeout)
             select_duration = (default_timer() - select_start)
             if inputready == []: # timeout
                 return None, 0, 0, 0, 0
 
             receive_time = default_timer()
 
-            packet_data, address = current_socket.recvfrom(ICMP_MAX_RECV)
+            packet_data, _address = current_socket.recvfrom(ICMP_MAX_RECV)
 
             icmp_header = self.header2dict(
                 names=[

@@ -6,12 +6,12 @@ creates Python class for each data structure in openflow.h.
 Author ykk
 Date December 2009
 """
-import sys
 import getopt
-import pylibopenflow.openflow as openflow
-import time
-import pylibopenflow.output as output
+import sys
+
 import pylibopenflow.of.pythonize as ofpythonize
+from pylibopenflow import openflow
+
 
 def usage():
     """Display usage
@@ -32,7 +32,7 @@ except getopt.GetoptError:
     sys.exit(2)
 
 #Check there is only output file
-if not (len(args) == 1):
+if len(args) != 1:
     usage()
     sys.exit(2)
 
@@ -58,7 +58,6 @@ ofmsg = openflow.messages(headerfile)
 pynizer = ofpythonize.pythonizer(ofmsg)
 
 fileRef = open(args[0], "w")
-for x in pynizer.pycode(templatefile):
-    fileRef.write(x+"\n")
+fileRef.writelines(x+"\n" for x in pynizer.pycode(templatefile))
 fileRef.write("\n")
 fileRef.close()

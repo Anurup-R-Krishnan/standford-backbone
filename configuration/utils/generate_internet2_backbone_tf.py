@@ -19,12 +19,15 @@ Created on Mar 11, 2012
 
 @author: James Hongyi Zeng
 '''
-import sys, os
+import os
+import sys
+
 sys.path.append("../")
+
+from time import time
 
 from config_parser.juniper_parser import *
 from headerspace.tf import *
-from time import time, clock
 
 st = time()
 output_path = "Internet2"
@@ -51,21 +54,20 @@ for (rtr_name,vlan) in rtr_names:
     tf = TF(cs.HS_FORMAT()["length"]*2)
     tf.set_prefix_id(rtr_name)
     cs.read_config_file("../data/Internet2/data/show_interfaces.xml", rtr_name)
-    cs.read_route_file("../data/Internet2/data/%s-show_route_forwarding-table_table_default.xml"%rtr_name)
+    cs.read_route_file(f"../data/Internet2/data/{rtr_name}-show_route_forwarding-table_table_default.xml")
     cs.generate_port_ids([])
     cs.optimize_forwarding_table()
     cs.generate_transfer_function(tf)
     #print tf
-    tf.save_object_to_file(WORK_DIR+"%s.tf"%rtr_name)
+    tf.save_object_to_file(WORK_DIR+f"{rtr_name}.tf")
     id += 1
     cs_list[rtr_name] = cs
     
 f = open(WORK_DIR+"port_map.txt",'w')
-for rtr in cs_list.keys():
+for rtr in cs_list:
     cs = cs_list[rtr]
-    f.write("$%s\n"%rtr)
-    for p in cs.port_to_id.keys():
-        f.write("%s:%s\n"%(p,cs.port_to_id[p]))
+    f.write(f"${rtr}\n")
+    f.writelines(f"{p}:{cs.port_to_id[p]}\n" for p in cs.port_to_id)
     
 f.close()
     

@@ -4,13 +4,13 @@
 Date October 2009
 Created by ykk
 """
-import pylibopenflow.c2py as c2py
-import pylibopenflow.cheader as cheader
-import os
-import socket
 import select
+import socket
 import struct
 import time
+
+from pylibopenflow import c2py, cheader
+
 
 class messages(cheader.cheaderfile,c2py.cstruct2py,c2py.structpacker):
     """Class to handle OpenFlow messages
@@ -313,7 +313,7 @@ class connections:
 
         Return (reference,connection) with message
         """
-        for sock, refconnect in self.__connections.items():
+        for refconnect in self.__connections.values():
             if (refconnect[1].buffer_has_msg()):
                 return refconnect
         return None

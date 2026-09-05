@@ -19,14 +19,16 @@ Created on Jan 27, 2012
 
 @author: Peyman Kazemian
 '''
-from headerspace.nu_smv_generator import *
-from utils.load_stanford_backbone import *
 from time import time
+
+from headerspace.nu_smv_generator import *
+
+from utils.load_stanford_backbone import *
 
 rtr_name = "yoza_rtr"
 nusmv = NuSMV()
 f = TF(1)
-f.load_object_from_file("tf_stanford_backbone/%s.tf"%rtr_name)
+f.load_object_from_file(f"tf_stanford_backbone/{rtr_name}.tf")
 (map,port_reverse_map) = load_stanford_backbone_port_to_id_map()
 end_ports = []
 for rtr_port in map[rtr_name]:

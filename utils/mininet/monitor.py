@@ -19,9 +19,13 @@
     Author: James Hongyi Zeng (hyzeng_at_stanford.edu)
 '''
 
-import socket, time, json, subprocess
-from ping import Ping
+import json
+import socket
+import subprocess
+import time
 from argparse import ArgumentParser
+
+from ping import Ping
 
 UDP_PORT = 8888
 
@@ -69,7 +73,7 @@ class MonitorServer:
     def run(self):
         self.socket.bind( ('0.0.0.0',self.udp_port) )
         while True:
-            data, addr = self.socket.recvfrom( 1024 ) # buffer size is 1024 bytes
+            data, _addr = self.socket.recvfrom( 1024 ) # buffer size is 1024 bytes
             print("received message:", data)
         
 def main():
@@ -82,7 +86,7 @@ def main():
                       help="Number of clients")
     args = parser.parse_args()
     
-    client_names = ["10.0.0.%s" % x for x in range(1,args.num_clients+1)]
+    client_names = [f"10.0.0.{x}" for x in range(1,args.num_clients+1)]
     if args.server_mode:
         server = MonitorServer(client_names)
         server.run()

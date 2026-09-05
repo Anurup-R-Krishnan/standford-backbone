@@ -2,17 +2,20 @@
 
 # Requires graph_tool library: http://graph-tool.skewed.de/
 
-from graph_tool.all import *
+import os
 
 #asCount = 0
 #relCount = 0
 #nodes =  dict()
 #asNames = g.new_vertex_property("string")
 #relNames = g.new_edge_property("string")
-#asFilters = g.new_vertex_property("bool")
-inputFile = "./net.txt"
+import sys
+
+from graph_tool.all import *
+
+inputFile = sys.argv[1] if len(sys.argv) > 1 else ("./net.txt" if os.path.exists("./net.txt") else "./net_samples.txt")
 edges = set()
-nodes = dict()
+nodes = {}
 
 g = Graph(directed=False)
 node_types = g.new_vertex_property("string")

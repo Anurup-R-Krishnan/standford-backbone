@@ -19,9 +19,9 @@ Created on Dec 31, 2011
 
 @author: Peyman Kazemian
 '''
-from headerspace.tf import TF
-from headerspace.tf import *
 import os
+
+from headerspace.tf import *
 
 MODEL_CHECKER_PATH = "/Users/peymankazemian/NuSMV/nusmv/NuSMV"
 TMP_FILE_PATH = "../tmp.smv"
@@ -81,7 +81,7 @@ class NuSMV:
                     else:
                         e_range = self.length - 1
                         num_bits = self.length - HDR_VAR_LEN*i
-                    nusmv_rule = nusmv_rule + " & ((h%s & 0ub%s_%s) = 0ub%s_%s)"%(i,num_bits,mask[l-e_range:l-s_range],num_bits,match[l-e_range:l-s_range])
+                    nusmv_rule = nusmv_rule + f" & ((h{i} & 0ub{num_bits}_{mask[l-e_range:l-s_range]}) = 0ub{num_bits}_{match[l-e_range:l-s_range]})"
                 
             
             if (rule["affected_by"]):
@@ -103,7 +103,7 @@ class NuSMV:
                         else:
                             e_range = self.length - 1
                             num_bits = self.length - HDR_VAR_LEN*i
-                        affected = affected + " | ((h%s & 0ub%s_%s) != 0ub%s_%s)"%(i,num_bits,aff_mask[l-e_range:l-s_range],num_bits,aff_match[l-e_range:l-s_range])
+                        affected = affected + f" | ((h{i} & 0ub{num_bits}_{aff_mask[l-e_range:l-s_range]}) != 0ub{num_bits}_{aff_match[l-e_range:l-s_range]})"
                     nusmv_rule = nusmv_rule + " & (" + affected + ")"
                 
             if (rule["mask"] != None and rule["rewrite"] != None):
@@ -117,11 +117,10 @@ class NuSMV:
                     else:
                         e_range = self.length - 1
                         num_bits = self.length - HDR_VAR_LEN*i
-                    nusmv_rule = nusmv_rule + " & (next(h%s) = ((h%s & 0ub%s_%s) | 0ub%s_%s))"%\
-                        (i,i,num_bits,action_mask[l-e_range:l-s_range],num_bits,action_rewrite[l-e_range:l-s_range])
+                    nusmv_rule = nusmv_rule + f" & (next(h{i}) = ((h{i} & 0ub{num_bits}_{action_mask[l-e_range:l-s_range]}) | 0ub{num_bits}_{action_rewrite[l-e_range:l-s_range]}))"
             else:
                 for i in range(num_parts):
-                    nusmv_rule = nusmv_rule + " & (next(h%s) = h%s)"%(i,i)
+                    nusmv_rule = nusmv_rule + f" & (next(h{i}) = h{i})"
     
             if (rule["action"] == "link"):
                 nusmv_rule = nusmv_rule + " & (next(pin) = 0ud%d_%d)"%(PORT_VAR_LEN,rule["out_ports"][0]+self.out_port_offset)
@@ -149,30 +148,30 @@ class NuSMV:
         self.generated_nusmv_input = "MODULE main\n"
         self.generated_nusmv_input = self.generated_nusmv_input + "\n"
         self.generated_nusmv_input = self.generated_nusmv_input + "VAR\n"
-        self.generated_nusmv_input = self.generated_nusmv_input + "p: unsigned word[%s];\n"%(PORT_VAR_LEN)
-        self.generated_nusmv_input = self.generated_nusmv_input + "pin: unsigned word[%s];\n"%(PORT_VAR_LEN)
+        self.generated_nusmv_input = self.generated_nusmv_input + f"p: unsigned word[{PORT_VAR_LEN}];\n"
+        self.generated_nusmv_input = self.generated_nusmv_input + f"pin: unsigned word[{PORT_VAR_LEN}];\n"
         num_parts = int(ceil(self.length / (HDR_VAR_LEN*1.0)))
         for i in range(num_parts):
-            s_range = i * HDR_VAR_LEN
+            i * HDR_VAR_LEN
             if (self.length > i*HDR_VAR_LEN+HDR_VAR_LEN-1):
-                e_range = i*HDR_VAR_LEN+HDR_VAR_LEN-1
+                i*HDR_VAR_LEN+HDR_VAR_LEN-1
                 num_bits = HDR_VAR_LEN
             else:
-                e_range = self.length - 1
+                self.length - 1
                 num_bits = self.length - HDR_VAR_LEN*i
-            self.generated_nusmv_input = self.generated_nusmv_input + "h%s: unsigned word[%s];\n"%(i,num_bits)
+            self.generated_nusmv_input = self.generated_nusmv_input + f"h{i}: unsigned word[{num_bits}];\n"
         self.generated_nusmv_input = self.generated_nusmv_input + "\n"
         self.generated_nusmv_input = self.generated_nusmv_input + "INIT p = 0ud%d_0;\n"%PORT_VAR_LEN
         self.generated_nusmv_input = self.generated_nusmv_input + "INIT pin = 0ud%d_0;\n"%PORT_VAR_LEN
         
         num_init = num_parts
         for i in range(num_init):
-            s_range = i * HDR_VAR_LEN
+            i * HDR_VAR_LEN
             if (self.length > i*HDR_VAR_LEN+HDR_VAR_LEN-1):
-                e_range = i*HDR_VAR_LEN+HDR_VAR_LEN-1
+                i*HDR_VAR_LEN+HDR_VAR_LEN-1
                 num_bits = HDR_VAR_LEN
             else:
-                e_range = self.length - 1
+                self.length - 1
                 num_bits = self.length - HDR_VAR_LEN*i
             self.generated_nusmv_input = self.generated_nusmv_input + "INIT h%s = 0ub%d_0;\n"%(i,num_bits)
         
@@ -182,21 +181,21 @@ class NuSMV:
         trans = ""
         for nusmv_transition in self.nusmv_trans:
             if trans == "":
-                trans = trans + "( %s )"%nusmv_transition
+                trans = trans + f"( {nusmv_transition} )"
             else:
-                trans = trans + " |\n( %s )"%nusmv_transition
+                trans = trans + f" |\n( {nusmv_transition} )"
         self.generated_nusmv_input = self.generated_nusmv_input + trans;
         
         #print self.generated_nusmv_input
         
     def execute_nusmv_file(self):    
-        p = os.popen("%s %s"%(MODEL_CHECKER_PATH,TMP_FILE_PATH), "r")
+        p = os.popen(f"{MODEL_CHECKER_PATH} {TMP_FILE_PATH}", "r")
         result = False
         while 1:
             line = p.readline()
             if not line:
                 break
-            if not (line.startswith("WARNING") or line.startswith("***")):
+            if not (line.startswith(("WARNING", "***"))):
                 print(line)
                 if line.find("true") != -1:
                     result = True
@@ -208,7 +207,7 @@ class NuSMV:
         '''
         there exist a path from in_port to out_port
         '''
-        f = open("%s"%TMP_FILE_PATH, 'w')
+        f = open(f"{TMP_FILE_PATH}", 'w')
         f.write(self.generated_nusmv_input)
         f.write(" |\n( p = 0ud%d_0 & next(p) = 0ud%d_%s);\n"%(PORT_VAR_LEN,PORT_VAR_LEN,in_port))
         f.write("SPEC !EF (p = 0ud%d_%s);"%(PORT_VAR_LEN,out_port))
@@ -219,7 +218,7 @@ class NuSMV:
         '''
         at least one path from in_port to out_port passes through via_ports
         '''
-        f = open("%s"%TMP_FILE_PATH, 'w')
+        f = open(f"{TMP_FILE_PATH}", 'w')
         f.write(self.generated_nusmv_input)
         f.write(" |\n( p = 0ud%d_0 & next(p) = 0ud%d_%s & next(pin) = 0ud%d_%s);\n"%(PORT_VAR_LEN,PORT_VAR_LEN,in_port,PORT_VAR_LEN,in_port+self.out_port_offset))
         vias = ""
@@ -239,7 +238,7 @@ class NuSMV:
         all paths from in_port to out_port should pass through via_ports
         or there is no path between in_port and out_port.
         '''
-        f = open("%s"%TMP_FILE_PATH, 'w')
+        f = open(f"{TMP_FILE_PATH}", 'w')
         f.write(self.generated_nusmv_input)
         f.write(" |\n( p = 0ud%d_0 & next(p) = 0ud%d_%s);\n"%(PORT_VAR_LEN,PORT_VAR_LEN,in_port))
         vias = ""

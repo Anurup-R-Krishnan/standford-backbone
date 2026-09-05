@@ -4,9 +4,10 @@
 Date May 2010
 Created by ykk
 """
-import pylibopenflow.cppize as cppize
 import pylibopenflow.of.pythonize as ofcpyize
+from pylibopenflow import cppize
 from pylibopenflow.config import *
+
 
 class cppizer(cppize.cppizer):
     """Class that put C++ wrapper around C structures

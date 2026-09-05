@@ -18,8 +18,14 @@
     Author: James Hongyi Zeng (hyzeng_at_stanford.edu)
 '''
 
-import socket, time, re, urllib2, logging
-from subprocess import Popen, PIPE
+import logging
+import re
+import socket
+import time
+from subprocess import PIPE, Popen
+
+import urllib2
+
 
 class MonitorClient:
     def __init__(self, peer_url, period = 10, update_period = 60):
@@ -40,17 +46,17 @@ class MonitorClient:
                  #print hostname
                  try:
                      host_ip = socket.gethostbyname(hostname)
-                 except:
+                 except Exception:
                      host_ip = hostname
                  #print host_ip
                  ping = Popen(["ping", "-c", "1", "-w", "1", host_ip], stdout = PIPE)
-                 matcher = re.search("min/avg/max/mdev = (\d+.\d+)/(\d+.\d+)/(\d+.\d+)/(\d+.\d+)", ping.stdout.read())
+                 matcher = re.search(r"min/avg/max/mdev = (\d+.\d+)/(\d+.\d+)/(\d+.\d+)/(\d+.\d+)", ping.stdout.read())
                  if matcher:
                      result = matcher.group(1)
                  else:
                      result = "+Inf"
                  
-                 report = "%f %s %s" % (time.time(), host_ip, result)
+                 report = f"{time.time():f} {host_ip} {result}"
                  logging.debug(report)
                  reports.append(report)             
             
@@ -58,7 +64,7 @@ class MonitorClient:
             time.sleep(self.period)
             
             suffix = time.strftime('%m%d')
-            report_file = open('report_%s.txt' % (suffix), 'a')
+            report_file = open(f'report_{suffix}.txt', 'a')
             for report in reports:
                 report_file.write(report + '\n')
             report_file.close()
@@ -77,11 +83,10 @@ class MonitorClient:
             for line in response:
                 if line != "\n":
                     self.peer_names.append(line.rstrip())
-        except:
+        except Exception:
             pass
         
 def main():
-    description = "ATPG reachability monitor"
     logging.basicConfig(level=logging.DEBUG)
     
     client = MonitorClient("http://dl.dropbox.com/u/10554311/peers.txt")

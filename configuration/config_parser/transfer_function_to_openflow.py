@@ -20,12 +20,14 @@ Created on Mar 27, 2012
 @author: Peyman Kazemian
 '''
 
+import json
+import os
+
 from headerspace.hs import *
 from headerspace.tf import *
-from config_parser.cisco_router_parser import *
-import json
 
-from httplib import HTTPMessage
+from config_parser.cisco_router_parser import *
+
 
 class OpenFlow_Rule_Generator:
     
@@ -44,7 +46,6 @@ class OpenFlow_Rule_Generator:
         as a right-hand masked field or not.
         '''
         
-        wildcards = []
         if right_wc:
             found_right_wc = -1
             values = []
@@ -94,7 +95,7 @@ class OpenFlow_Rule_Generator:
             for j in range (4):
                 next_bit = (new_byte_array[i] >> (2*j)) & 0x03
                 if next_bit == 0x03:
-                    print("ERROR: Unexpected rewrite action. Ignored. %s - %s - %s - %s"%(byte_array_to_hs_string(field_match),byte_array_to_hs_string(field_mask),byte_array_to_hs_string(field_rewrite),byte_array_to_hs_string(new_byte_array)))
+                    print(f"ERROR: Unexpected rewrite action. Ignored. {byte_array_to_hs_string(field_match)} - {byte_array_to_hs_string(field_mask)} - {byte_array_to_hs_string(field_rewrite)} - {byte_array_to_hs_string(new_byte_array)}")
                     return None
                 elif next_bit == 0x02:
                     value = value + 2**(4*i+j)
@@ -112,11 +113,11 @@ class OpenFlow_Rule_Generator:
         fields = ["mac_src", "mac_dst", "vlan", "ip_src", "ip_dst", "ip_proto", "transport_src", "transport_dst"]
         openflow_entry = {}
         for field in fields:
-            if "%s_pos"%field not in self.hs_format.keys():
+            if f"{field}_pos" not in self.hs_format:
                 continue
             
-            position = self.hs_format["%s_pos"%field]
-            len = self.hs_format["%s_len"%field]
+            position = self.hs_format[f"{field}_pos"]
+            len = self.hs_format[f"{field}_len"]
             wildcarded = True
             field_match = bytearray()
             field_mask = bytearray()
@@ -131,23 +132,23 @@ class OpenFlow_Rule_Generator:
 
             if wildcarded:
                 if field == "ip_src" or field == "ip_dst":
-                    openflow_entry["%s_wc"%field] = 32
+                    openflow_entry[f"{field}_wc"] = 32
                 else:
-                    openflow_entry["%s_wc"%field] = 1
+                    openflow_entry[f"{field}_wc"] = 1
                 #openflow_entry["%s_match"%field] = [0]
-                openflow_entry["%s_match"%field] = 0
+                openflow_entry[f"{field}_match"] = 0
             else:
                 if field == "ip_src" or field == "ip_dst":
                     parsed = self.parse_non_wc_field(field_match, True)
                 else:
                     parsed = self.parse_non_wc_field(field_match, False)
-                openflow_entry["%s_wc"%field] = parsed[1]
-                openflow_entry["%s_match"%field] = parsed[0]
+                openflow_entry[f"{field}_wc"] = parsed[1]
+                openflow_entry[f"{field}_match"] = parsed[0]
                 
             if (rule["mask"] != None):
-                openflow_entry["%s_new"%field] = self.find_new_field(field_match,field_mask,field_rewrite)
+                openflow_entry[f"{field}_new"] = self.find_new_field(field_match,field_mask,field_rewrite)
             else:
-                openflow_entry["%s_new"%field] = None
+                openflow_entry[f"{field}_new"] = None
                 
             openflow_entry["in_ports"] = rule["in_ports"]
             openflow_entry["out_ports"] = rule["out_ports"]
@@ -155,7 +156,9 @@ class OpenFlow_Rule_Generator:
         return openflow_entry
     
     def generate_of_rules(self,filename):
-        f = open("../work/stanford_openflow_rules/%s"%filename,'w')
+        out_path = f"../work/stanford_openflow_rules/{filename}"
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        f = open(out_path,'w')
         rules = []
         for rule in self.tf.rules:
             of_rule = self.parse_rule(rule)

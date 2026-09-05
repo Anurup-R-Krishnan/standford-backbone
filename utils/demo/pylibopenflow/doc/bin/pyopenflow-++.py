@@ -6,11 +6,12 @@ for each data structure in openflow.h.
 Author ykk
 Date April 2010
 """
-import sys
 import getopt
-import pylibopenflow.output as output
-import pylibopenflow.openflow as openflow
+import sys
+
 import pylibopenflow.of.ppize as ofppize
+from pylibopenflow import openflow
+
 
 def usage():
     """Display usage
@@ -33,7 +34,7 @@ except getopt.GetoptError:
     sys.exit(2)
 
 #Check there is only output file
-if not (len(args) == 1):
+if len(args) != 1:
     usage()
     sys.exit(2)
 
@@ -64,11 +65,9 @@ cppizer = ofppize.cppizer(ofmsg)
 
 hfileRef = open(args[0]+".hh", "w")
 cfileRef = open(args[0]+".cc", "w")
-for x in cppizer.hcode(args[0], htemplatefile):
-    hfileRef.write(x+"\n")
-for x in cppizer.ccode(ctemplatefile, None,
-                       ["#include \""+args[0]+".hh\""]):
-    cfileRef.write(x+"\n")
+hfileRef.writelines(x+"\n" for x in cppizer.hcode(args[0], htemplatefile))
+cfileRef.writelines(x+"\n" for x in cppizer.ccode(ctemplatefile, None,
+                       ["#include \""+args[0]+".hh\""]))
 hfileRef.write("\n")
 cfileRef.write("\n")
 cfileRef.close()

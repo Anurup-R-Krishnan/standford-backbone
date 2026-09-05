@@ -5,7 +5,9 @@ Date October 2009
 Created by ykk
 """
 import random
-import pylibopenflow.openflow as openflow
+
+from pylibopenflow import openflow
+
 
 class network:
     """Class holding information about OpenFlow network

@@ -5,13 +5,14 @@
 Author ykk
 Date October 2009
 """
-import sys
 import getopt
-import pylibopenflow.openflow as openflow
+import sys
 import time
-import pylibopenflow.output as output
+
 import pylibopenflow.of.msg as of_msg
 import pylibopenflow.of.simu as of_simu
+from pylibopenflow import openflow, output
+
 
 def usage():
     """Display usage
@@ -32,7 +33,7 @@ except getopt.GetoptError:
     sys.exit(2)
 
 #Check there is only controller
-if not (len(args) == 1):
+if len(args) != 1:
     usage()
     sys.exit(2)
     

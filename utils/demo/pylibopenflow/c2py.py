@@ -3,8 +3,10 @@
 Date June 2009
 Created by ykk
 """
-import pylibopenflow.cheader as cheader
 import struct
+
+from pylibopenflow import cheader
+
 
 class cstruct2py:
     """Class converts C struct to Python struct pattern string

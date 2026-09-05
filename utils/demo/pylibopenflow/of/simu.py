@@ -4,10 +4,10 @@ Copyright(C) 2009, Stanford University
 Date November 2009
 Created by ykk
 """
-import pylibopenflow.openflow as openflow
-import pylibopenflow.output as output
 import pylibopenflow.of.msg as ofmsg
 import pylibopenflow.of.network as ofnetwork
+from pylibopenflow import openflow, output
+
 
 class network(ofnetwork.network):
     """Class to simulate OpenFlow network

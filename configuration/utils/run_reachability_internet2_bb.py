@@ -19,11 +19,14 @@ Created on Mar 11, 2012
 
 @author: James Hongyi Zeng
 '''
-from utils.load_internet2_backbone import *
-from config_parser.juniper_parser import juniperRouter
-from headerspace.hs import *
-from headerspace.applications import *
 from time import time
+
+from config_parser.juniper_parser import juniperRouter
+from headerspace.applications import *
+from headerspace.hs import *
+
+from utils.load_internet2_backbone import *
+
 #from multiprocessing import Pool
 
 ntf_global = []

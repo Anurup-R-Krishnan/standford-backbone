@@ -5,9 +5,11 @@
 Author ykk
 Date October 2009
 """
-import sys
 import getopt
-import pylibopenflow.openflow as openflow
+import sys
+
+from pylibopenflow import openflow
+
 
 def usage():
     """Display usage
@@ -29,7 +31,7 @@ except getopt.GetoptError:
     sys.exit(2)
 
 #Check there is only struct name
-if not (len(args) == 1):
+if len(args) != 1:
     usage()
     sys.exit(2)
     
@@ -51,7 +53,7 @@ for opt,arg in opts:
     elif (opt in ("-n","--names")): 
         printname = True
     else:
-        assert (False,"Unhandled option :"+opt)
+        assert False, "Unhandled option :" + opt
 
 pyopenflow = openflow.messages()
 cstruct = pyopenflow.structs[args[0].strip()]

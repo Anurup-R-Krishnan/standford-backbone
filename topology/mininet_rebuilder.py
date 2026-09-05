@@ -21,17 +21,20 @@
             Yang (Jack) Wu (yangwu6@cis.upenn.edu)
 '''
 
+import sys
 from argparse import ArgumentParser
-from socket import gethostbyname
 from os import getuid
+from socket import gethostbyname
 
-from mininet.log import lg, info
 from mininet.cli import CLI
+from mininet.log import lg
 from mininet.net import Mininet
+from mininet.node import (
+    OVSKernelSwitch,
+    RemoteController,
+)
 from mininet.topo import Topo
-from mininet.link import Link, Intf
-from mininet.node import Host, OVSKernelSwitch, Controller, RemoteController
-from mininet.node import OVSController
+
 
 class StanfordTopo( Topo ):
     "Topology for Stanford backbone"
@@ -53,8 +56,8 @@ class StanfordTopo( Topo ):
     dummy_switches = set()
     edge_switches = set()
     # Jack
-    dummy_rules = list()
-    edge_rules = list()
+    dummy_rules = []
+    edge_rules = []
     edge_switch_count = 0
     edge_host_count = 0
 
@@ -70,8 +73,8 @@ class StanfordTopo( Topo ):
         # Create switch nodes
         for s in switches:
             # Jack
-            print("add_switch(): s%s" % s)
-            self.addSwitch( "s%s" % s )
+            print(f"add_switch(): s{s}")
+            self.addSwitch( f"s{s}" )
             self.core_switches.add(s)
 
         # Wire up switches       
@@ -89,13 +92,13 @@ class StanfordTopo( Topo ):
                     # Connect edge network to backbone
                     # Add single switch for each edge port
                     print("add_link(): nodes s%s to s%s, ports %d to %d (backbone)" % (backbone_switch_id, s, backbone_port, port))
-                    self.addLink( "s%s" % backbone_switch_id, "s%s" % s, backbone_port, port )
+                    self.addLink( f"s{backbone_switch_id}", f"s{s}", backbone_port, port )
                 else:
-                    print("add_host(): h%s" % host_id)
-                    self.addHost( "h%s" % host_id )
+                    print(f"add_host(): h{host_id}")
+                    self.addHost( f"h{host_id}" )
                     # Connect host to backbone
                     print("add_link(): nodes h%s to s%s, ports %d to %d (backbone)" % (host_id, s, 0, port))
-                    self.addLink( "h%s" % host_id, "s%s" % s, 0, port )
+                    self.addLink( f"h{host_id}", f"s{s}", 0, port )
                     host_id += 1
 
         # Consider all switches and hosts 'on'
@@ -105,21 +108,21 @@ class StanfordTopo( Topo ):
         # Add switch
         self.edge_switch_count += 1
         s = "%d" % (self.edge_switch_count + self.EDGE_SWITCH_BASE)
-        print("add_switch(): s%s" % s)
-        self.addSwitch( "s%s" % s )
+        print(f"add_switch(): s{s}")
+        self.addSwitch( f"s{s}" )
         self.edge_switches.add(s)
         # Add host
         self.edge_host_count += 1
-        h = "%s" % self.edge_host_count
-        print("add_host(): h%s" % h)
-        self.addHost( "h%s" % h )
+        h = f"{self.edge_host_count}"
+        print(f"add_host(): h{h}")
+        self.addHost( f"h{h}" )
         # Link
         # Connect host to backbone
         print("add_link(): nodes h%s to s%s, ports %d to %d (backbone)" % (h, s, 0, 1))
-        self.addLink( "h%s" % h, "s%s" % s, 0, 1)
+        self.addLink( f"h{h}", f"s{s}", 0, 1)
         # Append edge rules
-        outflow = "sudo ovs-ofctl add-flow s%s idle_timeout=0,hard_timeout=0,dl_type=0x0800,in_port=1,actions=output:2" % (s)
-        inflow = "sudo ovs-ofctl add-flow s%s idle_timeout=0,hard_timeout=0,dl_type=0x0800,in_port=2,actions=output:1" % (s)
+        outflow = f"sudo ovs-ofctl add-flow s{s} idle_timeout=0,hard_timeout=0,dl_type=0x0800,in_port=1,actions=output:2"
+        inflow = f"sudo ovs-ofctl add-flow s{s} idle_timeout=0,hard_timeout=0,dl_type=0x0800,in_port=2,actions=output:1"
         self.edge_rules.append(outflow)
         self.edge_rules.append(inflow)
         # Return
@@ -133,10 +136,10 @@ class StanfordTopo( Topo ):
                 tokens = line.strip().split(":")
                 port_flat = int(tokens[1])
                 
-                dpid = port_flat / self.SWITCH_ID_MULTIPLIER
+                dpid = port_flat // self.SWITCH_ID_MULTIPLIER
                 port = port_flat % self.PORT_TYPE_MULTIPLIER
                 
-                if dpid not in ports.keys():
+                if dpid not in ports:
                     ports[dpid] = set()
                 if port not in ports[dpid]:
                     ports[dpid].add(port)             
@@ -167,21 +170,21 @@ class StanfordTopo( Topo ):
         # First pass, find special ports with more than 1 peer port
         first_pass = {}
         for (src_port_flat, dst_port_flat) in links:
-            src_dpid = src_port_flat / self.SWITCH_ID_MULTIPLIER
-            dst_dpid = dst_port_flat / self.SWITCH_ID_MULTIPLIER
+            src_dpid = src_port_flat // self.SWITCH_ID_MULTIPLIER
+            dst_dpid = dst_port_flat // self.SWITCH_ID_MULTIPLIER
             src_port = src_port_flat % self.PORT_TYPE_MULTIPLIER
             dst_port = dst_port_flat % self.PORT_TYPE_MULTIPLIER
             
-            if (src_dpid, src_port) not in first_pass.keys():
+            if (src_dpid, src_port) not in first_pass:
                 first_pass[(src_dpid, src_port)] = set()
             first_pass[(src_dpid, src_port)].add((dst_dpid, dst_port))
-            if (dst_dpid, dst_port) not in first_pass.keys():
+            if (dst_dpid, dst_port) not in first_pass:
                 first_pass[(dst_dpid, dst_port)] = set()
             first_pass[(dst_dpid, dst_port)].add((src_dpid, src_port))
             
         # Second pass, create new links for those special ports
         dummy_switch_id = self.DUMMY_SWITCH_BASE
-        for (dpid, port) in first_pass.keys():
+        for (dpid, port) in first_pass:
             # Special ports!
             if(len(first_pass[(dpid,port)])>1):
                 # Jack
@@ -189,19 +192,19 @@ class StanfordTopo( Topo ):
                 self.generate_dummy_rules(dummy_switch_id, len(first_pass[(dpid,port)]))
 
                 # Jack
-                print("add_switch(): s%s (dummy)" % dummy_switch_id)
-                self.addSwitch( "s%s" % dummy_switch_id )
+                print(f"add_switch(): s{dummy_switch_id} (dummy)")
+                self.addSwitch( f"s{dummy_switch_id}" )
                 self.dummy_switches.add(dummy_switch_id)
                 
                 # Jack
                 print("add_link(): nodes s%s to s%s, ports %d to %d (to dummy)" % (dpid, dummy_switch_id, port, 1))
-                self.addLink( node1="s%s" % dpid, node2="s%s" % dummy_switch_id, port1=port, port2=1 )
+                self.addLink( node1=f"s{dpid}", node2=f"s{dummy_switch_id}", port1=port, port2=1 )
                 dummy_switch_port = 2
                 for (dst_dpid, dst_port) in first_pass[(dpid,port)]:
                     first_pass[(dst_dpid, dst_port)].discard((dpid,port))
                     # Jack
                     print("add_link(): nodes s%s to s%s, ports %d to %d (from dummy)" % (dummy_switch_id, dst_dpid, dummy_switch_port, dst_port))
-                    self.addLink( node1="s%s" % dummy_switch_id, node2="s%s" % dst_dpid, port1=dummy_switch_port, port2=dst_port)
+                    self.addLink( node1=f"s{dummy_switch_id}", node2=f"s{dst_dpid}", port1=dummy_switch_port, port2=dst_port)
                     ports[dst_dpid].discard(dst_port)
                     dummy_switch_port += 1
                 dummy_switch_id += 1  
@@ -209,17 +212,17 @@ class StanfordTopo( Topo ):
             ports[dpid].discard(port)
         
         # Third pass, create the remaining links
-        for (dpid, port) in first_pass.keys():
+        for (dpid, port) in first_pass:
             for (dst_dpid, dst_port) in first_pass[(dpid,port)]:
                 # Jack
                 print("add_link(): nodes s%s to s%s, ports %d to %d (normal)" % (dpid, dst_dpid, port, dst_port))
-                self.addLink( node1="s%s" % dpid, node2="s%s" % dst_dpid, port1=port, port2=dst_port )
+                self.addLink( node1=f"s{dpid}", node2=f"s{dst_dpid}", port1=port, port2=dst_port )
                 ports[dst_dpid].discard(dst_port)     
             ports[dpid].discard(port)          
         
      # Jack
     def generate_dummy_rules(self, dummy_switch_id, port_count):
-        ingress = "sudo ovs-ofctl add-flow s%s idle_timeout=0,hard_timeout=0,dl_type=0x0800,in_port=1,actions=" % (dummy_switch_id)
+        ingress = f"sudo ovs-ofctl add-flow s{dummy_switch_id} idle_timeout=0,hard_timeout=0,dl_type=0x0800,in_port=1,actions="
         for dst_port in range(2, port_count + 2):
             ingress += "output:%d," % dst_port
             self.dummy_rules.append("sudo ovs-ofctl add-flow s%s idle_timeout=0,hard_timeout=0,dl_type=0x0800,in_port=%d,actions=output:1" % (dummy_switch_id, dst_port))
@@ -233,7 +236,7 @@ class StanfordMininet ( Mininet ):
         
         # FIXME: One exception... Dual links between yoza and yozb
         # Need _manual_ modification for different topology files!!!
-        self.topo.addLink( node1="s%s" % 15, node2="s%s" % 16, port1=7, port2=4 )
+        self.topo.addLink( node1=f"s{15}", node2=f"s{16}", port1=7, port2=4 )
 
 
 # Jack
@@ -260,15 +263,15 @@ def StanfordTopoTest( controller_ip, controller_port, traffic, edge):
 
     cmap = {}
     for dpid in topo.core_switches:
-        s = "s%s" % dpid
+        s = f"s{dpid}"
         cmap[s] = main_controller
 
     for dpid in topo.dummy_switches:
-        s = "s%s" % dpid
+        s = f"s{dpid}"
         cmap[s] = dummy_controller
     
     for dpid in topo.edge_switches:
-        s = "s%s" % dpid
+        s = f"s{dpid}"
         cmap[s] = dummy_controller
 
     class MultiSwitch( OVSKernelSwitch ):
@@ -286,12 +289,12 @@ def StanfordTopoTest( controller_ip, controller_port, traffic, edge):
     switch = net.nameToNode["s1001"]
     for rule in topo.dummy_rules:
         result = switch.cmd(rule)
-        print("Installing dummy rule: %s, returns: " % rule, result)
+        print(f"Installing dummy rule: {rule}, returns: ", result)
 
     # Install edge rules
     for rule in topo.edge_rules:
         result = switch.cmd(rule)
-        print("Installing edge rule: %s, returns: " % rule, result)
+        print(f"Installing edge rule: {rule}, returns: ", result)
 
     '''
     # Start HTTP servers
@@ -320,29 +323,29 @@ def StanfordTopoTest( controller_ip, controller_port, traffic, edge):
         host = net.nameToNode[hostName]
         # Set default route at hosts, forwarding all traffic to access switch
         # Otherwise PING complains no route
-        cmd = "route add default dev %s-eth0" % host.name
+        cmd = f"route add default dev {host.name}-eth0"
         result = host.cmd(cmd)
         if len(result) != 0:
             raise Exception("error")
-        print("Setting up default route: %s, returns: #%s#" % (cmd, result))
+        print(f"Setting up default route: {cmd}, returns: #{result}#")
 
         # Setup traffic
         if traffic:
-            for ip in traffics.keys():
+            for ip in traffics:
                  # Set static ARP protocol
                 # Otherwise needs to setup ARP
                 mac = traffics[ip]
-                cmd = "arp -s %s %s" % (ip, mac)
+                cmd = f"arp -s {ip} {mac}"
                 result = host.cmd(cmd)
                 if len(result) != 0:
                     raise Exception("error")
-                print("Setting up static ARP: %s, returns: %s" % (cmd, result))
+                print(f"Setting up static ARP: {cmd}, returns: {result}")
                 # Initiate ping traffic
                 for i in range(5):
-                    cmd = "ping %s &" % ip
+                    cmd = f"ping {ip} &"
                     #cmd = "ping -i 0.2 %s &" % ip
                     result = host.cmd(cmd)
-                    print("Traffic: %s, returns: %s" % (cmd, result))
+                    print(f"Traffic: {cmd}, returns: {result}")
 
     CLI( net )
     net.stop()
@@ -350,7 +353,7 @@ def StanfordTopoTest( controller_ip, controller_port, traffic, edge):
 if __name__ == '__main__':
     if getuid()!=0:
         print("Please run this script as root / use sudo.")
-        exit(-1)
+        sys.exit(-1)
 
     lg.setLogLevel( 'info')
     description = "Put Stanford backbone in Mininet"
