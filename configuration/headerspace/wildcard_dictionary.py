@@ -98,7 +98,7 @@ class wildcard_dictionary:
                 print(f"{idn}Index {i:x}: Table is")
                 self.self_print_table(table["value"][i], indent+1)
             elif len(table["value"][i]) > 0:
-                print("{}Index {:x} has value {}".format(idn,i,table["value"][i]))
+                print(f"{idn}Index {i:x} has value {table['value'][i]}")
 
     def self_print(self):
         self.self_print_table(self.table, 0)

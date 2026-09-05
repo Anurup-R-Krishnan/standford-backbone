@@ -135,14 +135,13 @@ class TF:
         in two separate lists.
         '''
         for rule in self.rules:
-            print("{} Rule Match: {},{}".format(rule["action"],byte_array_to_pretty_hs_string(rule["match"]),rule["in_ports"]))
+            print(f"{rule['action']} Rule Match: {byte_array_to_pretty_hs_string(rule['match'])},{rule['in_ports']}")
             print("Affected by:")
             for aff in rule["affected_by"]:
-                print("{}: On Ports {}, Intersect= {}".format(byte_array_to_pretty_hs_string(aff[0]["match"]),aff[2],
-                                                        byte_array_to_pretty_hs_string(aff[1])))
+                print(f"{byte_array_to_pretty_hs_string(aff[0]['match'])}: On Ports {aff[2]}, Intersect= {byte_array_to_pretty_hs_string(aff[1])}")
             print("Influence on:")
             for aff in rule["influence_on"]:
-                print("{}".format(byte_array_to_pretty_hs_string(aff["match"])))
+                print(f"{byte_array_to_pretty_hs_string(aff['match'])}")
             print("-------------------")
             
     def to_string(self):
@@ -152,24 +151,20 @@ class TF:
                 match = byte_array_to_hs_string(rule['match'])
                 mask = byte_array_to_hs_string(rule['mask'])
                 rewrite = byte_array_to_hs_string(rule['rewrite'])
-                string = "in_ports: {}, match: {} => ((h & {}) | {}, {})".format(rule['in_ports'], \
-                            match, mask, rewrite, rule['out_ports'])
+                string = f"in_ports: {rule['in_ports']}, match: {match} => ((h & {mask}) | {rewrite}, {rule['out_ports']})"
                 strings.append(string)
                 
             if (rule['action'] == 'fwd'):
                 match = byte_array_to_hs_string(rule['match'])
-                string = "in_ports: {}, match: {} => (h , {})".format(rule['in_ports'], \
-                            match, rule['out_ports'])
+                string = f"in_ports: {rule['in_ports']}, match: {match} => (h , {rule['out_ports']})"
                 strings.append(string)
                 
             if (rule['action'] == 'link'):
-                string = "in_ports: {} => out_ports: {}".format(rule['in_ports'], \
-                            rule['out_ports'])
+                string = f"in_ports: {rule['in_ports']} => out_ports: {rule['out_ports']}"
                 strings.append(string)
                 
             if (rule['action'] == 'custom'):
-                string = "match: {} , transform: {}".format(rule['match'].__name__, \
-                            rule['transform'].__name__)
+                string = f"match: {rule['match'].__name__} , transform: {rule['transform'].__name__}"
                 strings.append(string)
                 
         return strings
@@ -181,18 +176,15 @@ class TF:
                 inv_match = byte_array_to_hs_string(rule['inverse_match'])
                 mask = byte_array_to_hs_string(rule['mask'])
                 inv_rewrite = byte_array_to_hs_string(rule['inverse_rewrite'])
-                string = "out_ports: {} match: {} => ((h & {}) | {}, {})".format(rule['out_ports'], \
-                            inv_match, mask, inv_rewrite, rule['in_ports'])
+                string = f"out_ports: {rule['out_ports']} match: {inv_match} => ((h & {mask}) | {inv_rewrite}, {rule['in_ports']})"
                 strings.append(string)
             if (rule['action'] == 'fwd'):
                 match = byte_array_to_hs_string(rule['match'])
-                string = "out_ports: {} match: {} => (h , {})".format(rule['out_ports'], \
-                            match, rule['in_ports'])
+                string = f"out_ports: {rule['out_ports']} match: {match} => (h , {rule['in_ports']})"
                 strings.append(string)
                 
             if (rule['action'] == 'link'):
-                string = "out_ports: {} => in_ports: {})".format(rule['out_ports'], \
-                            rule['in_ports'])
+                string = f"out_ports: {rule['out_ports']} => in_ports: {rule['in_ports']})"
                 strings.append(string)
         return strings
     
@@ -275,12 +267,12 @@ class TF:
     @staticmethod
     def standard_rule_to_string(std_rule):
         string = ""
-        string += "ID = {}, ".format(std_rule["id"])
-        string += "in_ports = {}, ".format(std_rule["in_ports"])
-        string += "match = {}, ".format(byte_array_to_hs_string(std_rule["match"]))
-        string += "mask = {}, ".format(byte_array_to_hs_string(std_rule["mask"]))
-        string += "rewrite = {}, ".format(byte_array_to_hs_string(std_rule["rewrite"]))
-        string += "out_ports = {}".format(std_rule["out_ports"])
+        string += f"ID = {std_rule['id']}, "
+        string += f"in_ports = {std_rule['in_ports']}, "
+        string += f"match = {byte_array_to_hs_string(std_rule['match'])}, "
+        string += f"mask = {byte_array_to_hs_string(std_rule['mask'])}, "
+        string += f"rewrite = {byte_array_to_hs_string(std_rule['rewrite'])}, "
+        string += f"out_ports = {std_rule['out_ports']}"
         return string
         
     def find_influences(self, priority):
@@ -740,22 +732,22 @@ class TF:
         f.writelines("%d$"%nibble for nibble in self.lazy_eval_nibbles)
         f.write("#\n")
         for rule in self.rules:
-            f.write("{}$".format(rule["action"]))
-            f.write("{}$".format(rule["in_ports"]))
-            f.write("{}$".format(byte_array_to_hs_string(rule["match"])))
-            f.write("{}$".format(byte_array_to_hs_string(rule["mask"])))
-            f.write("{}$".format(byte_array_to_hs_string(rule["rewrite"])))
-            f.write("{}$".format(byte_array_to_hs_string(rule["inverse_match"])))
-            f.write("{}$".format(byte_array_to_hs_string(rule["inverse_rewrite"])))
-            f.write("{}$".format(rule["out_ports"]))
+            f.write(f"{rule['action']}$")
+            f.write(f"{rule['in_ports']}$")
+            f.write(f"{byte_array_to_hs_string(rule['match'])}$")
+            f.write(f"{byte_array_to_hs_string(rule['mask'])}$")
+            f.write(f"{byte_array_to_hs_string(rule['rewrite'])}$")
+            f.write(f"{byte_array_to_hs_string(rule['inverse_match'])}$")
+            f.write(f"{byte_array_to_hs_string(rule['inverse_rewrite'])}$")
+            f.write(f"{rule['out_ports']}$")
             f.write("#")
             f.writelines("%d;%s;%s#"%(self.rules.index(ra[0]),byte_array_to_hs_string(ra[1]),ra[2]) for ra in rule["affected_by"])
             f.write("$")
             f.write("#")
             f.writelines("%d#"%self.rules.index(io) for io in rule["influence_on"])
-            f.write("${}$".format(rule["file"]))
+            f.write(f"${rule['file']}$")
             f.writelines("%d,"%ln for ln in rule["line"])
-            f.write("${}$\n".format(rule["id"]))
+            f.write(f"${rule['id']}$\n")
         f.close()
         print(f"=== Transfer function saved to file {file} ===")
         

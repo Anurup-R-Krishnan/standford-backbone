@@ -148,10 +148,10 @@ def print_reachability(paths, reverse_map):
             if str == "":
                 str = reverse_map["%d"%port]
             else:
-                str = "{} ---> {}".format(str,reverse_map["%d"%port])
-        str = "{} ---> {}".format(str,reverse_map["%d"%p_node["port"]])
+                str = f"{str} ---> {reverse_map['%d'%port]}"
+        str = f"{str} ---> {reverse_map['%d'%p_node['port']]}"
         print(f"Path: {str}")
-        print("HS Received: {}".format(p_node["hdr"]))
+        print(f"HS Received: {p_node['hdr']}")
         print("----------------------------------------------")
         
         
@@ -163,8 +163,8 @@ def print_loops(loops, reverse_map):
             if str == "":
                 str = reverse_map["%d"%port]
             else:
-                str = "{} ---> {}".format(str,reverse_map["%d"%port])
-        str = "{} ---> {}".format(str,reverse_map["%d"%p_node["port"]])
+                str = f"{str} ---> {reverse_map['%d'%port]}"
+        str = f"{str} ---> {reverse_map['%d'%p_node['port']]}"
         print(f"Path: {str}")
         rl_id =  "applied rules: "
         for (n,r,s) in p_node["hdr"].applied_rule_ids:
@@ -183,8 +183,8 @@ def loop_path_to_str(p_node, reverse_map):
         if str == "":
             str = reverse_map["%d"%port]
         else:
-            str = "{} ---> {}".format(str,reverse_map["%d"%port])
-    str = "{} ---> {}".format(str,reverse_map["%d"%p_node["port"]])
+            str = f"{str} ---> {reverse_map['%d'%port]}"
+    str = f"{str} ---> {reverse_map['%d'%p_node['port']]}"
     return str
         
 def trace_hs_back(applied_rule_list,hs,last_port):

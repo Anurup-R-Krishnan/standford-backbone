@@ -87,7 +87,7 @@ def load_internet2_backbone_port_to_id_map():
         elif line != "":
             tokens = line.strip().split(":")
             map[rtr][tokens[0]] = int(tokens[-1])
-            id_to_name[tokens[-1]] = "{}-{}".format(rtr,":".join(tokens[0:-1]))
+            id_to_name[tokens[-1]] = f"{rtr}-{':'.join(tokens[0:-1])}"
             out_port = int(tokens[-1]) + cs.PORT_TYPE_MULTIPLIER * cs.OUTPUT_PORT_TYPE_CONST
-            id_to_name[f"{out_port}"] = "{}-{}".format(rtr,":".join(tokens[0:-1]))
+            id_to_name[f"{out_port}"] = f"{rtr}-{':'.join(tokens[0:-1])}"
     return (map,id_to_name)

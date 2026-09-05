@@ -55,7 +55,7 @@ class parser:
     def match_describe(self, dic, nameprefix="", prefix=""):
         """Return description for ofp match
         """
-        return prefix+"match wildcards:{:x}".format(dic[nameprefix+"wildcards"][0])+\
+        return prefix+f"match wildcards:{dic[nameprefix+'wildcards'][0]:x}"+\
                " inport="+str(dic[nameprefix+"in_port"][0])+\
                prefix+"     "+\
                " ethertype="+str(dic[nameprefix+"dl_type"][0])+\

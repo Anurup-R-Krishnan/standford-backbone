@@ -249,7 +249,7 @@ def compose_standard_rules(rule1,rule2):
     if rule1["file"] == rule2["file"]:
         file_name = rule1["file"]
     else:
-        file_name = "{} , {}".format(rule1["file"],rule2["file"])
+        file_name = f"{rule1['file']} , {rule2['file']}"
     
     lines = rule1["line"]
     lines.extend(rule2["line"])
