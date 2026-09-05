@@ -1,0 +1,4 @@
+# Dependencies for Stanford-Backbone Network Emulation & ATPG
+# Note: mininet is provided via system site-packages (--system-site-packages)
+dpkt>=1.9.8
+networkx>=3.0
