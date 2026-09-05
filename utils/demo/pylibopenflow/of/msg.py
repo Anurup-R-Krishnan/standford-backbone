@@ -31,9 +31,7 @@ class parser:
         elif dic["type"][0] == self.__messages.get_value("OFPT_SET_CONFIG"):
             desc += "\n\t" + self.switch_config_describe(packet)
         elif dic["type"][0] == self.__messages.get_value("OFPT_FLOW_MOD"):
-            (fmdic, remaining) = self.__messages.unpack_from_front(
-                "ofp_flow_mod", packet
-            )
+            (fmdic, remaining) = self.__messages.unpack_from_front("ofp_flow_mod", packet)
             desc += self.flow_mod_describe(fmdic, "\n\t")
             desc += "\n\twith remaining " + str(len(remaining)) + " bytes"
         else:

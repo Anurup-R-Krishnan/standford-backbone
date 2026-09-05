@@ -18,8 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @Author: Peyman Kazemian
 """
 
+import os
 import random
+import sys
 from time import time
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config_parser.helper import *
 from headerspace.applications import *
@@ -232,9 +236,7 @@ def make_IP_str_transform(ip_dst, ip_dst_subnet, _out_ports):
 
             # copy sender Ip to src Ip and dst ip to last stack position
             for i in range(8):
-                elem[i + 2 * format["ip_src_pos"]] = elem[
-                    i + 2 * format["ip_sender_pos"]
-                ]
+                elem[i + 2 * format["ip_src_pos"]] = elem[i + 2 * format["ip_sender_pos"]]
                 elem[i + 2 * format["stack_pos"] + 8 * num_stack - 8] = elem[
                     i + 2 * format["ip_dst_pos"]
                 ]
@@ -334,15 +336,11 @@ def make_NTF(num_mbox):
         line_counter += 1
 
     ip_match = make_byte_array_ip_star_hdr(None, [], [], 0, 0, receiver_addr, 32)
-    rule = TF.create_standard_rule(
-        [1, 2], ip_match, [7], None, None, "sample.txt", [line_counter]
-    )
+    rule = TF.create_standard_rule([1, 2], ip_match, [7], None, None, "sample.txt", [line_counter])
     NTF.add_fwd_rule(rule)
     line_counter += 1
     ip_match = make_byte_array_ip_star_hdr(None, [], [], 0, 0, sender_addr, 32)
-    rule = TF.create_standard_rule(
-        [2, 7], ip_match, [1], None, None, "sample.txt", [line_counter]
-    )
+    rule = TF.create_standard_rule([2, 7], ip_match, [1], None, None, "sample.txt", [line_counter])
     NTF.add_fwd_rule(rule)
     line_counter += 1
 
@@ -391,15 +389,11 @@ def make_NTF(num_mbox):
 
     # add rule for R3:
     ip_match = make_byte_array_ip_star_hdr(None, [], [], 0, 0, receiver_addr, 32)
-    rule = TF.create_standard_rule(
-        [5, 6], ip_match, [8], None, None, "sample.txt", [line_counter]
-    )
+    rule = TF.create_standard_rule([5, 6], ip_match, [8], None, None, "sample.txt", [line_counter])
     NTF.add_fwd_rule(rule)
     line_counter += 1
     ip_match = make_byte_array_ip_star_hdr(None, [], [], 0, 0, sender_addr, 32)
-    rule = TF.create_standard_rule(
-        [5], ip_match, [6], None, None, "sample.txt", [line_counter]
-    )
+    rule = TF.create_standard_rule([5], ip_match, [6], None, None, "sample.txt", [line_counter])
     NTF.add_fwd_rule(rule)
     line_counter += 1
     rule = TF.create_custom_rule(
@@ -435,9 +429,7 @@ def make_NTF(num_mbox):
         NTF.add_custom_rule(rule)
         line_counter += 1
         ip_match = make_byte_array_ip_star_hdr(None, [], [], 0, 0, m_addr[i], 32)
-        rule = TF.create_standard_rule(
-            [6], ip_match, [5], None, None, "sample.txt", [line_counter]
-        )
+        rule = TF.create_standard_rule([6], ip_match, [5], None, None, "sample.txt", [line_counter])
         NTF.add_fwd_rule(rule)
         line_counter += 1
 
@@ -470,15 +462,11 @@ def make_NTF(num_mbox):
 
     # add rule for R6
     ip_match = make_byte_array_ip_star_hdr(None, [], [], 0, 0, receiver_addr, 32)
-    rule = TF.create_standard_rule(
-        [9], ip_match, [10], None, None, "sample.txt", [line_counter]
-    )
+    rule = TF.create_standard_rule([9], ip_match, [10], None, None, "sample.txt", [line_counter])
     NTF.add_fwd_rule(rule)
     line_counter += 1
     ip_match = make_byte_array_ip_star_hdr(None, [], [], 0, 0, network_subnet, 16)
-    rule = TF.create_standard_rule(
-        [10], ip_match, [9], None, None, "sample.txt", [line_counter]
-    )
+    rule = TF.create_standard_rule([10], ip_match, [9], None, None, "sample.txt", [line_counter])
     NTF.add_fwd_rule(rule)
     line_counter += 1
 
@@ -527,7 +515,7 @@ def expand_NTF(NTF, num_rules):
         [5, 6, 8, 301, 302, 303, 304, 305, 306, 307],
         [9, 10, 401, 402, 403, 404, 405, 406, 407, 408],
     ]
-    per_port_rules = num_rules / 4
+    per_port_rules = num_rules // 4
     for j in range(4):
         for i in range(per_port_rules):
             first = random.randrange(32, 255)
@@ -537,9 +525,7 @@ def expand_NTF(NTF, num_rules):
             ip_match = make_byte_array_ip_star_hdr(None, [], [], 0, 0, ip_addr, subnet)
             in_port = random.choice(port_groups[j])
             out_port = random.choice(port_groups[j])
-            rule = TF.create_standard_rule(
-                [in_port], ip_match, [out_port], None, None, "dummy", []
-            )
+            rule = TF.create_standard_rule([in_port], ip_match, [out_port], None, None, "dummy", [])
             NTF.add_fwd_rule(rule)
 
 

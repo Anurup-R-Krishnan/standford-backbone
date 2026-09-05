@@ -20,8 +20,7 @@ keys = epoch_dict.keys()
 # Stupid GNUPlot cannot handle localtime!!
 for epoch_time_bucket in keys:
     output_file.write(
-        "%d %d\n"
-        % (epoch_time_bucket * granularity - 3600 * 7, epoch_dict[epoch_time_bucket])
+        "%d %d\n" % (epoch_time_bucket * granularity - 3600 * 7, epoch_dict[epoch_time_bucket])
     )
 output_file.close()
 input_file.close()

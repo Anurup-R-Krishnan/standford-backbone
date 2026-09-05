@@ -20,7 +20,11 @@ Created on Aug 14, 2011
 @author: Peyman Kazemian
 """
 
+import os
+import sys
 from time import time
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config_parser.cisco_router_parser import ciscoRouter
 from headerspace.applications import *
@@ -77,9 +81,7 @@ loop_port_ids = [
 
 st = time()
 
-loops = detect_loop(
-    ntf, ttf, loop_port_ids, port_reverse_map, None, output_port_addition
-)
+loops = detect_loop(ntf, ttf, loop_port_ids, port_reverse_map, None, output_port_addition)
 en = time()
 print_loops(loops, port_reverse_map)
 print(len(loops))

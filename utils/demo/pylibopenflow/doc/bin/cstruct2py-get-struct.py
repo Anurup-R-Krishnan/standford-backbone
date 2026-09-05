@@ -28,9 +28,7 @@ def usage():
 
 # Parse options and arguments
 try:
-    opts, args = getopt.getopt(
-        sys.argv[1:], "hcsn", ["help", "cstruct", "size", "names"]
-    )
+    opts, args = getopt.getopt(sys.argv[1:], "hcsn", ["help", "cstruct", "size", "names"])
 except getopt.GetoptError:
     usage()
     sys.exit(2)

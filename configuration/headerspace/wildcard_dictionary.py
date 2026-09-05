@@ -72,9 +72,7 @@ class wildcard_dictionary:
                 for i in range(len(table["value"][index])):
                     new_val = table["value"][index][i]
                     new_keys = table["info"][index][1][i]
-                    self.add_entry_to_table(
-                        new_table, new_keys[0], new_val, new_keys[1:]
-                    )
+                    self.add_entry_to_table(new_table, new_keys[0], new_val, new_keys[1:])
                 self.add_entry_to_table(new_table, next_keys[0], value, next_keys[1:])
                 table["value"][index] = new_table
                 table["info"][index] = (False, [])

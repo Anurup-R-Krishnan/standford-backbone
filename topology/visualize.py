@@ -11,7 +11,7 @@ import os
 # relNames = g.new_edge_property("string")
 import sys
 
-from graph_tool.all import *
+from graph_tool.all import *  # type: ignore[import-not-found, import-untyped]
 
 inputFile = (
     sys.argv[1]
@@ -21,7 +21,7 @@ inputFile = (
 edges = set()
 nodes = {}
 
-g = Graph(directed=False)
+g = Graph(directed=False)  # type: ignore[name-defined]
 node_types = g.new_vertex_property("string")
 node_names = g.new_vertex_property("string")
 node_switch = g.new_vertex_property("bool")
@@ -96,8 +96,8 @@ print("draw")
 g.set_vertex_filter(node_switch)
 # g.set_vertex_filter(asFilters)
 # pos = fruchterman_reingold_layout(g, n_iter=1000)
-pos = arf_layout(g, max_iter=100)
-graph_draw(
+pos = arf_layout(g, max_iter=100)  # type: ignore[name-defined]
+graph_draw(  # type: ignore[name-defined]
     g,
     pos=pos,
     vertex_text=node_names,

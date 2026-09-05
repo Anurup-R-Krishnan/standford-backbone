@@ -72,8 +72,7 @@ hfileRef = open(args[0] + ".hh", "w")
 cfileRef = open(args[0] + ".cc", "w")
 hfileRef.writelines(x + "\n" for x in cppizer.hcode(args[0], htemplatefile))
 cfileRef.writelines(
-    x + "\n"
-    for x in cppizer.ccode(ctemplatefile, None, ['#include "' + args[0] + '.hh"'])
+    x + "\n" for x in cppizer.ccode(ctemplatefile, None, ['#include "' + args[0] + '.hh"'])
 )
 hfileRef.write("\n")
 cfileRef.write("\n")

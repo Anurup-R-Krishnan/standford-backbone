@@ -142,9 +142,7 @@ for rtr_name, vlan in rtr_names:
     cs.read_arp_table_file(f"../data/Stanford_backbone/{rtr_name}_arp_table.txt")
     cs.read_mac_table_file(f"../data/Stanford_backbone/{rtr_name}_mac_table.txt")
     cs.read_config_file(f"../data/Stanford_backbone/{rtr_name}_config.txt")
-    cs.read_spanning_tree_file(
-        f"../data/Stanford_backbone/{rtr_name}_spanning_tree.txt"
-    )
+    cs.read_spanning_tree_file(f"../data/Stanford_backbone/{rtr_name}_spanning_tree.txt")
     cs.read_route_file(f"../data/Stanford_backbone/{rtr_name}_route.txt")
     # cs.generate_port_ids([])
     cs.generate_port_ids_only_for_output_ports()

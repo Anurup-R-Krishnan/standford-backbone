@@ -212,9 +212,7 @@ class ciscoRouter:
         for tp_ctrl_matche in tp_ctrl_matches:
             for r in result:
                 b = bytearray(r)
-                self.set_field(
-                    b, "transport_ctrl", tp_ctrl_matche[0], tp_ctrl_matche[1]
-                )
+                self.set_field(b, "transport_ctrl", tp_ctrl_matche[0], tp_ctrl_matche[1])
                 tmp.append(b)
         result = tmp
         return result
@@ -653,9 +651,7 @@ class ciscoRouter:
                                     resolved_port = self.mac_table[vm_key][0]
                                     vlan_num = int(vln[4:])
                                     port = "%s.%d" % (
-                                        ciscoRouter.get_ethernet_port_name(
-                                            resolved_port
-                                        ),
+                                        ciscoRouter.get_ethernet_port_name(resolved_port),
                                         vlan_num,
                                     )
                             # if next hop output port is not vlan, use it
@@ -712,10 +708,7 @@ class ciscoRouter:
                 s.add(elem)
         suffix = 1
         for p in s:
-            id = (
-                self.switch_id * self.SWITCH_ID_MULTIPLIER
-                + suffix * self.PORT_ID_MULTIPLIER
-            )
+            id = self.switch_id * self.SWITCH_ID_MULTIPLIER + suffix * self.PORT_ID_MULTIPLIER
             self.port_to_id[p] = id
             suffix += 1
         # print self.port_to_id
@@ -736,10 +729,7 @@ class ciscoRouter:
                 s.add(fwd_rule[2])
             suffix = 1
         for p in s:
-            id = (
-                self.switch_id * self.SWITCH_ID_MULTIPLIER
-                + suffix * self.PORT_ID_MULTIPLIER
-            )
+            id = self.switch_id * self.SWITCH_ID_MULTIPLIER + suffix * self.PORT_ID_MULTIPLIER
             self.port_to_id[p] = id
             suffix += 1
 
@@ -811,12 +801,8 @@ class ciscoRouter:
                             # we should accept untagged packets, and tag them with the corresponding VLAN tag.
                             if len(access_ports) > 0:
                                 self.set_field(match, "vlan", 0, 0)
-                                mask = byte_array_get_all_one(
-                                    self.hs_format["length"] * 2
-                                )
-                                rewrite = byte_array_get_all_zero(
-                                    self.hs_format["length"] * 2
-                                )
+                                mask = byte_array_get_all_one(self.hs_format["length"] * 2)
+                                rewrite = byte_array_get_all_zero(self.hs_format["length"] * 2)
                                 self.set_field(mask, "vlan", 0, 0)
                                 self.set_field(rewrite, "vlan", vlan, 0)
                                 next_rule = TF.create_standard_rule(
@@ -861,14 +847,11 @@ class ciscoRouter:
                                     ]
                                     out_ports = [
                                         port
-                                        + self.PORT_TYPE_MULTIPLIER
-                                        * self.OUTPUT_PORT_TYPE_CONST
+                                        + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST
                                     ]
                                     if port in access_ports:
                                         # If sending out from an access port, strip the VLAN tag
-                                        mask = byte_array_get_all_one(
-                                            self.hs_format["length"] * 2
-                                        )
+                                        mask = byte_array_get_all_one(self.hs_format["length"] * 2)
                                         rewrite = byte_array_get_all_zero(
                                             self.hs_format["length"] * 2
                                         )
@@ -937,12 +920,10 @@ class ciscoRouter:
                     mask = byte_array_get_all_one(self.hs_format["length"] * 2)
                     rewrite = byte_array_get_all_zero(self.hs_format["length"] * 2)
                     before_out_port = [
-                        port_id
-                        + self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST
+                        port_id + self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST
                     ]
                     after_out_port = [
-                        port_id
-                        + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST
+                        port_id + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST
                     ]
                     # default rule for vlan tagged packets leaving access ports
                     if port_id in access_ports:
@@ -1003,9 +984,7 @@ class ciscoRouter:
             before_out_port = [
                 port_id + self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST
             ]
-            after_out_port = [
-                port_id + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST
-            ]
+            after_out_port = [port_id + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST]
             def_rule = TF.create_standard_rule(
                 before_out_port, match, after_out_port, None, None, "", []
             )
@@ -1015,9 +994,7 @@ class ciscoRouter:
         print(" * Generating VLAN forwarding transfer function... * ")
         # generate VLAN forwarding entries
         for vlan_num in self.port_subnets:
-            for ip_addr, subnet_mask, file_name, lines, port in self.port_subnets[
-                vlan_num
-            ]:
+            for ip_addr, subnet_mask, file_name, lines, port in self.port_subnets[vlan_num]:
                 match = byte_array_get_all_x(self.hs_format["length"] * 2)
                 in_port = [self.switch_id * self.SWITCH_ID_MULTIPLIER]
                 vlan = int(vlan_num)
@@ -1037,8 +1014,7 @@ class ciscoRouter:
                     for p in port_list:
                         out_ports.append(
                             self.port_to_id[p]
-                            + self.PORT_TYPE_MULTIPLIER
-                            * self.INTERMEDIATE_PORT_TYPE_CONST
+                            + self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST
                         )
                 tf_rule = TF.create_standard_rule(
                     in_port, match, out_ports, None, None, file_name, lines
@@ -1085,8 +1061,7 @@ class ciscoRouter:
                             if m[0] in self.port_to_id:
                                 out_ports.append(
                                     self.port_to_id[m[0]]
-                                    + self.PORT_TYPE_MULTIPLIER
-                                    * self.INTERMEDIATE_PORT_TYPE_CONST
+                                    + self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST
                                 )
                                 vlan = int(m[1])
                             else:
@@ -1111,8 +1086,7 @@ class ciscoRouter:
                             if fwd_rule[2] in self.port_to_id:
                                 out_ports.append(
                                     self.port_to_id[fwd_rule[2]]
-                                    + self.PORT_TYPE_MULTIPLIER
-                                    * self.INTERMEDIATE_PORT_TYPE_CONST
+                                    + self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST
                                 )
                                 vlan = 0
                             else:

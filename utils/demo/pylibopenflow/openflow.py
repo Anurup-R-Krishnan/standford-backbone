@@ -89,9 +89,7 @@ class messages(cheader.cheaderfile, c2py.cstruct2py, c2py.structpacker):
             )
             return self.data2dic(self.structs[ctype], data)
         else:
-            return c2py.structpacker.peek_from_front(
-                self, ctype, binaryString, returnDictionary
-            )
+            return c2py.structpacker.peek_from_front(self, ctype, binaryString, returnDictionary)
 
     def unpack_from_front(self, ctype, binaryString, returnDictionary=True):
         """Unpack packet using front of packet,
@@ -108,9 +106,7 @@ class messages(cheader.cheaderfile, c2py.cstruct2py, c2py.structpacker):
             )
             return (self.data2dic(self.structs[ctype], data), remaining)
         else:
-            return c2py.structpacker.unpack_from_front(
-                self, ctype, binaryString, returnDictionary
-            )
+            return c2py.structpacker.unpack_from_front(self, ctype, binaryString, returnDictionary)
 
 
 class connection:

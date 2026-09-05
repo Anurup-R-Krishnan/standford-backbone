@@ -52,12 +52,12 @@ class StanfordTopo(Topo):
     PORT_MAP_FILENAME = "data/port_map.txt"
     TOPO_FILENAME = "data/backbone_topology.tf"
 
-    core_switches = set()
-    dummy_switches = set()
-    edge_switches = set()
+    core_switches: set = set()
+    dummy_switches: set = set()
+    edge_switches: set = set()
     # Jack
-    dummy_rules = []
-    edge_rules = []
+    dummy_rules: list = []
+    edge_rules: list = []
     edge_switch_count = 0
     edge_host_count = 0
 
@@ -195,9 +195,7 @@ class StanfordTopo(Topo):
             if len(first_pass[(dpid, port)]) > 1:
                 # Jack
                 # Generate dummy rules
-                self.generate_dummy_rules(
-                    dummy_switch_id, len(first_pass[(dpid, port)])
-                )
+                self.generate_dummy_rules(dummy_switch_id, len(first_pass[(dpid, port)]))
 
                 # Jack
                 print(f"add_switch(): s{dummy_switch_id} (dummy)")
@@ -209,9 +207,7 @@ class StanfordTopo(Topo):
                     "add_link(): nodes s%s to s%s, ports %d to %d (to dummy)"
                     % (dpid, dummy_switch_id, port, 1)
                 )
-                self.addLink(
-                    node1=f"s{dpid}", node2=f"s{dummy_switch_id}", port1=port, port2=1
-                )
+                self.addLink(node1=f"s{dpid}", node2=f"s{dummy_switch_id}", port1=port, port2=1)
                 dummy_switch_port = 2
                 for dst_dpid, dst_port in first_pass[(dpid, port)]:
                     first_pass[(dst_dpid, dst_port)].discard((dpid, port))
@@ -240,9 +236,7 @@ class StanfordTopo(Topo):
                     "add_link(): nodes s%s to s%s, ports %d to %d (normal)"
                     % (dpid, dst_dpid, port, dst_port)
                 )
-                self.addLink(
-                    node1=f"s{dpid}", node2=f"s{dst_dpid}", port1=port, port2=dst_port
-                )
+                self.addLink(node1=f"s{dpid}", node2=f"s{dst_dpid}", port1=port, port2=dst_port)
                 ports[dst_dpid].discard(dst_port)
             ports[dpid].discard(port)
 
@@ -288,9 +282,7 @@ def StanfordTopoTest(controller_ip, controller_port, traffic, edge):
     """
 
     dummy_controller = RemoteController("dummy_controller", ip="127.0.0.1", port=7733)
-    main_controller = RemoteController(
-        "main_controller", ip=controller_ip, port=controller_port
-    )
+    main_controller = RemoteController("main_controller", ip=controller_ip, port=controller_port)
 
     cmap = {}
     for dpid in topo.core_switches:

@@ -20,7 +20,11 @@ Created on Aug 14, 2011
 @author: Peyman Kazemian
 """
 
+import os
+import sys
 from time import time
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config_parser.cisco_router_parser import ciscoRouter
 from headerspace.applications import *

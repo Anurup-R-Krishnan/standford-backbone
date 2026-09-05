@@ -239,9 +239,7 @@ def print_paths_to_database(paths, reverse_map, table_name):
         output_hs = p_node["hdr"].copy()
         applied_rule_ids = list(output_hs.applied_rule_ids)
         input_hs = trace_hs_back(applied_rule_ids, output_hs, output_port)[0]
-        header_string = json.dumps(
-            parse_hs(juniperRouter(1).hs_format, input_hs.hs_list[0])
-        )
+        header_string = json.dumps(parse_hs(juniperRouter(1).hs_format, input_hs.hs_list[0]))
 
         # header_string = byte_array_to_pretty_hs_string(input_hs.hs_list[0])
         queries.append(
@@ -351,9 +349,7 @@ def find_test_packets(src_port_id):
     )
     print(result_string)
 
-    print_paths_to_database(
-        paths, port_reverse_map_global, TABLE_TEST_PACKETS_LOCALLY_COMPRESSED
-    )
+    print_paths_to_database(paths, port_reverse_map_global, TABLE_TEST_PACKETS_LOCALLY_COMPRESSED)
 
     return len(paths)
 
@@ -426,9 +422,7 @@ def main():
     # Load .tf files
     ntf_global = load_internet2_backbone_ntf()
     ttf_global = load_internet2_backbone_ttf()
-    (port_map_global, port_reverse_map_global) = (
-        load_internet2_backbone_port_to_id_map()
-    )
+    (port_map_global, port_reverse_map_global) = load_internet2_backbone_port_to_id_map()
 
     # Initialize the database
     if os.access(DATABASE_FILE, os.F_OK):
@@ -524,10 +518,7 @@ def main():
     total_paths = sum(test_packet_count)
     print("========== Before Compression =========")
     print("Total Paths = %d" % total_paths)
-    print(
-        "Average packets per port = %f"
-        % (float(total_paths) / len(src_port_ids_global))
-    )
+    print("Average packets per port = %f" % (float(total_paths) / len(src_port_ids_global)))
     print("Total Time = %fs" % (end_time - start_time))
 
     # Global Compressing
@@ -547,9 +538,7 @@ def main():
         print("Start a new round!")
         conn = sqlite3.connect(DATABASE_FILE, timeout=6000)
         conn.execute(f"DROP TABLE IF EXISTS {TABLE_SCRATCHPAD}")
-        conn.execute(
-            f"CREATE TABLE {TABLE_SCRATCHPAD} (rules TEXT, no_of_rules INTEGER)"
-        )
+        conn.execute(f"CREATE TABLE {TABLE_SCRATCHPAD} (rules TEXT, no_of_rules INTEGER)")
         conn.commit()
         conn.close()
 
@@ -599,10 +588,7 @@ def main():
 
     print("========== After Compression =========")
     print("Total Paths = %d" % total_paths)
-    print(
-        "Average packets per port = %f"
-        % (float(total_paths) / len(src_port_ids_global))
-    )
+    print("Average packets per port = %f" % (float(total_paths) / len(src_port_ids_global)))
     print("Average length of rule list = %f" % (float(total_length) / total_paths))
     print("Total Time = %fs" % (end_time - start_time))
 

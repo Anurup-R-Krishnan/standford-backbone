@@ -403,9 +403,7 @@ class cheaderfile(textfile):
                         self.enum_values[valList[0].strip()] = value
                         value += 1
                     else:
-                        self.enum_values[valList[0].strip()] = self.eval_value(
-                            valList[1].strip()
-                        )
+                        self.enum_values[valList[0].strip()] = self.eval_value(valList[1].strip())
                     self.enums[namepattern.findall(match)[0].strip()] = enumList
 
     def __get_enum_values(self):

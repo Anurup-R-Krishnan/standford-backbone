@@ -65,9 +65,7 @@ for rtr_name, vlan in rtr_names:
     cs.read_arp_table_file(f"../data/Stanford_backbone/{rtr_name}_arp_table.txt")
     cs.read_mac_table_file(f"../data/Stanford_backbone/{rtr_name}_mac_table.txt")
     cs.read_config_file(f"../data/Stanford_backbone/{rtr_name}_config.txt")
-    cs.read_spanning_tree_file(
-        f"../data/Stanford_backbone/{rtr_name}_spanning_tree.txt"
-    )
+    cs.read_spanning_tree_file(f"../data/Stanford_backbone/{rtr_name}_spanning_tree.txt")
     cs.read_route_file(f"../data/Stanford_backbone/{rtr_name}_route.txt")
     cs.generate_port_ids([])
     # if rtr_name == "coza_rtr" or rtr_name == "cozb_rtr" or rtr_name == "soza_rtr" or rtr_name == "sozb_rtr" or rtr_name == "yoza_rtr" or rtr_name == "yozb_rtr":
@@ -144,10 +142,7 @@ for from_router, from_port, to_router, to_port in topology:
     )
     tf.add_link_rule(rule)
     rule = TF.create_standard_rule(
-        [
-            to_cs.get_port_id(to_port)
-            + to_cs.PORT_TYPE_MULTIPLIER * to_cs.OUTPUT_PORT_TYPE_CONST
-        ],
+        [to_cs.get_port_id(to_port) + to_cs.PORT_TYPE_MULTIPLIER * to_cs.OUTPUT_PORT_TYPE_CONST],
         None,
         [from_cs.get_port_id(from_port)],
         None,

@@ -20,6 +20,11 @@ Created on Aug 14, 2011
 @author: Peyman Kazemian
 """
 
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from headerspace.hs import byte_array_list_contained_in
 
 

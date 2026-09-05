@@ -29,7 +29,7 @@ class StanfordTopo:
     PORT_MAP_FILENAME = "data/stanford/port_map.txt"
     TOPO_FILENAME = "data/stanford/backbone_topology.tf"
 
-    dummy_switches = set()
+    dummy_switches: set = set()
 
     def __init__(self):
         # Read topology info
@@ -121,9 +121,7 @@ class StanfordTopo:
                 json_string.replace("\r", "")
                 json_string.replace("\n", "")
 
-                nodes.append(
-                    {"name": switch_name, "group": group, "problems": json_string}
-                )
+                nodes.append({"name": switch_name, "group": group, "problems": json_string})
             else:
                 nodes.append({"name": switch_name, "group": group})
 
@@ -138,9 +136,7 @@ class StanfordTopo:
         for rule in error_rules:
             tokens = rule.split("_")
             if rule not in self.switch_name_to_errors["_".join(tokens[0:2])]:
-                self.switch_name_to_errors["_".join(tokens[0:2])].extend(
-                    p.get_config_lines(rule)
-                )
+                self.switch_name_to_errors["_".join(tokens[0:2])].extend(p.get_config_lines(rule))
 
     def remove_errors(self, error_rules):
         p = Pinpointer()

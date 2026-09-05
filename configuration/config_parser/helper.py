@@ -33,9 +33,7 @@ def is_ip_address(str):
 
 
 def is_ip_subnet(str):
-    ips = re.match(
-        r"(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})/(?:[\d]{1,2})", str
-    )
+    ips = re.match(r"(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})/(?:[\d]{1,2})", str)
     return ips is not None
 
 

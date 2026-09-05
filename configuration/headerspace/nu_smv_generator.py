@@ -101,12 +101,8 @@ class NuSMV:
                                 aff_in_port,
                             )
                     affected = affected + ")"
-                    aff_mask = byte_array_wildcard_to_mask_match_strings(aff_intersect)[
-                        0
-                    ]
-                    aff_match = byte_array_wildcard_to_mask_match_strings(
-                        aff_intersect
-                    )[1]
+                    aff_mask = byte_array_wildcard_to_mask_match_strings(aff_intersect)[0]
+                    aff_match = byte_array_wildcard_to_mask_match_strings(aff_intersect)[1]
                     for i in range(num_parts):
                         s_range = i * HDR_VAR_LEN
                         if self.length > i * HDR_VAR_LEN + HDR_VAR_LEN - 1:
@@ -218,8 +214,9 @@ class NuSMV:
             else:
                 self.length - 1
                 num_bits = self.length - HDR_VAR_LEN * i
-            self.generated_nusmv_input = (
-                self.generated_nusmv_input + "INIT h%s = 0ub%d_0;\n" % (i, num_bits)
+            self.generated_nusmv_input = self.generated_nusmv_input + "INIT h%s = 0ub%d_0;\n" % (
+                i,
+                num_bits,
             )
 
         self.generated_nusmv_input = self.generated_nusmv_input + "\n"
@@ -236,9 +233,7 @@ class NuSMV:
     # print self.generated_nusmv_input
 
     def execute_nusmv_file(self):
-        p = subprocess.Popen(
-            [MODEL_CHECKER_PATH, TMP_FILE_PATH], stdout=subprocess.PIPE, text=True
-        )
+        p = subprocess.Popen([MODEL_CHECKER_PATH, TMP_FILE_PATH], stdout=subprocess.PIPE, text=True)
         result = False
         while 1:
             line = p.stdout.readline()
@@ -260,8 +255,7 @@ class NuSMV:
         f = open(f"{TMP_FILE_PATH}", "w")
         f.write(self.generated_nusmv_input)
         f.write(
-            " |\n( p = 0ud%d_0 & next(p) = 0ud%d_%s);\n"
-            % (PORT_VAR_LEN, PORT_VAR_LEN, in_port)
+            " |\n( p = 0ud%d_0 & next(p) = 0ud%d_%s);\n" % (PORT_VAR_LEN, PORT_VAR_LEN, in_port)
         )
         f.write("SPEC !EF (p = 0ud%d_%s);" % (PORT_VAR_LEN, out_port))
         f.close()
@@ -303,8 +297,7 @@ class NuSMV:
         f = open(f"{TMP_FILE_PATH}", "w")
         f.write(self.generated_nusmv_input)
         f.write(
-            " |\n( p = 0ud%d_0 & next(p) = 0ud%d_%s);\n"
-            % (PORT_VAR_LEN, PORT_VAR_LEN, in_port)
+            " |\n( p = 0ud%d_0 & next(p) = 0ud%d_%s);\n" % (PORT_VAR_LEN, PORT_VAR_LEN, in_port)
         )
         vias = ""
         for port in via_ports:

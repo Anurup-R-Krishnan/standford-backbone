@@ -138,8 +138,7 @@ def detect_loop(NTF, TTF, ports, reverse_map, test_packet=None, out_port_offset=
                                     print("loop detected")
                                 elif (
                                     linked_p in new_p_node["visits"]
-                                    or (linked_p + out_port_offset)
-                                    in new_p_node["visits"]
+                                    or (linked_p + out_port_offset) in new_p_node["visits"]
                                 ):
                                     #                                    if (linked_p not in ports):
                                     #                                        print "WARNING: detected a loop whose port is not in checked ports - branch aborted:"
@@ -226,9 +225,7 @@ def trace_hs_back(applied_rule_list, hs, last_port):
 
 def find_loop_original_header(NTF, TTF, propagation_node):
     applied_rule_ids = list(propagation_node["hdr"].applied_rule_ids)
-    hs_list = trace_hs_back(
-        applied_rule_ids, propagation_node["hdr"], propagation_node["port"]
-    )
+    hs_list = trace_hs_back(applied_rule_ids, propagation_node["hdr"], propagation_node["port"])
     return hs_list
 
 

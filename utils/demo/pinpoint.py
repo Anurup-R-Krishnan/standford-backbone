@@ -86,17 +86,13 @@ class Pinpointer:
         # Step 1, map rule to line and file
         conn = sqlite3.connect(DATABASE_FILE)
         cursor = conn.cursor()
-        query = (
-            "SELECT file, line FROM network_rules WHERE rule LIKE "
-            + "'"
-            + failed_rule
-            + "'"
-        )
-        cursor.execute(query)
+        query = "SELECT file, line FROM network_rules WHERE rule LIKE ?"
+        cursor.execute(query, (failed_rule,))
+        filename = ""
+        lines: list[int] = []
         for row in cursor:
-            filename = row[0].encode("ascii")
-            lines = map(int, row[1].encode("ascii").split())
-        lines.sort()
+            filename = str(row[0])
+            lines = sorted(int(x) for x in str(row[1]).split())
         conn.close()
 
         # Step 2, replace file and line with actual contents

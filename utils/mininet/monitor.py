@@ -38,9 +38,7 @@ def getMyIp():
 
 
 class MonitorClient:
-    def __init__(
-        self, client_names, server_name, threshold=500, period=1, udp_port=UDP_PORT
-    ):
+    def __init__(self, client_names, server_name, threshold=500, period=1, udp_port=UDP_PORT):
         self.client_names = client_names
         self.server_name = server_name
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -85,12 +83,8 @@ class MonitorServer:
 def main():
     description = "Simple Ping monitor"
     parser = ArgumentParser(description=description)
-    parser.add_argument(
-        "-s", dest="server_mode", action="store_true", help="Server Mode"
-    )
-    parser.add_argument(
-        "-n", dest="num_clients", type=int, default=2, help="Number of clients"
-    )
+    parser.add_argument("-s", dest="server_mode", action="store_true", help="Server Mode")
+    parser.add_argument("-n", dest="num_clients", type=int, default=2, help="Number of clients")
     args = parser.parse_args()
 
     client_names = [f"10.0.0.{x}" for x in range(1, args.num_clients + 1)]

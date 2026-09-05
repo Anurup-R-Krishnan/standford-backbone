@@ -506,10 +506,7 @@ class juniperRouter:
             s.add(elem)
         suffix = 1
         for p in s:
-            id = (
-                self.switch_id * self.SWITCH_ID_MULTIPLIER
-                + suffix * self.PORT_ID_MULTIPLIER
-            )
+            id = self.switch_id * self.SWITCH_ID_MULTIPLIER + suffix * self.PORT_ID_MULTIPLIER
             self.port_to_id[p] = id
             suffix += 1
         # print self.port_to_id
@@ -609,8 +606,7 @@ class juniperRouter:
                                     ]
                                     out_ports = [
                                         port
-                                        + self.PORT_TYPE_MULTIPLIER
-                                        * self.OUTPUT_PORT_TYPE_CONST
+                                        + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST
                                     ]
                                     next_rule = TF.create_standard_rule(
                                         in_ports,
@@ -652,9 +648,7 @@ class juniperRouter:
             before_out_port = [
                 port_id + self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST
             ]
-            after_out_port = [
-                port_id + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST
-            ]
+            after_out_port = [port_id + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST]
             def_rule = TF.create_standard_rule(
                 before_out_port, match, after_out_port, None, None, "", []
             )
@@ -744,8 +738,7 @@ class juniperRouter:
                                 if m[0] in self.port_to_id:
                                     out_ports.append(
                                         self.port_to_id[m[0]]
-                                        + self.PORT_TYPE_MULTIPLIER
-                                        * self.OUTPUT_PORT_TYPE_CONST
+                                        + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST
                                     )
                                     vlan = int(m[1])
                                 else:
@@ -770,8 +763,7 @@ class juniperRouter:
                                 if output_port in self.port_to_id:
                                     out_ports.append(
                                         self.port_to_id[output_port]
-                                        + self.PORT_TYPE_MULTIPLIER
-                                        * self.OUTPUT_PORT_TYPE_CONST
+                                        + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST
                                     )
                                     vlan = 0
                                 else:
@@ -887,9 +879,7 @@ class juniperRouter:
                     # Aggregated interface. We don't need to record it here
                     continue
 
-                logical_interfaces = physical_interface.findall(
-                    f"{ns}logical-interface"
-                )
+                logical_interfaces = physical_interface.findall(f"{ns}logical-interface")
 
                 if logical_interfaces != []:
                     # The port is up
@@ -927,16 +917,12 @@ class juniperRouter:
                             if "vlan%d" % vlan not in self.vlan_ports:
                                 self.vlan_ports["vlan%d" % vlan] = []
 
-                            self.vlan_ports["vlan%d" % vlan].append(
-                                physical_interface_name
-                            )
+                            self.vlan_ports["vlan%d" % vlan].append(physical_interface_name)
 
                             if "%d" % vlan not in self.port_subnets:
                                 self.port_subnets["%d" % vlan] = []
 
-                            ip_address = address.find(
-                                f"{ns}interface-address/{ns}ifa-local"
-                            )
+                            ip_address = address.find(f"{ns}interface-address/{ns}ifa-local")
                             subnet_address = address.find(
                                 f"{ns}interface-address/{ns}ifa-destination"
                             )

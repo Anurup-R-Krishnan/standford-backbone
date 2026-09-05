@@ -41,6 +41,8 @@ ignore = [
     "E501", # line too long (handled by formatter)
     "F403", # wildcard imports (used extensively in research modules)
     "F405", # names from wildcard imports
+    "UP031", # printf string formatting in logging
+    "E741", # ambiguous variable name l in code generation
 ]
 
 [tool.ruff.format]
@@ -51,6 +53,8 @@ indent-style = "space"
 python_version = "3.10"
 ignore_missing_imports = true
 warn_unused_configs = true
+mypy_path = ".:configuration:topology:utils"
+explicit_package_bases = true
 exclude = [
     "^\\.venv",
 ]
@@ -66,4 +70,9 @@ exclude = ["setup.py", "docs", ".venv"]
 
 [tool.bandit]
 exclude_dirs = [".venv"]
-skips = ["B101"]  # assert usage
+skips = [
+    "B101", # assert usage
+    "B608", # hardcoded sql expressions (research sqlite schema)
+    "B104", # binding to 0.0.0.0 (network emulation sockets)
+    "B307", # eval in legacy C header parser
+]

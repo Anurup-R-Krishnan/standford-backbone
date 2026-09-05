@@ -20,7 +20,11 @@ Created on Mar 11, 2012
 @author: James Hongyi Zeng
 """
 
+import os
+import sys
 from time import time
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config_parser.juniper_parser import juniperRouter
 from headerspace.applications import *
@@ -30,9 +34,9 @@ from utils.load_internet2_backbone import *
 
 # from multiprocessing import Pool
 
-ntf_global = []
-ttf_global = []
-dst_port_ids_global = []
+ntf_global: list = []
+ttf_global: list = []
+dst_port_ids_global: list = []
 
 
 def find_reachability_multiprocess(in_port, input_pkt):

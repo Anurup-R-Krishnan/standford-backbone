@@ -46,7 +46,7 @@ class StanfordTopo(Topo):
     PORT_MAP_FILENAME = "data/port_map.txt"
     TOPO_FILENAME = "data/backbone_topology.tf"
 
-    dummy_switches = set()
+    dummy_switches: set = set()
 
     def __init__(self):
         # Read topology info
@@ -138,9 +138,7 @@ class StanfordTopo(Topo):
                 self.add_switch(f"s{dummy_switch_id}")
                 self.dummy_switches.add(dummy_switch_id)
 
-                self.add_link(
-                    node1=f"s{dpid}", node2=f"s{dummy_switch_id}", port1=port, port2=1
-                )
+                self.add_link(node1=f"s{dpid}", node2=f"s{dummy_switch_id}", port1=port, port2=1)
                 dummy_switch_port = 2
                 for dst_dpid, dst_port in first_pass[(dpid, port)]:
                     first_pass[(dst_dpid, dst_port)].discard((dpid, port))
@@ -159,9 +157,7 @@ class StanfordTopo(Topo):
         # Third pass, create the remaining links
         for dpid, port in first_pass:
             for dst_dpid, dst_port in first_pass[(dpid, port)]:
-                self.add_link(
-                    node1=f"s{dpid}", node2=f"s{dst_dpid}", port1=port, port2=dst_port
-                )
+                self.add_link(node1=f"s{dpid}", node2=f"s{dst_dpid}", port1=port, port2=dst_port)
                 ports[dst_dpid].discard(dst_port)
             ports[dpid].discard(port)
 
@@ -175,25 +171,22 @@ class StanfordMininet(Mininet):
         self.topo.add_link(node1=f"s{15}", node2=f"s{16}", port1=7, port2=4)
 
 
-def StanfordTopoTest(
-    controller_ip, controller_port, dummy_controller_ip, dummy_controller_port
-):
+def StanfordTopoTest(controller_ip, controller_port, dummy_controller_ip, dummy_controller_port):
     topo = StanfordTopo()
 
     def main_controller(a):
-        return RemoteController(
-            a, ip=controller_ip, port=controller_port
-        )
+        return RemoteController(a, ip=controller_ip, port=controller_port)
+
     net = StanfordMininet(topo=topo, switch=OVSKernelSwitch, controller=main_controller)
 
     net.start()
 
     # These switches should be set to a local controller..
     dummy_switches = topo.dummy_switches
+
     def dummyClass(a):
-        return RemoteController(
-            a, ip=dummy_controller_ip, port=dummy_controller_port
-        )
+        return RemoteController(a, ip=dummy_controller_ip, port=dummy_controller_port)
+
     dummy_controller = net.addController(name="dummy_controller", controller=dummyClass)
     dummy_controller.start()
 
@@ -246,10 +239,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     print(description)
-    print(
-        "Starting with primary controller %s:%d"
-        % (args.controller_name, args.controller_port)
-    )
+    print("Starting with primary controller %s:%d" % (args.controller_name, args.controller_port))
     print(
         "Starting with dummy controller %s:%d"
         % (args.dummy_controller_name, args.dummy_controller_port)

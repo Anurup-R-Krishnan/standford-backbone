@@ -158,17 +158,19 @@ class TF:
 
             if rule["action"] == "fwd":
                 match = byte_array_to_hs_string(rule["match"])
-                string = f"in_ports: {rule['in_ports']}, match: {match} => (h , {rule['out_ports']})"
-                strings.append(string)
-
-            if rule["action"] == "link":
                 string = (
-                    f"in_ports: {rule['in_ports']} => out_ports: {rule['out_ports']}"
+                    f"in_ports: {rule['in_ports']}, match: {match} => (h , {rule['out_ports']})"
                 )
                 strings.append(string)
 
+            if rule["action"] == "link":
+                string = f"in_ports: {rule['in_ports']} => out_ports: {rule['out_ports']}"
+                strings.append(string)
+
             if rule["action"] == "custom":
-                string = f"match: {rule['match'].__name__} , transform: {rule['transform'].__name__}"
+                string = (
+                    f"match: {rule['match'].__name__} , transform: {rule['transform'].__name__}"
+                )
                 strings.append(string)
 
         return strings
@@ -184,13 +186,13 @@ class TF:
                 strings.append(string)
             if rule["action"] == "fwd":
                 match = byte_array_to_hs_string(rule["match"])
-                string = f"out_ports: {rule['out_ports']} match: {match} => (h , {rule['in_ports']})"
+                string = (
+                    f"out_ports: {rule['out_ports']} match: {match} => (h , {rule['in_ports']})"
+                )
                 strings.append(string)
 
             if rule["action"] == "link":
-                string = (
-                    f"out_ports: {rule['out_ports']} => in_ports: {rule['in_ports']})"
-                )
+                string = f"out_ports: {rule['out_ports']} => in_ports: {rule['in_ports']})"
                 strings.append(string)
         return strings
 
@@ -203,9 +205,9 @@ class TF:
         """
         rule = {}
         rule["in_ports"] = in_ports
-        if match.__class__ == str:
+        if isinstance(match, str):
             rule["match"] = hs_string_to_byte_array(match)
-        elif match.__class__ == bytearray:
+        elif isinstance(match, bytearray):
             rule["match"] = bytearray(match)
         else:
             rule["match"] = None
@@ -215,9 +217,7 @@ class TF:
         return rule
 
     @staticmethod
-    def create_custom_rule(
-        match, transform, inv_match, inv_transform, file_name, lines
-    ):
+    def create_custom_rule(match, transform, inv_match, inv_transform, file_name, lines):
         rule = {}
         rule["match"] = match
         rule["inv_match"] = inv_match
@@ -233,32 +233,30 @@ class TF:
         return rule
 
     @staticmethod
-    def create_standard_rule(
-        in_ports, match, out_ports, mask, rewrite, file_name, lines
-    ):
+    def create_standard_rule(in_ports, match, out_ports, mask, rewrite, file_name, lines):
         """
         Create a rule using input arguments. Use None if an input is not applicable.
         """
         rule = {}
         rule["in_ports"] = in_ports
         rule["out_ports"] = out_ports
-        if match.__class__ == str:
+        if isinstance(match, str):
             rule["match"] = hs_string_to_byte_array(match)
-        elif match.__class__ == bytearray:
+        elif isinstance(match, bytearray):
             rule["match"] = bytearray(match)
         else:
             rule["match"] = None
 
-        if mask.__class__ == str:
+        if isinstance(mask, str):
             rule["mask"] = hs_string_to_byte_array(mask)
-        elif mask.__class__ == bytearray:
+        elif isinstance(mask, bytearray):
             rule["mask"] = bytearray(mask)
         else:
             rule["mask"] = None
 
-        if rewrite.__class__ == str:
+        if isinstance(rewrite, str):
             rule["rewrite"] = hs_string_to_byte_array(rewrite)
-        elif rewrite.__class__ == bytearray:
+        elif isinstance(rewrite, bytearray):
             rule["rewrite"] = bytearray(rewrite)
         else:
             rule["rewrite"] = None
@@ -295,28 +293,18 @@ class TF:
         for i in range(priority):
             if self.rules[i]["action"] == "rw" or self.rules[i]["action"] == "fwd":
                 common_ports = [
-                    val
-                    for val in new_rule["in_ports"]
-                    if val in self.rules[i]["in_ports"]
+                    val for val in new_rule["in_ports"] if val in self.rules[i]["in_ports"]
                 ]
-                intersect = byte_array_intersect(
-                    self.rules[i]["match"], new_rule["match"]
-                )
+                intersect = byte_array_intersect(self.rules[i]["match"], new_rule["match"])
                 if len(intersect) > 0 and len(common_ports) > 0:
-                    new_rule["affected_by"].append(
-                        (self.rules[i], intersect, common_ports)
-                    )
+                    new_rule["affected_by"].append((self.rules[i], intersect, common_ports))
                     self.rules[i]["influence_on"].append(self.rules[priority])
         for i in range(priority + 1, len(self.rules)):
             if self.rules[i]["action"] == "rw" or self.rules[i]["action"] == "fwd":
                 common_ports = [
-                    val
-                    for val in new_rule["in_ports"]
-                    if val in self.rules[i]["in_ports"]
+                    val for val in new_rule["in_ports"] if val in self.rules[i]["in_ports"]
                 ]
-                intersect = byte_array_intersect(
-                    self.rules[i]["match"], new_rule["match"]
-                )
+                intersect = byte_array_intersect(self.rules[i]["match"], new_rule["match"])
                 if len(intersect) > 0 and len(common_ports) > 0:
                     new_rule["influence_on"].append(self.rules[i])
                     self.rules[i]["affected_by"].append(
@@ -354,9 +342,7 @@ class TF:
         extended_rule["match"] = bytearray(rule["match"])
         extended_rule["mask"] = bytearray(rule["mask"])
         # Mask rewrite
-        extended_rule["rewrite"] = byte_array_and(
-            byte_array_not(rule["mask"]), rule["rewrite"]
-        )
+        extended_rule["rewrite"] = byte_array_and(byte_array_not(rule["mask"]), rule["rewrite"])
         extended_rule["action"] = "rw"
 
         masked = byte_array_and(rule["match"], rule["mask"])
@@ -463,9 +449,7 @@ class TF:
                 )
                 new_hs.hs_list[i] = barr
             for r, h, in_ports in rule["affected_by"]:
-                if port in in_ports and (
-                    applied_rules is None or r["id"] in applied_rules
-                ):
+                if port in in_ports and (applied_rules is None or r["id"] in applied_rules):
                     new_hs.diff_hs(h)
             for i in range(len(new_hs.hs_diff)):
                 barr = byte_array_or(
@@ -493,9 +477,7 @@ class TF:
         new_hs = hs.copy_intersect(rule["match"])
         if new_hs.count() > 0 and port in rule["in_ports"]:
             for r, h, in_ports in rule["affected_by"]:
-                if port in in_ports and (
-                    applied_rules is None or r["id"] in applied_rules
-                ):
+                if port in in_ports and (applied_rules is None or r["id"] in applied_rules):
                     new_hs.diff_hs(h)
             new_hs.clean_up()
             if new_hs.count() == 0:
@@ -798,8 +780,7 @@ class TF:
             f.write(f"{rule['out_ports']}$")
             f.write("#")
             f.writelines(
-                "%d;%s;%s#"
-                % (self.rules.index(ra[0]), byte_array_to_hs_string(ra[1]), ra[2])
+                "%d;%s;%s#" % (self.rules.index(ra[0]), byte_array_to_hs_string(ra[1]), ra[2])
                 for ra in rule["affected_by"]
             )
             f.write("$")
@@ -962,9 +943,7 @@ class TF:
         extended_rule["match"] = bytearray(rule["match"])
         extended_rule["mask"] = bytearray(rule["mask"])
         # Mask rewrite
-        extended_rule["rewrite"] = byte_array_and(
-            byte_array_not(rule["mask"]), rule["rewrite"]
-        )
+        extended_rule["rewrite"] = byte_array_and(byte_array_not(rule["mask"]), rule["rewrite"])
         extended_rule["action"] = "rw"
 
         masked = byte_array_and(rule["match"], rule["mask"])

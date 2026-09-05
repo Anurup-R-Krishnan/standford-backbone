@@ -22,6 +22,9 @@ Created on Mar 27, 2012
 
 import json
 import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from headerspace.hs import *
 from headerspace.tf import *
@@ -88,9 +91,7 @@ class OpenFlow_Rule_Generator:
         if all_masked:
             return None
 
-        new_byte_array = byte_array_or(
-            byte_array_and(field_match, field_mask), field_rewrite
-        )
+        new_byte_array = byte_array_or(byte_array_and(field_match, field_mask), field_rewrite)
         value = 0
         for i in range(len(new_byte_array)):
             for j in range(4):

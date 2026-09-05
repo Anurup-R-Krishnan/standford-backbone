@@ -275,9 +275,7 @@ class Ping:
         checksum = 0
 
         # Make a dummy header with a 0 checksum.
-        header = struct.pack(
-            "!BBHHH", ICMP_ECHO, 0, checksum, self.own_id, self.seq_number
-        )
+        header = struct.pack("!BBHHH", ICMP_ECHO, 0, checksum, self.own_id, self.seq_number)
 
         padBytes = []
         startVal = 0x42
@@ -290,9 +288,7 @@ class Ping:
 
         # Now that we have the right checksum, we put that in. It's just easier
         # to make up a new header than to stuff it into the dummy.
-        header = struct.pack(
-            "!BBHHH", ICMP_ECHO, 0, checksum, self.own_id, self.seq_number
-        )
+        header = struct.pack("!BBHHH", ICMP_ECHO, 0, checksum, self.own_id, self.seq_number)
 
         packet = header + data
 

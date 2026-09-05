@@ -20,7 +20,11 @@ Created on Aug 10, 2011
 @author: Peyman Kazemian
 """
 
+import os
+import sys
 from time import time
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config_parser.cisco_router_parser import *
 from headerspace.tf import *
@@ -92,13 +96,14 @@ topology = [
 ]
 
 id = 1
+os.makedirs(output_dir, exist_ok=True)
 f = open(f"{output_dir}/port_map.txt", "w")
 dummy_cs = ciscoRouter(1)
 ttf = TF(dummy_cs.HS_FORMAT()["length"] * 2)
 ttf.set_prefix_id("topology")
 root_tf = TF(dummy_cs.HS_FORMAT()["length"] * 2)
 root_tf.set_prefix_id("root_rtr")
-root_tf_ports = []
+root_tf_ports: list = []
 
 for replicate in range(replication_factor):
     cs_list = {}
@@ -107,11 +112,11 @@ for replicate in range(replication_factor):
         cs.set_replaced_vlan(vlan)
         tf = TF(cs.HS_FORMAT()["length"] * 2)
         tf.set_prefix_id(rtr_name)
-        cs.read_arp_table_file(f"Stanford_backbone/{rtr_name}_arp_table.txt")
-        cs.read_mac_table_file(f"Stanford_backbone/{rtr_name}_mac_table.txt")
-        cs.read_config_file(f"Stanford_backbone/{rtr_name}_config.txt")
-        cs.read_spanning_tree_file(f"Stanford_backbone/{rtr_name}_spanning_tree.txt")
-        cs.read_route_file(f"Stanford_backbone/{rtr_name}_route.txt")
+        cs.read_arp_table_file(f"../data/Stanford_backbone/{rtr_name}_arp_table.txt")
+        cs.read_mac_table_file(f"../data/Stanford_backbone/{rtr_name}_mac_table.txt")
+        cs.read_config_file(f"../data/Stanford_backbone/{rtr_name}_config.txt")
+        cs.read_spanning_tree_file(f"../data/Stanford_backbone/{rtr_name}_spanning_tree.txt")
+        cs.read_route_file(f"../data/Stanford_backbone/{rtr_name}_route.txt")
         cs.generate_port_ids([])
         # if rtr_name == "coza_rtr" or rtr_name == "cozb_rtr" or rtr_name == "soza_rtr" or rtr_name == "sozb_rtr" or rtr_name == "yoza_rtr" or rtr_name == "yozb_rtr":
         cs.optimize_forwarding_table()
@@ -137,10 +142,7 @@ for replicate in range(replication_factor):
     root_rule = TF.create_standard_rule(
         [root_tf_id * dummy_cs.SWITCH_ID_MULTIPLIER],
         match,
-        [
-            out_port
-            + dummy_cs.PORT_TYPE_MULTIPLIER * dummy_cs.INTERMEDIATE_PORT_TYPE_CONST
-        ],
+        [out_port + dummy_cs.PORT_TYPE_MULTIPLIER * dummy_cs.INTERMEDIATE_PORT_TYPE_CONST],
         mask,
         rewrite,
         "",

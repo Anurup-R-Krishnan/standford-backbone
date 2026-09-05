@@ -204,43 +204,40 @@ def byte_to_int(b):
 def byte_array_to_pretty_hs_string(byte_array):
     if byte_array is None:
         return "None"
-    str = ""
-    len(byte_array)
+    res = ""
+    length = len(byte_array)
     cntr = -1
     pretty_flag = False
     for b in byte_array:
         cntr += 1
-        if cntr % 2 == 0 and cntr + 1 < len:
+        if cntr % 2 == 0 and cntr + 1 < length:
             if byte_has_no_x(byte_array[cntr]) and byte_has_no_x(byte_array[cntr + 1]):
                 pretty_flag = True
-                val = (
-                    byte_to_int(byte_array[cntr])
-                    + byte_to_int(byte_array[cntr + 1]) * 16
-                )
+                val = byte_to_int(byte_array[cntr]) + byte_to_int(byte_array[cntr + 1]) * 16
                 if cntr > 0:
-                    str = "D%d,%s" % (val, str)
+                    res = f"D{val},{res}"
                 else:
-                    str = "D%d%s" % (val, str)
+                    res = f"D{val}{res}"
                 continue
         elif pretty_flag:
             pretty_flag = False
             continue
 
         if cntr % 2 == 0 and cntr > 0:
-            str = "," + str
+            res = "," + res
         for i in range(4):
             b_shift = b >> (i * 2)
             next_bit = b_shift & 0x03
             if next_bit == 0x01:
-                str = "0" + str
+                res = "0" + res
             elif next_bit == 0x02:
-                str = "1" + str
+                res = "1" + res
             elif next_bit == 0x03:
-                str = "x" + str
+                res = "x" + res
             else:
-                str = "z" + str
+                res = "z" + res
 
-    return str
+    return res
 
 
 def hs_string_to_byte_array(str):
@@ -361,13 +358,13 @@ class headerspace:
         @value: bytearray of lenght self.length or another headerspace objects
         @return: True if successful, False otherwise
         """
-        if value.__class__ == bytearray:
+        if isinstance(value, bytearray):
             if len(value) != self.length:
                 return False
             else:
                 self.hs_list.append(bytearray(value))
                 return True
-        elif value.__class__ == headerspace:
+        elif isinstance(value, headerspace):
             if value.length != self.length:
                 return False
             else:
@@ -384,10 +381,10 @@ class headerspace:
         @return: True
         """
         for value in values:
-            if value.__class__ == bytearray:
+            if isinstance(value, bytearray):
                 if len(value) == self.length:
                     self.hs_list.append(bytearray(value))
-            elif value.__class__ == headerspace:
+            elif isinstance(value, headerspace):
                 if value.length == self.length:
                     for elem in value.hs_list:
                         self.hs_list.append(bytearray(elem))
@@ -401,7 +398,7 @@ class headerspace:
         @value: bytearray of lenght self.length
         @return: True if successful, False otherwise
         """
-        if value.__class__ == bytearray:
+        if isinstance(value, bytearray):
             if len(value) != self.length:
                 return False
             else:
@@ -417,7 +414,7 @@ class headerspace:
         @return: True
         """
         for value in values:
-            if value.__class__ == bytearray and len(value) == self.length:
+            if isinstance(value, bytearray) and len(value) == self.length:
                 self.hs_diff.append(bytearray(value))
         return True
 
@@ -495,7 +492,7 @@ class headerspace:
             for hs in other_hs.hs_diff:
                 self.hs_diff.append(hs)
             return True
-        elif other_hs.__class__ == bytearray:
+        elif isinstance(other_hs, bytearray):
             new_hs_list = []
             if self.length != len(other_hs):
                 return False
@@ -585,9 +582,9 @@ class headerspace:
         pop_index = []
         for i in range(len(self.hs_list)):
             for j in range(i + 1, len(self.hs_list)):
-                if byte_array_equal(
+                if byte_array_equal(self.hs_list[i], self.hs_list[j]) or byte_array_subset(
                     self.hs_list[i], self.hs_list[j]
-                ) or byte_array_subset(self.hs_list[i], self.hs_list[j]):
+                ):
                     pop_index.append(i)
                 elif byte_array_subset(self.hs_list[j], self.hs_list[i]):
                     pop_index.append(j)

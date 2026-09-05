@@ -29,7 +29,7 @@ class StanfordTopo:
     PORT_MAP_FILENAME = "data/stanford/port_map.txt"
     TOPO_FILENAME = "data/stanford/backbone_topology.tf"
 
-    dummy_switches = set()
+    dummy_switches: set = set()
 
     def __init__(self):
         # Read topology info
@@ -231,9 +231,7 @@ class Application:
         self.draw_callback(None)
 
         button = builder.get_object("submit")
-        button.connect(
-            "clicked", self.submit_callback, builder.get_object("entry_input")
-        )
+        button.connect("clicked", self.submit_callback, builder.get_object("entry_input"))
         button = builder.get_object("refresh")
         button.connect("clicked", self.draw_callback)
         button = builder.get_object("inject")
@@ -261,9 +259,7 @@ class Application:
         self.topology_real.dump_json("web/data/data.json")
         # self.browser.reload()
 
-        self.thread2 = threading.Thread(
-            target=self.pinpoint, args=(test_packets, errors)
-        )
+        self.thread2 = threading.Thread(target=self.pinpoint, args=(test_packets, errors))
         self.thread2.start()
 
     def draw_callback(self, widget):

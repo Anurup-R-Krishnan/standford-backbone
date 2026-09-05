@@ -45,9 +45,9 @@ class StanfordTopo(Topo):
     PORT_MAP_FILENAME = "data/port_map.txt"
     TOPO_FILENAME = "data/backbone_topology.tf"
 
-    dummy_switches = set()
+    dummy_switches: set = set()
     # Jack
-    dummy_rules = []
+    dummy_rules: list = []
 
     def __init__(self):
         # Read topology info
@@ -77,10 +77,7 @@ class StanfordTopo(Topo):
                 # Jack
                 print(f"add_host(): h{host_id}")
                 # self.add_host( "h%s" % host_id )
-                print(
-                    "add_link(): nodes h%s to s%s, ports %d to %d (host)"
-                    % (host_id, s, 0, port)
-                )
+                print("add_link(): nodes h%s to s%s, ports %d to %d (host)" % (host_id, s, 0, port))
                 # self.add_link( "h%s" % host_id, "s%s" % s, 0, port )
                 host_id += 1
 
@@ -160,9 +157,7 @@ class StanfordTopo(Topo):
             if len(first_pass[(dpid, port)]) > 1:
                 # Jack
                 # Generate dummy rules
-                self.generate_dummy_rules(
-                    dummy_switch_id, len(first_pass[(dpid, port)])
-                )
+                self.generate_dummy_rules(dummy_switch_id, len(first_pass[(dpid, port)]))
 
                 # Jack
                 print(f"add_switch(): s{dummy_switch_id} (dummy)")
@@ -212,25 +207,22 @@ class StanfordMininet(Mininet):
         self.topo.add_link(node1=f"s{15}", node2=f"s{16}", port1=7, port2=4)
 
 
-def StanfordTopoTest(
-    controller_ip, controller_port, dummy_controller_ip, dummy_controller_port
-):
+def StanfordTopoTest(controller_ip, controller_port, dummy_controller_ip, dummy_controller_port):
     topo = StanfordTopo()
 
     def main_controller(a):
-        return RemoteController(
-            a, ip=controller_ip, port=controller_port
-        )
+        return RemoteController(a, ip=controller_ip, port=controller_port)
+
     net = StanfordMininet(topo=topo, switch=OVSKernelSwitch, controller=main_controller)
 
     net.start()
 
     # These switches should be set to a local controller..
     dummy_switches = topo.dummy_switches
+
     def dummyClass(a):
-        return RemoteController(
-            a, ip=dummy_controller_ip, port=dummy_controller_port
-        )
+        return RemoteController(a, ip=dummy_controller_ip, port=dummy_controller_port)
+
     dummy_controller = net.addController(name="dummy_controller", controller=dummyClass)
     dummy_controller.start()
 
@@ -287,10 +279,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     print(description)
-    print(
-        "Starting with primary controller %s:%d"
-        % (args.controller_name, args.controller_port)
-    )
+    print("Starting with primary controller %s:%d" % (args.controller_name, args.controller_port))
     print(
         "Starting with dummy controller %s:%d"
         % (args.dummy_controller_name, args.dummy_controller_port)

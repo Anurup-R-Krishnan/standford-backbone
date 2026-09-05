@@ -126,10 +126,7 @@ for from_router, from_port, to_router, to_port in topology:
     )
     tf.add_link_rule(rule)
     rule = TF.create_standard_rule(
-        [
-            to_cs.get_port_id(to_port)
-            + to_cs.PORT_TYPE_MULTIPLIER * to_cs.OUTPUT_PORT_TYPE_CONST
-        ],
+        [to_cs.get_port_id(to_port) + to_cs.PORT_TYPE_MULTIPLIER * to_cs.OUTPUT_PORT_TYPE_CONST],
         None,
         [from_cs.get_port_id(from_port)],
         None,

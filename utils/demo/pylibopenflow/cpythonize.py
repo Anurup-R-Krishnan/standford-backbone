@@ -54,12 +54,7 @@ class rules:
         for x, xlist in mapping:
             code.append("if (not (self." + x + " in " + xlist + ")):")
             code.append(
-                self.tab
-                + 'return (False, "'
-                + x
-                + " must have values from "
-                + xlist
-                + '")'
+                self.tab + 'return (False, "' + x + " must have values from " + xlist + '")'
             )
         return code
 
@@ -170,9 +165,7 @@ class pythonizer:
                 prev_v = v
                 first = 0
             else:
-                code.append(
-                    self.tab + f"{prev_v}{_space_to(32, str(prev_v))}: '{prev_e}',"
-                )
+                code.append(self.tab + f"{prev_v}{_space_to(32, str(prev_v))}: '{prev_e}',")
                 prev_e = e
                 prev_v = v
         code.append(self.tab + f"{prev_v}{_space_to(32, str(prev_v))}: '{prev_e}'")
@@ -227,16 +220,10 @@ class pythonizer:
         """Return Python code for header"""
         code = []
         code.append("class " + struct_in.typename + ":")
-        code.append(
-            self.tab
-            + '"""Automatically generated Python class for '
-            + struct_in.typename
-        )
+        code.append(self.tab + '"""Automatically generated Python class for ' + struct_in.typename)
         code.append("")
         code.append(self.tab + "Date " + str(datetime.date.today()))
-        code.append(
-            self.tab + "Created by " + self.__module__ + "." + self.__class__.__name__
-        )
+        code.append(self.tab + "Created by " + self.__module__ + "." + self.__class__.__name__)
         if IGNORE_OFP_HEADER:
             code.append(self.tab + "Core structure: Messages do not include ofp_header")
         if IGNORE_ZERO_ARRAYS:
@@ -259,12 +246,8 @@ class pythonizer:
         code = []
         for member in struct_in.members:
             if isinstance(member, cheader.cstruct):
-                code.append(
-                    prepend + "." + member.name + " = " + member.typename + "()"
-                )
-                struct_default = self.rules.get_struct_default(
-                    struct_in.typename, member.name
-                )
+                code.append(prepend + "." + member.name + " = " + member.typename + "()")
+                struct_default = self.rules.get_struct_default(struct_in.typename, member.name)
                 if struct_default is not None:
                     code.append(prepend + struct_default)
                 self.__structassert(member, (prepend + "." + member.name).strip())
@@ -317,12 +300,7 @@ class pythonizer:
     def __structassert(self, cstruct, cstructname):
         """Return code to check for C array"""
         self.__assertcode.append(
-            self.tab * 2
-            + "if(not isinstance("
-            + cstructname
-            + ", "
-            + cstruct.typename
-            + ")):"
+            self.tab * 2 + "if(not isinstance(" + cstructname + ", " + cstruct.typename + ")):"
         )
         self.__assertcode.append(
             self.tab * 3
@@ -341,14 +319,9 @@ class pythonizer:
 
     def __stringassert(self, carray, carrayname):
         """Return code to check for C array"""
+        self.__assertcode.append(self.tab * 2 + "if(not isinstance(" + carrayname + ", str)):")
         self.__assertcode.append(
-            self.tab * 2 + "if(not isinstance(" + carrayname + ", str)):"
-        )
-        self.__assertcode.append(
-            self.tab * 3
-            + 'return (False, "'
-            + carrayname
-            + ' is not string as expected.")'
+            self.tab * 3 + 'return (False, "' + carrayname + ' is not string as expected.")'
         )
         self.__assertcode.append(
             self.tab * 2 + "if(len(" + carrayname + ") > " + str(carray.size) + "):"
@@ -366,14 +339,9 @@ class pythonizer:
         """Return code to check for C array"""
         if carray.size == 0:
             return
+        self.__assertcode.append(self.tab * 2 + "if(not isinstance(" + carrayname + ", list)):")
         self.__assertcode.append(
-            self.tab * 2 + "if(not isinstance(" + carrayname + ", list)):"
-        )
-        self.__assertcode.append(
-            self.tab * 3
-            + 'return (False, "'
-            + carrayname
-            + ' is not list as expected.")'
+            self.tab * 3 + 'return (False, "' + carrayname + ' is not list as expected.")'
         )
         self.__assertcode.append(
             self.tab * 2 + "if(len(" + carrayname + ") != " + str(carray.size) + "):"
@@ -424,9 +392,7 @@ class pythonizer:
                 )
                 if isinstance(member, cheader.cstruct):
                     # Struct
-                    code.append(
-                        self.tab * 2 + "packed += self." + member.name + ".pack()"
-                    )
+                    code.append(self.tab * 2 + "packed += self." + member.name + ".pack()")
                 elif isinstance(member, cheader.carray) and member.typename == "char":
                     # String
                     code.append(
@@ -444,15 +410,12 @@ class pythonizer:
                     expandedarr = ""
                     if member.size != 0:
                         for x in range(member.size):
-                            expandedarr += (
-                                ", self." + member.name + "[" + str(x).strip() + "]"
-                            )
+                            expandedarr += ", self." + member.name + "[" + str(x).strip() + "]"
                         code.append(
                             self.tab * 2
                             + 'packed += struct.pack("'
                             + prefix
-                            + self.__c2py.structmap[member.object.typename]
-                            * member.size
+                            + self.__c2py.structmap[member.object.typename] * member.size
                             + '"'
                             + expandedarr
                             + ")"
@@ -522,9 +485,7 @@ class pythonizer:
                 else:
                     pattern = "!" + self.__c2py.get_pattern(member.object)
                     size = self.__c2py.get_size(pattern)
-                    code.append(
-                        self.tab * 2 + "l += len(self." + member.name + ")*" + str(size)
-                    )
+                    code.append(self.tab * 2 + "l += len(self." + member.name + ")*" + str(size))
         code.append(self.tab * 2 + "return l")
         return code
 
@@ -553,30 +514,19 @@ class pythonizer:
         """Return code to print basic members of structure"""
         code = []
         code.append(self.tab + "def show(self, prefix=''):")
-        code.append(
-            self.tab * 2 + '"""' + "Generate string showing basic members of structure"
-        )
+        code.append(self.tab * 2 + '"""' + "Generate string showing basic members of structure")
         code.append(self.tab * 2 + '"""')
         code.append(self.tab * 2 + "outstr = ''")
         for member in struct_in.members:
             if re.search("pad", member.name):
                 continue
             elif isinstance(member, cheader.cstruct):
-                code.append(
-                    self.tab * 2 + "outstr += prefix + '" + member.name + ": \\n' "
-                )
-                code.append(
-                    self.tab * 2
-                    + "outstr += self."
-                    + member.name
-                    + ".show(prefix + '  ')"
-                )
+                code.append(self.tab * 2 + "outstr += prefix + '" + member.name + ": \\n' ")
+                code.append(self.tab * 2 + "outstr += self." + member.name + ".show(prefix + '  ')")
             elif isinstance(member, cheader.carray) and not isinstance(
                 member.object, cheader.cprimitive
             ):
-                code.append(
-                    self.tab * 2 + "outstr += prefix + '" + member.name + ": \\n' "
-                )
+                code.append(self.tab * 2 + "outstr += prefix + '" + member.name + ": \\n' ")
                 code.append(self.tab * 2 + "for obj in self." + member.name + ":")
                 code.append(self.tab * 3 + "outstr += obj.show(prefix + '  ')")
             else:
@@ -651,16 +601,10 @@ class pythonizer:
                     # Array of Primitives
                     expandedarr = ""
                     if member.size != 0:
-                        arrpattern = (
-                            self.__c2py.structmap[member.object.typename] * member.size
-                        )
+                        arrpattern = self.__c2py.structmap[member.object.typename] * member.size
                         for x in range(member.size):
-                            expandedarr += (
-                                "self." + member.name + "[" + str(x).strip() + "], "
-                            )
-                        code.append(
-                            self.tab * 2 + "fmt = '" + prefix + arrpattern + "'"
-                        )
+                            expandedarr += "self." + member.name + "[" + str(x).strip() + "], "
+                        code.append(self.tab * 2 + "fmt = '" + prefix + arrpattern + "'")
                         code.append(self.tab * 2 + "start = " + str(offset))
                         code.append(self.tab * 2 + "end = start + struct.calcsize(fmt)")
                         code.append(
@@ -674,9 +618,7 @@ class pythonizer:
                     member.object, cheader.cstruct
                 ):
                     # Array of struct
-                    astructlen = self.__c2py.get_size(
-                        "!" + self.__c2py.get_pattern(member.object)
-                    )
+                    astructlen = self.__c2py.get_size("!" + self.__c2py.get_pattern(member.object))
                     for x in range(member.size):
                         code.append(
                             self.tab * 2

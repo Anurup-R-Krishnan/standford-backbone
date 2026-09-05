@@ -21,8 +21,12 @@ Created on Sep 26, 2011
 """
 
 import math
+import os
 import random
+import sys
 from time import time
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config_parser.cisco_router_parser import ciscoRouter
 from config_parser.helper import *
@@ -131,7 +135,7 @@ port_ids = {
 def generate_random_slice_hs(num_wc, base_ip, range_ip, max_right_subnet):
     hs = headerspace(cs.HS_FORMAT()["length"] * 2)
     tcp_ports = [7, 21, 23, 80, 530, None, None, None, None, None]
-    for i in range(num_wc / 2):
+    for i in range(num_wc // 2):
         rand_ip = base_ip + random.randrange(0, range_ip)
         rand_subnet = random.randrange(0, max_right_subnet)
         all_x = byte_array_get_all_x(cs.HS_FORMAT()["length"] * 2)
@@ -183,22 +187,20 @@ def generate_random_fwd_rule(slice_chunk, base_ip, range_ip, max_right_subnet):
     rand_box = random.choice(box_list)
     input_port = random.choice(slice_ports[rand_box])
 
-    rand_box_ports = port_ids[rand_box].keys()
+    rand_box_ports = list(port_ids[rand_box].keys())
     rand_out_port_name = random.choice(rand_box_ports)
     output_port = rtr_ids[rand_box] + port_ids[rand_box][rand_out_port_name]
 
-    rule = TF.create_standard_rule(
-        [input_port], match, [output_port], mask, rewrite, "", []
-    )
+    rule = TF.create_standard_rule([input_port], match, [output_port], mask, rewrite, "", [])
     return rule
 
 
 tf = TF(cs.HS_FORMAT()["length"] * 2)
-for from_router, from_port, to_router, to_port in topology:
+for from_router, from_p, to_router, to_p in topology:
     from_cs = rtr_ids[from_router]
-    from_port = port_ids[from_router][from_port]
+    from_port = port_ids[from_router][from_p]
     to_cs = rtr_ids[to_router]
-    to_port = port_ids[to_router][to_port]
+    to_port = port_ids[to_router][to_p]
     rule = TF.create_standard_rule(
         [from_cs + from_port], None, [to_cs + to_port], None, None, "", []
     )

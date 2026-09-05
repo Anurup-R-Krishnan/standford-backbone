@@ -20,6 +20,11 @@ Created on Aug 13, 2011
 @author: Peyman Kazemian
 """
 
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from config_parser.cisco_router_parser import ciscoRouter
 from config_parser.helper import compose_standard_rules, dotted_ip_to_int
 from headerspace.hs import *
@@ -115,9 +120,7 @@ def load_port_to_id_map(path):
             tokens = line.strip().split(":")
             map[rtr][tokens[0]] = int(tokens[1])
             id_to_name[tokens[1]] = f"{rtr}-{tokens[0]}"
-            out_port = (
-                int(tokens[1]) + cs.PORT_TYPE_MULTIPLIER * cs.OUTPUT_PORT_TYPE_CONST
-            )
+            out_port = int(tokens[1]) + cs.PORT_TYPE_MULTIPLIER * cs.OUTPUT_PORT_TYPE_CONST
             id_to_name[f"{out_port}"] = f"{rtr}-{tokens[0]}"
     return (map, id_to_name)
 

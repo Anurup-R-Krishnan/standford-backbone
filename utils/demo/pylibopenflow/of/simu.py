@@ -64,9 +64,7 @@ class switch(ofnetwork.switch):
         connection=None,
     ):
         """Initialize switch"""
-        ofnetwork.switch.__init__(
-            self, miss_send_len, None, dpid, n_buffers, n_tables, capability
-        )
+        ofnetwork.switch.__init__(self, miss_send_len, None, dpid, n_buffers, n_tables, capability)
         ##Name of use for output
         self.name = self.__class__.__name__ + str(id(self))
         ##Reference to OpenFlow messages
@@ -99,15 +97,11 @@ class switch(ofnetwork.switch):
             self.reply_get_config(dic["xid"][0])
 
         else:
-            output.dbg(
-                "Unprocessed message " + self.parser.header_describe(dic), self.name
-            )
+            output.dbg("Unprocessed message " + self.parser.header_describe(dic), self.name)
 
     def send_hello(self):
         """Send hello"""
-        self.connection.structsend(
-            "ofp_hello", 0, self.__messages.get_value("OFPT_HELLO"), 0, 0
-        )
+        self.connection.structsend("ofp_hello", 0, self.__messages.get_value("OFPT_HELLO"), 0, 0)
         output.dbg("Send hello", self.name)
 
     def send_packet(self, inport, bufferid=None, packet="", xid=0, reason=None):

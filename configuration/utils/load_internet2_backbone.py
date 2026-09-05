@@ -20,7 +20,11 @@ Created on March 12, 2012
 @author: James Hongyi Zeng
 """
 
+import os
+import sys
 from multiprocessing import Pool
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config_parser.juniper_parser import juniperRouter
 from headerspace.hs import *
@@ -94,8 +98,6 @@ def load_internet2_backbone_port_to_id_map():
             tokens = line.strip().split(":")
             map[rtr][tokens[0]] = int(tokens[-1])
             id_to_name[tokens[-1]] = f"{rtr}-{':'.join(tokens[0:-1])}"
-            out_port = (
-                int(tokens[-1]) + cs.PORT_TYPE_MULTIPLIER * cs.OUTPUT_PORT_TYPE_CONST
-            )
+            out_port = int(tokens[-1]) + cs.PORT_TYPE_MULTIPLIER * cs.OUTPUT_PORT_TYPE_CONST
             id_to_name[f"{out_port}"] = f"{rtr}-{':'.join(tokens[0:-1])}"
     return (map, id_to_name)

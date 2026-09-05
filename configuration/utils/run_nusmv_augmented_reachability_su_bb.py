@@ -19,7 +19,11 @@ Created on Jan 4, 2012
 @author: peymankazemian
 """
 
+import os
+import sys
 from time import time
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from headerspace.nu_smv_generator import *
 

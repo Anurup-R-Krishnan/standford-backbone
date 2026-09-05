@@ -86,12 +86,8 @@ class cppizer:
 
         # Code namespace
         code.append("")
-        code.append(
-            "#ifndef " + name.upper().replace(" ", "_").replace("-", "_") + "_H"
-        )
-        code.append(
-            "#define " + name.upper().replace(" ", "_").replace("-", "_") + "_H"
-        )
+        code.append("#ifndef " + name.upper().replace(" ", "_").replace("-", "_") + "_H")
+        code.append("#define " + name.upper().replace(" ", "_").replace("-", "_") + "_H")
         code.append("")
         code.append("namespace " + self.namespace)
         code.append("{")
@@ -196,12 +192,7 @@ class cppizer:
             for member in struct_in.members:
                 if isinstance(member, cheader.cstruct):
                     code.append(
-                        indent
-                        + self.tab
-                        + member.name
-                        + ".unpack(&buffer->"
-                        + member.name
-                        + ");"
+                        indent + self.tab + member.name + ".unpack(&buffer->" + member.name + ");"
                     )
                 elif isinstance(member, cheader.cprimitive):
                     code.append(
@@ -277,12 +268,7 @@ class cppizer:
             for member in struct_in.members:
                 if isinstance(member, cheader.cstruct):
                     code.append(
-                        indent
-                        + self.tab
-                        + member.name
-                        + ".pack(&buffer->"
-                        + member.name
-                        + ");"
+                        indent + self.tab + member.name + ".pack(&buffer->" + member.name + ");"
                     )
                 elif isinstance(member, cheader.cprimitive):
                     code.append(
@@ -427,9 +413,7 @@ class cppizer:
         if ccode:
             code.append(indent + "{")
             for member in struct_in.members:
-                if isinstance(member, cheader.carray) and (
-                    member.object.typename != "char"
-                ):
+                if isinstance(member, cheader.carray) and (member.object.typename != "char"):
                     for i in range(member.size):
                         code.append(
                             indent
@@ -444,14 +428,7 @@ class cppizer:
                             + "];"
                         )
                 else:
-                    code.append(
-                        indent
-                        + self.tab
-                        + member.name
-                        + " = peer_."
-                        + member.name
-                        + ";"
-                    )
+                    code.append(indent + self.tab + member.name + " = peer_." + member.name + ";")
             code.append(indent + self.tab + "return *this;")
             code.append(indent + "}")
 
@@ -478,9 +455,7 @@ class cppizer:
             code.append(indent + "{")
             cstr = indent + self.tab + "return "
             for member in struct_in.members:
-                if isinstance(member, cheader.carray) and (
-                    member.object.typename != "char"
-                ):
+                if isinstance(member, cheader.carray) and (member.object.typename != "char"):
                     for i in range(member.size):
                         cstr += (
                             "\\\n"
@@ -541,11 +516,7 @@ class cppizer:
                         + self.tab
                         + member.name
                         + " = "
-                        + str(
-                            self.rules.get_default_value(
-                                struct_in.typename, member.name
-                            )
-                        )
+                        + str(self.rules.get_default_value(struct_in.typename, member.name))
                         + ";"
                     )
                 elif isinstance(member, cheader.cstruct):
@@ -571,9 +542,7 @@ class cppizer:
                                     + ";"
                                 )
                             else:
-                                sd = self.rules.get_struct_default(
-                                    struct_in.typename, member.name
-                                )
+                                sd = self.rules.get_struct_default(struct_in.typename, member.name)
                                 if sd is not None:
                                     code.append(
                                         indent
@@ -611,9 +580,7 @@ class cppizer:
         if ccode:
             code.append(indent + "{")
             for member in struct_in.members:
-                if isinstance(member, cheader.carray) and (
-                    member.object.typename != "char"
-                ):
+                if isinstance(member, cheader.carray) and (member.object.typename != "char"):
                     for i in range(member.size):
                         code.append(
                             indent
@@ -628,9 +595,7 @@ class cppizer:
                             + "];"
                         )
                 else:
-                    code.append(
-                        indent + self.tab + member.name + " = " + member.name + "_;"
-                    )
+                    code.append(indent + self.tab + member.name + " = " + member.name + "_;")
             code.append(indent + "}")
 
         code.append("")
@@ -647,10 +612,7 @@ class cppizer:
                         constructstr += "std::string " + member.name + "_, "
                     else:
                         constructstr += (
-                            self.get_typename(member.object)
-                            + " "
-                            + member.name
-                            + "_[], "
+                            self.get_typename(member.object) + " " + member.name + "_[], "
                         )
             else:
                 constructstr += self.get_typename(member) + " " + member.name + "_, "
@@ -671,9 +633,7 @@ class cppizer:
                 ):
                     code.append(indent + "std::string " + member.name + ";")
                 if isinstance(member, cheader.cstruct):
-                    code.append(
-                        indent + self.get_typename(member) + " " + member.name + ";"
-                    )
+                    code.append(indent + self.get_typename(member) + " " + member.name + ";")
         code.append("")
         return code
 
@@ -692,23 +652,14 @@ class cppizer:
         indent = self.tab
         if not ccode:
             if start:
-                code.append(
-                    indent
-                    + "/** \\brief Object wrapper for struct "
-                    + struct_in.typename
-                )
+                code.append(indent + "/** \\brief Object wrapper for struct " + struct_in.typename)
                 code.append(indent + " *")
+                code.append(indent + " * Everything should be in host order.  Only when the packet")
                 code.append(
-                    indent
-                    + " * Everything should be in host order.  Only when the packet"
+                    indent + " * is packed, it will be done in network order.  So, all byte"
                 )
                 code.append(
-                    indent
-                    + " * is packed, it will be done in network order.  So, all byte"
-                )
-                code.append(
-                    indent
-                    + " * order translation is done by this library and no one else."
+                    indent + " * order translation is done by this library and no one else."
                 )
                 code.append(indent + " * ")
                 code.append(indent + " * @author pylibopenflow" + authors)
