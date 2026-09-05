@@ -21,7 +21,7 @@ class cppizer:
     def __init__(self, cheaderfile, pyrules=None, tab="    "):
         """Initialize"""
         ##Rules
-        if pyrules == None:
+        if pyrules is None:
             self.rules = rules()
         else:
             self.rules = pyrules
@@ -52,14 +52,14 @@ class cppizer:
     def ccode(self, preamble=None, preaddon=None, postaddon=None):
         """Return c code"""
         code = []
-        if preaddon != None:
+        if preaddon is not None:
             code.extend(preaddon)
-        if preamble != None:
+        if preamble is not None:
             fileRef = open(preamble)
             for l in fileRef:
                 code.append(l[:-1])
             fileRef.close()
-        if postaddon != None:
+        if postaddon is not None:
             code.extend(postaddon)
 
         # Actual code
@@ -74,14 +74,14 @@ class cppizer:
     def hcode(self, name="openflow-pack", preamble=None, preaddon=None, postaddon=None):
         """Return code for header"""
         code = []
-        if preaddon != None:
+        if preaddon is not None:
             code.extend(preaddon)
-        if preamble != None:
+        if preamble is not None:
             fileRef = open(preamble)
             for l in fileRef:
                 code.append(l[:-1])
             fileRef.close()
-        if postaddon != None:
+        if postaddon is not None:
             code.extend(postaddon)
 
         # Code namespace
@@ -550,7 +550,7 @@ class cppizer:
                     )
                 elif isinstance(member, cheader.cstruct):
                     sd = self.rules.get_struct_default(struct_in.typename, member.name)
-                    if sd != None:
+                    if sd is not None:
                         code.append(indent + self.tab + "(*this)" + sd + ";")
                 elif isinstance(member, cheader.carray):
                     if member.size != 0 and member.object.typename != "char":
@@ -574,7 +574,7 @@ class cppizer:
                                 sd = self.rules.get_struct_default(
                                     struct_in.typename, member.name
                                 )
-                                if sd != None:
+                                if sd is not None:
                                     code.append(
                                         indent
                                         + self.tab

@@ -79,7 +79,7 @@ class rules:
 
     def include_macro(self, name):
         """Check if macro should be included"""
-        return not (name in self.excluded_macros)
+        return name not in self.excluded_macros
 
 
 class pythonizer:
@@ -92,7 +92,7 @@ class pythonizer:
     def __init__(self, cheaderfile, pyrules=None, tab="    "):
         """Initialize"""
         ##Rules
-        if pyrules == None:
+        if pyrules is None:
             self.rules = rules()
         else:
             self.rules = pyrules
@@ -111,7 +111,7 @@ class pythonizer:
         code = []
         code.append("import struct")
         code.append("")
-        if preamble != None:
+        if preamble is not None:
             fileRef = open(preamble)
             for l in fileRef:
                 code.append(l[:-1])
@@ -265,7 +265,7 @@ class pythonizer:
                 struct_default = self.rules.get_struct_default(
                     struct_in.typename, member.name
                 )
-                if struct_default != None:
+                if struct_default is not None:
                     code.append(prepend + struct_default)
                 self.__structassert(member, (prepend + "." + member.name).strip())
             elif isinstance(member, cheader.carray):
@@ -394,7 +394,7 @@ class pythonizer:
         code.append(self.tab * 2 + '"""Sanity check')
         code.append(self.tab * 2 + '"""')
         enforce = self.rules.get_enforced_map(struct_in.typename)
-        if enforce != None:
+        if enforce is not None:
             for line in enforce:
                 code.append(self.tab * 2 + line)
         code.extend(self.__assertcode)

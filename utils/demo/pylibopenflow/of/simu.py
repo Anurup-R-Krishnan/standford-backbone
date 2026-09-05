@@ -76,7 +76,7 @@ class switch(ofnetwork.switch):
         self.sock = self.connection.sock
         ##Reference to Parser
         self.parser = None
-        if parser == None:
+        if parser is None:
             self.parser = ofmsg.parser(messages)
         else:
             self.parser = parser
@@ -115,9 +115,9 @@ class switch(ofnetwork.switch):
         Assume no match as reason, bufferid = 0xFFFFFFFF,
         and empty packet by default
         """
-        if reason == None:
+        if reason is None:
             reason = self.__messages.get_value("OFPR_NO_MATCH")
-        if bufferid == None:
+        if bufferid is None:
             bufferid = int("0xFFFFFFFF", 16)
         pktin = self.__messages.pack(
             "ofp_packet_in",

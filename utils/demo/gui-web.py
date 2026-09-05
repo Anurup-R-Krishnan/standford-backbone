@@ -352,7 +352,7 @@ class Application:
         while self.running:
             msg = ofsw.connection.msgreceive(blocking=False)
             # OF to GUI
-            if msg != None:
+            if msg is not None:
                 ofsw.receive_openflow(msg)
                 self.queue_OF_to_GUI.put(msg)
             # GUI to OF
@@ -379,7 +379,7 @@ def main():
 
     port = args.port
     controller = args.controller
-    if args.verbose == None:
+    if args.verbose is None:
         output.set_mode("INFO")
     else:
         output.set_mode("DBG")

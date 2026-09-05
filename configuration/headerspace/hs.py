@@ -86,7 +86,7 @@ def byte_array_list_contained_in(list_a, list_b):
             if byte_array_equal(a, b):
                 this_result = True
                 break
-        if this_result == False:
+        if not this_result:
             result = False
             break
     return result
@@ -138,7 +138,7 @@ def byte_array_not(b):
 
 
 def byte_array_wildcard_to_mask_match_strings(byte_array):
-    if byte_array == None:
+    if byte_array is None:
         return "None"
     str_mask = ""
     str_match = ""
@@ -162,7 +162,7 @@ def byte_array_wildcard_to_mask_match_strings(byte_array):
 
 
 def byte_array_to_hs_string(byte_array):
-    if byte_array == None:
+    if byte_array is None:
         return "None"
     str = ""
     for b in byte_array:
@@ -202,7 +202,7 @@ def byte_to_int(b):
 
 
 def byte_array_to_pretty_hs_string(byte_array):
-    if byte_array == None:
+    if byte_array is None:
         return "None"
     str = ""
     len(byte_array)
@@ -244,7 +244,7 @@ def byte_array_to_pretty_hs_string(byte_array):
 
 
 def hs_string_to_byte_array(str):
-    if str == None:
+    if str is None:
         return None
     if str == "None":
         return None

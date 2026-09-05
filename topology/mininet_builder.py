@@ -217,18 +217,20 @@ def StanfordTopoTest(
 ):
     topo = StanfordTopo()
 
-    main_controller = lambda a: RemoteController(
-        a, ip=controller_ip, port=controller_port
-    )
+    def main_controller(a):
+        return RemoteController(
+            a, ip=controller_ip, port=controller_port
+        )
     net = StanfordMininet(topo=topo, switch=OVSKernelSwitch, controller=main_controller)
 
     net.start()
 
     # These switches should be set to a local controller..
     dummy_switches = topo.dummy_switches
-    dummyClass = lambda a: RemoteController(
-        a, ip=dummy_controller_ip, port=dummy_controller_port
-    )
+    def dummyClass(a):
+        return RemoteController(
+            a, ip=dummy_controller_ip, port=dummy_controller_port
+        )
     dummy_controller = net.addController(name="dummy_controller", controller=dummyClass)
     dummy_controller.start()
 
@@ -307,7 +309,7 @@ def StanfordTopoTest( controller_ip, controller_port, traffic, edge):
 
     main_controller = lambda a: RemoteController( a, ip=controller_ip, port=controller_port)
     net = StanfordMininet(topo=topo, switch=OVSKernelSwitch, controller=main_controller)
-    
+
     net.start()
 
     # Jack
@@ -332,16 +334,16 @@ def StanfordTopoTest( controller_ip, controller_port, traffic, edge):
         # Jack
         # switch.pause()
         switch.start( [dummy_controller] )
-    
+
     # Jack
     # STP truned off
     # Otherwise, dummy ports might be down, causing connectivity problem
-    # Turn on STP  
+    # Turn on STP
     for switchName in topo.switches():
         switch = net.nameToNode[switchName]
         cmd = "ovs-vsctl set Bridge %s stp_enable=true" % switch.name
         switch.cmd(cmd)
-        
+
     switch.cmd('ovs-vsctl set Bridge s1 other_config:stp-priority=0x10')
 
     # Jack
@@ -355,7 +357,7 @@ def StanfordTopoTest( controller_ip, controller_port, traffic, edge):
     for rule in topo.edge_rules:
         result = switch.cmd(rule)
         print "Installing edge rule: %s, returns: " % rule, result
-    
+
     # Jack
     # Customize traffic
     if traffic:

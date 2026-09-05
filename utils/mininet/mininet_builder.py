@@ -180,18 +180,20 @@ def StanfordTopoTest(
 ):
     topo = StanfordTopo()
 
-    main_controller = lambda a: RemoteController(
-        a, ip=controller_ip, port=controller_port
-    )
+    def main_controller(a):
+        return RemoteController(
+            a, ip=controller_ip, port=controller_port
+        )
     net = StanfordMininet(topo=topo, switch=OVSKernelSwitch, controller=main_controller)
 
     net.start()
 
     # These switches should be set to a local controller..
     dummy_switches = topo.dummy_switches
-    dummyClass = lambda a: RemoteController(
-        a, ip=dummy_controller_ip, port=dummy_controller_port
-    )
+    def dummyClass(a):
+        return RemoteController(
+            a, ip=dummy_controller_ip, port=dummy_controller_port
+        )
     dummy_controller = net.addController(name="dummy_controller", controller=dummyClass)
     dummy_controller.start()
 

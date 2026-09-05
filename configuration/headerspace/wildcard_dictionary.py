@@ -57,12 +57,12 @@ class wildcard_dictionary:
                     tmp.append(index + 3 * 2 ** (2 * i))
             indices = tmp
         for index in indices:
-            if table["info"][index][0] == True and (
+            if table["info"][index][0] and (
                 len(table["value"][index]) < self.threshold or len(next_keys) == 0
             ):
                 table["value"][index].append(value)
                 table["info"][index][1].append(next_keys)
-            elif table["info"][index][0] == True:
+            elif table["info"][index][0]:
                 new_table = {}
                 new_table["value"] = []
                 new_table["info"] = []
@@ -83,7 +83,7 @@ class wildcard_dictionary:
                 self.add_entry_to_table(new_table, next_keys[0], value, next_keys[1:])
 
     def find_entry_in_table(self, table, keys):
-        if table["info"][keys[0]][0] == True:
+        if table["info"][keys[0]][0]:
             return table["value"][keys[0]]
         else:
             return self.find_entry_in_table(table["value"][keys[0]], keys[1:])
@@ -99,7 +99,7 @@ class wildcard_dictionary:
         for j in range(indent):
             idn = f"{idn}\t"
         for i in range(len(table["value"])):
-            if table["info"][i][0] == False:
+            if not table["info"][i][0]:
                 print(f"{idn}Index {i:x}: Table is")
                 self.self_print_table(table["value"][i], indent + 1)
             elif len(table["value"][i]) > 0:

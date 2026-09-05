@@ -396,20 +396,20 @@ class juniperRouter:
             if lst[0] == "eq":
                 lst.pop(0)
                 p = proto_reader(lst.pop(0))
-                if p != None:
+                if p is not None:
                     result["port_begin"] = p
                     result["port_end"] = p
             elif lst[0] == "gt":
                 lst.pop(0)
                 p = proto_reader(lst.pop(0))
-                if p != None:
+                if p is not None:
                     result["port_begin"] = p + 1
                     result["port_end"] = 0xFFFF
             elif lst[0] == "range":
                 lst.pop(0)
                 p1 = proto_reader(lst.pop(0))
                 p2 = proto_reader(lst.pop(0))
-                if p1 != None and p2 != None:
+                if p1 is not None and p2 is not None:
                     result["port_begin"] = p1
                     result["port_end"] = p2
 
@@ -422,7 +422,7 @@ class juniperRouter:
 
         action = tokens.pop(0)
         if action.lower() == "permit" or action.lower() == "deny":
-            if not acl_number in self.acl:
+            if acl_number not in self.acl:
                 self.acl[acl_number] = []
 
             new_entry = self.make_acl_dictionary_entry()
@@ -443,7 +443,7 @@ class juniperRouter:
 
             # extended access-list entry
             else:
-                if self.get_protocol_number(tokens[0]) != None:
+                if self.get_protocol_number(tokens[0]) is not None:
                     new_entry["ip_protocol"] = self.get_protocol_number(
                         self.get_protocol_number(tokens.pop(0))
                     )
@@ -924,7 +924,7 @@ class juniperRouter:
                             if vlan not in self.config_vlans:
                                 self.config_vlans.append(vlan)
 
-                            if not "vlan%d" % vlan in self.vlan_ports:
+                            if "vlan%d" % vlan not in self.vlan_ports:
                                 self.vlan_ports["vlan%d" % vlan] = []
 
                             self.vlan_ports["vlan%d" % vlan].append(
@@ -941,7 +941,7 @@ class juniperRouter:
                                 f"{ns}interface-address/{ns}ifa-destination"
                             )
 
-                            if ip_address == None or subnet_address == None:
+                            if ip_address is None or subnet_address is None:
                                 continue
 
                             ip_int = dotted_ip_to_int(ip_address.text)

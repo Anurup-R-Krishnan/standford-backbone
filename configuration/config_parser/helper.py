@@ -29,14 +29,14 @@ from headerspace.tf import TF
 
 def is_ip_address(str):
     ips = re.match(r"(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})", str)
-    return ips != None
+    return ips is not None
 
 
 def is_ip_subnet(str):
     ips = re.match(
         r"(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})/(?:[\d]{1,2})", str
     )
-    return ips != None
+    return ips is not None
 
 
 def int_to_dotted_ip(intip):
@@ -124,33 +124,33 @@ class node:
             str_ip = str_ip + int_to_dotted_ip(i[0]) + "/%d" % i[1] + ", "
         print(str_ip)
         print(f"{ind}Action: {self.action}")
-        if self.zero != None:
+        if self.zero is not None:
             print(f"{ind}Zero:")
             self.zero.printSelf(indent + 1)
-        if self.one != None:
+        if self.one is not None:
             print(f"{ind}One:")
             self.one.printSelf(indent + 1)
 
     def is_leaf(self):
-        return self.zero == None and self.one == None
+        return self.zero is None and self.one is None
 
     def optimize(self, action):
         propagate_action = action
-        if self.action != None:
+        if self.action is not None:
             propagate_action = self.action
 
-        if self.zero != None:
+        if self.zero is not None:
             self.zero.optimize(propagate_action)
-            if self.zero.action == propagate_action and self.zero.action != None:
+            if self.zero.action == propagate_action and self.zero.action is not None:
                 self.ips.extend(self.zero.ips)
                 self.action = propagate_action
                 self.zero.ips = []
                 self.zero.action = None
                 if self.zero.is_leaf():
                     self.zero = None
-        if self.one != None:
+        if self.one is not None:
             self.one.optimize(propagate_action)
-            if self.one.action == propagate_action and self.one.action != None:
+            if self.one.action == propagate_action and self.one.action is not None:
                 self.ips.extend(self.one.ips)
                 self.action = propagate_action
                 self.one.ips = []
@@ -158,10 +158,10 @@ class node:
                 if self.one.is_leaf():
                     self.one = None
         if (
-            self.zero != None
-            and self.one != None
+            self.zero is not None
+            and self.one is not None
             and self.zero.action == self.one.action
-            and self.zero.action != None
+            and self.zero.action is not None
         ):
             self.action = self.zero.action
             self.ips.extend(self.zero.ips)
@@ -176,9 +176,9 @@ class node:
                 self.one = None
 
     def output_compressed(self, power, cip, result):
-        if self.zero != None:
+        if self.zero is not None:
             self.zero.output_compressed(power - 1, cip, result)
-        if self.one != None:
+        if self.one is not None:
             self.one.output_compressed(power - 1, int(cip + pow(2, power - 1)), result)
         if len(self.ips) > 0:
             result.append((cip, 32 - power, self.action, self.ips))
@@ -198,11 +198,11 @@ def compress_ip_list(ip_list):
         for i in range(31, 31 - elem[1], -1):
             next_bit = (elem[0] >> i) & 0x1
             if next_bit == 0:
-                if cur.zero == None:
+                if cur.zero is None:
                     cur.zero = node()
                 cur = cur.zero
             elif next_bit == 1:
-                if cur.one == None:
+                if cur.one is None:
                     cur.one = node()
                 cur = cur.one
         if len(cur.ips) == 0:
@@ -226,13 +226,13 @@ def compose_standard_rules(rule1, rule2):
 
     ### finding match
     # rule 2 is a link rule
-    if rule2["match"] == None:
+    if rule2["match"] is None:
         match = bytearray(rule1["match"])
     else:
         # if rule 1 is a fwd or link rule
-        if rule1["mask"] == None:
+        if rule1["mask"] is None:
             # if rule 1 is a link rule
-            if rule1["match"] == None:
+            if rule1["match"] is None:
                 match = bytearray(rule2["match"])
             else:
                 match = byte_array_intersect(rule2["match"], rule1["match"])
@@ -248,10 +248,10 @@ def compose_standard_rules(rule1, rule2):
     ### finding mask and rewrite
     mask = None
     rewrite = None
-    if rule2["mask"] == None:
+    if rule2["mask"] is None:
         mask = rule1["mask"]
         rewrite = rule1["rewrite"]
-    elif rule1["mask"] == None:
+    elif rule1["mask"] is None:
         mask = rule2["mask"]
         rewrite = rule2["rewrite"]
     else:

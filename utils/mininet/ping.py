@@ -217,7 +217,7 @@ class Ping:
             if deadline and self.total_time >= deadline:
                 break
 
-            if delay == None:
+            if delay is None:
                 delay = 0
 
             # Pause for the remainder of the MAX_SLEEP period (if applicable)
@@ -246,7 +246,7 @@ class Ping:
             raise  # raise the original error
 
         send_time = self.send_one_ping(current_socket)
-        if send_time == None:
+        if send_time is None:
             return
         self.send_count += 1
 

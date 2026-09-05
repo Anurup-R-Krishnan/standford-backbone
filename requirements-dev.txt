@@ -1,0 +1,9 @@
+# Development, Linting, Typing, and Security Tools
+ruff>=0.9.0
+mypy>=1.10.0
+bandit>=1.8.0
+semgrep>=1.100.0
+radon>=6.0.0
+interrogate>=1.7.0
+refurb>=2.0.0
+pyupgrade>=3.20.0

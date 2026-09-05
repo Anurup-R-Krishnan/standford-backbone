@@ -139,7 +139,7 @@ def make_byte_array_ip_star_hdr(
     ip_dst_subnet,
 ):
     hdr = byte_array_get_all_x(2 * format["length"])
-    if num_stack != None:
+    if num_stack is not None:
         set_field(hdr, "stack_size", len(stack_ip_list), 0)
     set_field(hdr, "ip_src", ip_src, 32 - ip_src_subnet)
     set_field(hdr, "ip_dst", ip_dst, 32 - ip_dst_subnet)

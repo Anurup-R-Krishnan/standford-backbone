@@ -401,20 +401,20 @@ class ciscoRouter:
             if lst[0] == "eq":
                 lst.pop(0)
                 p = proto_reader(lst.pop(0))
-                if p != None:
+                if p is not None:
                     result["port_begin"] = p
                     result["port_end"] = p
             elif lst[0] == "gt":
                 lst.pop(0)
                 p = proto_reader(lst.pop(0))
-                if p != None:
+                if p is not None:
                     result["port_begin"] = p + 1
                     result["port_end"] = 0xFFFF
             elif lst[0] == "range":
                 lst.pop(0)
                 p1 = proto_reader(lst.pop(0))
                 p2 = proto_reader(lst.pop(0))
-                if p1 != None and p2 != None:
+                if p1 is not None and p2 is not None:
                     result["port_begin"] = p1
                     result["port_end"] = p2
 
@@ -427,7 +427,7 @@ class ciscoRouter:
 
         action = tokens.pop(0)
         if action.lower() == "permit" or action.lower() == "deny":
-            if not acl_number in self.acl:
+            if acl_number not in self.acl:
                 self.acl[acl_number] = []
 
             new_entry = self.make_acl_dictionary_entry()
@@ -448,7 +448,7 @@ class ciscoRouter:
 
             # extended access-list entry
             else:
-                if self.get_protocol_number(tokens[0]) != None:
+                if self.get_protocol_number(tokens[0]) is not None:
                     new_entry["ip_protocol"] = self.get_protocol_number(
                         self.get_protocol_number(tokens.pop(0))
                     )
@@ -523,13 +523,13 @@ class ciscoRouter:
                         last_vlan = int(parts[1])
                         last_iface = parts[0]
                         self.config_vlans.append(last_vlan)
-                        if not "vlan%d" % last_vlan in self.vlan_ports:
+                        if "vlan%d" % last_vlan not in self.vlan_ports:
                             self.vlan_ports["vlan%d" % last_vlan] = []
                         self.vlan_ports["vlan%d" % last_vlan].append(last_iface)
                     else:
                         last_vlan = None
                     self.config_ports.add(last_iface)
-                if last_vlan != None and "%d" % last_vlan not in self.port_subnets:
+                if last_vlan is not None and "%d" % last_vlan not in self.port_subnets:
                     self.port_subnets["%d" % last_vlan] = []
             elif line.startswith("switchport mode"):
                 tokens = line.split()
@@ -537,25 +537,25 @@ class ciscoRouter:
                 self.vlan_mode[last_iface] = vlan_mode
             elif line.startswith("ip access-group"):
                 tokens = line.split()
-                if not tokens[2] in self.acl_iface:
+                if tokens[2] not in self.acl_iface:
                     self.acl_iface[tokens[2]] = []
                 self.acl_iface[tokens[2]].append(
                     (last_iface, tokens[3], last_vlan, file_path, [line_counter])
                 )
             elif line.startswith("no ip address"):
-                if last_vlan != None:
+                if last_vlan is not None:
                     self.port_subnets["%d" % last_vlan].append(
                         (None, None, file_path, [line_counter], last_iface)
                     )
             elif line.startswith("ip address"):
                 tokens = line.split()
-                if last_vlan != None:
+                if last_vlan is not None:
                     ip_int = dotted_ip_to_int(tokens[2])
                     mask_int = find_num_mask_bits_left_mak(dotted_ip_to_int(tokens[3]))
                     self.port_subnets["%d" % last_vlan].append(
                         (ip_int, 32 - mask_int, file_path, [line_counter], last_iface)
                     )
-            elif line.startswith("shutdown") and last_vlan != None:
+            elif line.startswith("shutdown") and last_vlan is not None:
                 self.config_vlans.remove(last_vlan)
                 del self.port_subnets["%d" % last_vlan]
             line_counter = line_counter + 1
@@ -1022,7 +1022,7 @@ class ciscoRouter:
                 in_port = [self.switch_id * self.SWITCH_ID_MULTIPLIER]
                 vlan = int(vlan_num)
                 out_ports = []
-                if ip_addr == None:
+                if ip_addr is None:
                     self.set_field(match, "vlan", vlan, 0)
                 else:
                     self.set_field(match, "ip_dst", ip_addr, subnet_mask)

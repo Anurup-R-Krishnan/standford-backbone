@@ -98,7 +98,7 @@ def detect_loop(NTF, TTF, ports, reverse_map, test_packet=None, out_port_offset=
 
         # put all-x test packet in propagation graph
         test_pkt = test_packet
-        if test_pkt == None:
+        if test_pkt is None:
             all_x = byte_array_get_all_x(NTF.length)
             test_pkt = headerspace(NTF.length)
             test_pkt.add_hs(all_x)

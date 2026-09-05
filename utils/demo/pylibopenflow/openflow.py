@@ -27,7 +27,7 @@ class messages(cheader.cheaderfile, c2py.cstruct2py, c2py.structpacker):
         If filename is not provided, check the environment
         variable PYLIB_OPENFLOW_HEADER and search for openflow.h
         """
-        if openflow_headerfile != None:
+        if openflow_headerfile is not None:
             cheader.cheaderfile.__init__(self, openflow_headerfile)
         else:
             # Check environment variable
@@ -52,7 +52,7 @@ class messages(cheader.cheaderfile, c2py.cstruct2py, c2py.structpacker):
         type with name is not found.
         """
         pattern = self.get_pattern(ctype)
-        if pattern != None:
+        if pattern is not None:
             return c2py.cstruct2py.get_size(self, pattern)
 
     def get_pattern(self, ctype):
@@ -194,7 +194,7 @@ class safeconnection(connection):
         """Initialize with OpenFlow version."""
         connection.__init__(self, messages, sock)
         ##OpenFlow version
-        if version != None:
+        if version is not None:
             self.version = version
         else:
             self.version = int(messages.get_value("OFP_VERSION"), 16)
@@ -227,7 +227,7 @@ class safeconnection(connection):
         """Check ofp_header and ensure correctness before sending."""
         (dic, remaining) = self._messages.unpack_from_front("ofp_header", msg)
         # Amend header
-        if self.version != None:
+        if self.version is not None:
             dic["version"][0] = self.version
         if self.autoxid and (self.skipautoxid == 0):
             dic["xid"][0] = self.nextxid
@@ -320,10 +320,10 @@ class connections:
         """
         self.receive()
         c = self.has_msg()
-        if c != None:
+        if c is not None:
             return (c[0], c[1].get_msg())
         if blocking:
-            while c == None:
+            while c is None:
                 time.sleep(pollInterval)
                 self.receive()
                 c = self.has_msg()

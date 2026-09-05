@@ -487,7 +487,7 @@ def main():
         src_port_ids_global |= set(port_map_global[rtr].values())
 
     total_length = len(src_port_ids_global)
-    if args.e == True:
+    if args.e:
         src_port_ids_global = get_end_ports()
 
     new_length = max(1, int(len(src_port_ids_global) * args.percentage // 100))

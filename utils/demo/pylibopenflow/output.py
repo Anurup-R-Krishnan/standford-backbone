@@ -25,7 +25,7 @@ def set_mode(msg_mode, who=None):
     If who is None, set global mode
     """
     global output_mode
-    if output_mode == None:
+    if output_mode is None:
         output_mode = {}
         output_mode["global"] = MODE["WARN"]
         output_mode["DBG"] = []
@@ -33,7 +33,7 @@ def set_mode(msg_mode, who=None):
         output_mode["WARN"] = []
 
     # Set global mode
-    if who == None:
+    if who is None:
         output_mode["global"] = MODE[msg_mode]
         return
 
@@ -41,7 +41,7 @@ def set_mode(msg_mode, who=None):
     if msg_mode == "ERR":
         return
     for mode in ["WARN", "INFO", "DBG"]:
-        if not (who in mode[mode]):
+        if who not in mode[mode]:
             mode[mode].append(who)
         if msg_mode == mode:
             return
@@ -50,11 +50,11 @@ def set_mode(msg_mode, who=None):
 def output(msg_mode, msg, who=None):
     """Print message"""
     global output_mode
-    if output_mode == None:
+    if output_mode is None:
         raise RuntimeError("Output mode is not set")
 
     # Indicate who string
-    if who == None:
+    if who is None:
         whostr = ""
     else:
         whostr = who + ":"

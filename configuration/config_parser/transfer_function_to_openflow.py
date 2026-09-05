@@ -136,7 +136,7 @@ class OpenFlow_Rule_Generator:
             field_rewrite = bytearray()
             for i in range(2 * len):
                 field_match.append(rule["match"][position * 2 + i])
-                if rule["mask"] != None:
+                if rule["mask"] is not None:
                     field_mask.append(rule["mask"][position * 2 + i])
                     field_rewrite.append(rule["rewrite"][position * 2 + i])
                 if rule["match"][position * 2 + i] != 0xFF:
@@ -157,7 +157,7 @@ class OpenFlow_Rule_Generator:
                 openflow_entry[f"{field}_wc"] = parsed[1]
                 openflow_entry[f"{field}_match"] = parsed[0]
 
-            if rule["mask"] != None:
+            if rule["mask"] is not None:
                 openflow_entry[f"{field}_new"] = self.find_new_field(
                     field_match, field_mask, field_rewrite
                 )

@@ -71,7 +71,7 @@ class Pinpointer:
                 test_result = self.pass_or_fail(test_packet, answer)
 
                 # print test_packet, test_result
-                if test_result == True:
+                if test_result:
                     passed_rules.add(rule)
                 else:
                     failed_rules.add(rule)

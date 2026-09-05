@@ -138,7 +138,7 @@ def generate_random_slice_hs(num_wc, base_ip, range_ip, max_right_subnet):
         cs.set_field(all_x, "ip_src", rand_ip, rand_subnet)
         cs.set_field(all_x, "ip_dst", rand_ip, rand_subnet)
         rand_tcp_port = random.choice(tcp_ports)
-        if rand_tcp_port != None:
+        if rand_tcp_port is not None:
             cs.set_field(all_x, "transport_src", rand_tcp_port, 0)
             cs.set_field(all_x, "transport_dst", rand_tcp_port, 0)
         hs.add_hs(all_x)
@@ -166,7 +166,7 @@ def generate_random_fwd_rule(slice_chunk, base_ip, range_ip, max_right_subnet):
         cs.set_field(rewrite, "transport_src", rand_tcp_src, 0)
     # set tcp flags with p = 3/8:
     tcp_flag = random.choice(tcp_flags)
-    if tcp_flag != None:
+    if tcp_flag is not None:
         cs.set_field(mask, "transport_ctrl", 0, 6)
         cs.set_field(rewrite, "transport_ctrl", tcp_flag, 6)
 

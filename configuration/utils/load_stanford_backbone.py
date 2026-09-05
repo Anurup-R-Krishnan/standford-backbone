@@ -334,13 +334,13 @@ def generate_stanford_backbne_one_layer_tf():
         for stage2_rule in stage2_rules:
             for stage1_rule in stage1_rules:
                 r = compose_standard_rules(stage1_rule, stage2_rule)
-                if r != None:
+                if r is not None:
                     stage1_2_rules.append(r)
         for stage3_rule in stage3_rules:
             for stage1_2_rule in stage1_2_rules:
                 r = compose_standard_rules(stage3_rule, stage1_2_rule)
-                if r != None:
-                    if r["mask"] == None:
+                if r is not None:
+                    if r["mask"] is None:
                         f.add_fwd_rule(r)
                     else:
                         f.add_rewrite_rule(r)

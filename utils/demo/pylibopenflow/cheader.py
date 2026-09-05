@@ -70,7 +70,7 @@ class cprimitive(ctype):
 
     def __str__(self):
         """Return string representation"""
-        if self.name == None:
+        if self.name is None:
             return self.typename
         else:
             return self.typename + " " + str(self.name)
@@ -101,7 +101,7 @@ class cstruct(ctype):
     def __str__(self):
         """Return string representation"""
         string = "struct " + self.typename
-        if self.name != None:
+        if self.name is not None:
             string += " " + self.name
         if len(self.members) == 0:
             return string
@@ -179,7 +179,7 @@ class carray(ctype):
 
         if not isinstance(self.size, int):
             val = cheader.get_value(self.size)
-            if val == None:
+            if val is None:
                 self.expanded = False
             else:
                 try:
@@ -374,7 +374,7 @@ class cheaderfile(textfile):
                 cstru = cstruct(structname)
                 for val in values:
                     presult = typeparser.parse_type(val)
-                    if presult != None:
+                    if presult is not None:
                         cstru.members.append(presult)
                 self.structs[structname] = cstru
         # Expand all structs

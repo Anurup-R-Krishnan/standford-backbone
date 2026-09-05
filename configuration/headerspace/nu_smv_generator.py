@@ -20,7 +20,6 @@ Created on Dec 31, 2011
 @author: Peyman Kazemian
 """
 
-import os
 import subprocess
 
 from headerspace.tf import *
@@ -122,7 +121,7 @@ class NuSMV:
                         )
                     nusmv_rule = nusmv_rule + " & (" + affected + ")"
 
-            if rule["mask"] != None and rule["rewrite"] != None:
+            if rule["mask"] is not None and rule["rewrite"] is not None:
                 action_mask = byte_array_to_hs_string(rule["mask"])
                 action_rewrite = byte_array_to_hs_string(rule["rewrite"])
                 for i in range(num_parts):
@@ -149,7 +148,7 @@ class NuSMV:
             else:
                 nusmv_rule = nusmv_rule + " & (next(p) != pin & next(pin) = pin)"
 
-            if rule["out_ports"] != None and len(rule["out_ports"]) > 0:
+            if rule["out_ports"] is not None and len(rule["out_ports"]) > 0:
                 for out_port in rule["out_ports"]:
                     nusmv_rule = nusmv_rule + " & (next(p) = 0ud%d_%s)" % (
                         PORT_VAR_LEN,

@@ -223,7 +223,7 @@ class TF:
         rule["inv_match"] = inv_match
         rule["transform"] = transform
         rule["inv_transform"] = inv_transform
-        if file_name != None:
+        if file_name is not None:
             rule["file"] = file_name
         else:
             rule["file"] = ""
@@ -265,7 +265,7 @@ class TF:
 
         rule["influence_on"] = []
         rule["affected_by"] = []
-        if file_name != None:
+        if file_name is not None:
             rule["file"] = file_name
         else:
             rule["file"] = ""
@@ -464,7 +464,7 @@ class TF:
                 new_hs.hs_list[i] = barr
             for r, h, in_ports in rule["affected_by"]:
                 if port in in_ports and (
-                    applied_rules == None or r["id"] in applied_rules
+                    applied_rules is None or r["id"] in applied_rules
                 ):
                     new_hs.diff_hs(h)
             for i in range(len(new_hs.hs_diff)):
@@ -494,7 +494,7 @@ class TF:
         if new_hs.count() > 0 and port in rule["in_ports"]:
             for r, h, in_ports in rule["affected_by"]:
                 if port in in_ports and (
-                    applied_rules == None or r["id"] in applied_rules
+                    applied_rules is None or r["id"] in applied_rules
                 ):
                     new_hs.diff_hs(h)
             new_hs.clean_up()
@@ -537,7 +537,7 @@ class TF:
         rule_set = []
 
         default_operation = False
-        if self.exact_match_hash_active == True:
+        if self.exact_match_hash_active:
             # James: Implement a Longest Prefix Match below
             match = bytearray()
             for index in self.exact_match_indices:
@@ -561,7 +561,7 @@ class TF:
         else:
             default_operation = True
 
-        if default_operation == False:
+        if not default_operation:
             # print match_key_string
 
             try:

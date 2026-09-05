@@ -56,7 +56,7 @@ class MonitorClient:
         while True:
             for hostname in self.client_names:
                 delay = self.ping_objects[hostname].do()
-                if delay == None or delay > self.threshold:
+                if delay is None or delay > self.threshold:
                     self.report(hostname, time.time())
             time.sleep(self.period)
 

@@ -119,6 +119,37 @@ sudo python topology/mininet_rebuilder.py -t
 
 ---
 
+## Code Quality, Linting & Security Toolchain
+
+All modernization tools, linters, and checkers are configured in `pyproject.toml` and specified in `requirements-dev.txt`:
+
+```bash
+# Install development and analysis tools
+pip install -r requirements-dev.txt
+
+# 1. Fast Linting & Formatting (Ruff)
+ruff check
+ruff format --check
+
+# 2. Static Type Checking (mypy)
+mypy configuration/atpg/ configuration/headerspace/
+
+# 3. Security Vulnerability Scan (Bandit)
+bandit -r configuration/ topology/ utils/
+
+# 4. Pattern & Rule Scanning (Semgrep)
+semgrep scan --config "p/python" configuration/ topology/ utils/
+
+# 5. Cyclomatic Complexity & Maintainability (Radon)
+radon cc -s -a configuration/atpg/ configuration/headerspace/ topology/
+radon mi -s configuration/atpg/ configuration/headerspace/ topology/
+
+# 6. Documentation Coverage (Interrogate)
+interrogate -v configuration/atpg/ configuration/headerspace/ topology/
+```
+
+---
+
 ## Original Getting Started & Experiments
 
 The notes below document the original experiments and workflow from the 2012–2014 study:

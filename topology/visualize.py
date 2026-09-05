@@ -73,19 +73,19 @@ print(g)
         v2 = addAS(tokens[1])
         relCount += 1
         #if (relCount > 10000):
-        #	break
+        #   break
         print "new relationship #" + str(relCount) + ": " + line
         e = g.add_edge(v1, v2)
         #relNames[e] = (int(tokens[2]) + 2) / 3
         if tokens[2] == "0":
-        	# Peer
-        	relNames[e] = "red"
-        	print "red"
+            # Peer
+            relNames[e] = "red"
+            print "red"
         else:
-        	# Provider > Customer
-        	relNames[e] = "blue"
-        	print "blue"
-        	"""
+            # Provider > Customer
+            relNames[e] = "blue"
+            print "blue"
+            """
 """
 # BFS
 print "bfs"

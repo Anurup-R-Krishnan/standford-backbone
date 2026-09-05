@@ -73,7 +73,7 @@ class switch:
         ##Socket to controller
         self.sock = sock
         ##Datapath id of switch
-        if dpid != None:
+        if dpid is not None:
             self.datapath_id = dpid
         else:
             self.datapath_id = random.randrange(1, pow(2, 64))
@@ -181,7 +181,7 @@ class port:
         """Initialize"""
         ##Port properties
         self.port_no = port_no
-        if hw_addr != None:
+        if hw_addr is not None:
             self.hw_addr = hw_addr
         else:
             self.hw_addr = random.randrange(1, pow(2, 48))

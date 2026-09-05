@@ -43,7 +43,7 @@ class parser:
     def flow_mod_describe(self, packet, prefix=""):
         """Parse flow mod and return description"""
         dic = self.__assert_dic(packet, "ofp_flow_mod")
-        if dic == None:
+        if dic is None:
             return ""
         return (
             prefix
@@ -100,7 +100,7 @@ class parser:
     def switch_config_describe(self, packet):
         """Parse OpenFlow switch config and return description"""
         dic = self.__assert_dic(packet, "ofp_switch_config")
-        if dic == None:
+        if dic is None:
             return ""
         return (
             "with flag "
@@ -112,7 +112,7 @@ class parser:
     def header_describe(self, packet):
         """Parse OpenFlow header and return string description"""
         dic = self.__assert_dic(packet, "ofp_header")
-        if dic == None:
+        if dic is None:
             return ""
         return (
             self.__messages.get_enum_name("ofp_type", dic["type"][0])

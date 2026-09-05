@@ -126,7 +126,7 @@ while running:
 
         # Process any received message
         (ofsw, msg) = ofnet.connections.msgreceive()
-        while msg != None:
+        while msg is not None:
             dic = ofmsg.peek_from_front("ofp_header", msg)
             if dic["type"][0] == ofmsg.get_value("OFPT_FLOW_MOD"):
                 output.dbg("Received flow mod")
