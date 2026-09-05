@@ -36,5 +36,5 @@ nusmv.generate_nusmv_input()
 src_port_id = map["yoza_rtr"]["te7/4"]
 dst_port_id = map["yoza_rtr"]["te1/3"]+20000
 st = time()
-print nusmv.run_nusmv_reachability(src_port_id, dst_port_id)
+print(nusmv.run_nusmv_reachability(src_port_id, dst_port_id))
 en = time()

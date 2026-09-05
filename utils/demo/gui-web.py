@@ -36,7 +36,7 @@ class StanfordTopo:
             
     def load_ports(self, filename):
         ports = {}
-        f = open(filename, 'r')
+        f = open(filename)
         for line in f:
             if line.startswith("$"):
                 switch_name = line[1:].strip()
@@ -60,7 +60,7 @@ class StanfordTopo:
         
     def load_topology(self, filename):
         links = set()
-        f = open(filename, 'r')
+        f = open(filename)
         for line in f:
             if line.startswith("link"):
                 tokens = line.split('$')
@@ -217,9 +217,9 @@ class Application:
         self.queue_OF_to_GUI = Queue.Queue()
         
         self.running = True
-    	
-    	# Thread 1: OF thread
-    	self.thread1 = threading.Thread(target=self.connectToController)
+        
+        # Thread 1: OF thread
+        self.thread1 = threading.Thread(target=self.connectToController)
         #self.thread1.start()
         
         # Thread 2: Connect to run pinpointer
@@ -336,7 +336,7 @@ class Application:
             
     def pinpoint(self, test_packets, errors):
         errors = self.pinpointer.pin_point_test ( test_packets, errors ) 
-        print "Fuck!!"   
+        print("Fuck!!")   
         self.queue_pinpoint_to_GUI.put(errors)    
     
 

@@ -44,7 +44,7 @@ class Pinpointer:
         stage_1 = list(failed_rules - passed_rules)
         
         if len(stage_1) > 50:
-            print "Stage 1 Too big. Return Stage 1 directly."
+            print("Stage 1 Too big. Return Stage 1 directly.")
             return stage_1
         
         # Stage 2, Query the reserved packet
@@ -101,7 +101,7 @@ class Pinpointer:
             return ['default'] * (2*n+1)
                 
         result = []
-        f = open('data/'+ filename, 'r')
+        f = open('data/'+ filename)
         file_lines = f.readlines()
         f.close()
         
@@ -126,7 +126,7 @@ class Pinpointer:
 
     def pin_point_test ( self, test_packets, failed_rules ):
         
-        print "Failed Rules:", failed_rules
+        print("Failed Rules:", failed_rules)
         
         # Build the test case
         passed_packets = []
@@ -142,12 +142,12 @@ class Pinpointer:
             if packet not in failed_packets:
                 passed_packets.append(packet)
                 
-        print "No. of passed packets:", len(passed_packets)
-        print "No. of failed packets:", len(failed_packets)
+        print("No. of passed packets:", len(passed_packets))
+        print("No. of failed packets:", len(failed_packets))
         
         result = self.pin_point(passed_packets, failed_packets, failed_rules)
         
-        print "Result:", result
+        print("Result:", result)
         
         return result
 
@@ -162,7 +162,7 @@ class Pinpointer:
                             ['coza_rtr_309'],
                            ]
         failed_rules = hard_coded_rules[self.hard_coded_index]
-        print failed_rules
+        print(failed_rules)
         self.hard_coded_index = (self.hard_coded_index + 1) % len(hard_coded_rules)
         
         #failed_rules = random.sample(rules, number_of_failures)

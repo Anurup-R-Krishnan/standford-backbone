@@ -44,4 +44,4 @@ while(len(rule_ids_set) > 0):
 end_packets = len(result_rule_lists)
     
 en = time.time()
-print "Compression: Start=%d, End=%d, Ratio=%f, Time=%f" % (start_packets, end_packets, float(end_packets)/start_packets, en-st)
+print("Compression: Start=%d, End=%d, Ratio=%f, Time=%f" % (start_packets, end_packets, float(end_packets)/start_packets, en-st))

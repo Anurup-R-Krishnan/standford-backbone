@@ -21,7 +21,7 @@
 import socket, time, re, urllib2, logging
 from subprocess import Popen, PIPE
 
-class MonitorClient():
+class MonitorClient:
     def __init__(self, peer_url, period = 10, update_period = 60):
         self.peer_names = []
         self.ping_objects = {}

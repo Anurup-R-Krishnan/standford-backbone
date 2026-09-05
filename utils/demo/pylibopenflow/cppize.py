@@ -54,7 +54,7 @@ class cppizer:
         if (preaddon != None):
             code.extend(preaddon)
         if (preamble != None):
-            fileRef = open(preamble,"r")
+            fileRef = open(preamble)
             for l in fileRef:
                 code.append(l[:-1])
             fileRef.close()
@@ -77,7 +77,7 @@ class cppizer:
         if (preaddon != None):
             code.extend(preaddon)
         if (preamble != None):
-            fileRef = open(preamble,"r")
+            fileRef = open(preamble)
             for l in fileRef:
                 code.append(l[:-1])
             fileRef.close()
@@ -104,7 +104,7 @@ class cppizer:
 
         delayedagain = []
         while (len(delayed) != 0):
-            print "Running another pass on coding header"
+            print("Running another pass on coding header")
             for struct in delayed:
                 if (self.__cancode(struct, coded)):
                     code.extend(self.code_struct(struct,False))
@@ -502,7 +502,7 @@ class cppizer:
         """
         authors = ""
         if (os.path.isfile("AUTHORS")):
-            fileRef = open("AUTHORS", "r")
+            fileRef = open("AUTHORS")
             for line in fileRef:
                 authors += line.strip()+","
             fileRef.close()

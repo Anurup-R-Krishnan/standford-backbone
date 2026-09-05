@@ -27,7 +27,7 @@ import json
 
 from httplib import HTTPMessage
 
-class OpenFlow_Rule_Generator(object):
+class OpenFlow_Rule_Generator:
     
     def __init__(self,tf,hs_format):
         '''
@@ -94,7 +94,7 @@ class OpenFlow_Rule_Generator(object):
             for j in range (4):
                 next_bit = (new_byte_array[i] >> (2*j)) & 0x03
                 if next_bit == 0x03:
-                    print "ERROR: Unexpected rewrite action. Ignored. %s - %s - %s - %s"%(byte_array_to_hs_string(field_match),byte_array_to_hs_string(field_mask),byte_array_to_hs_string(field_rewrite),byte_array_to_hs_string(new_byte_array))
+                    print("ERROR: Unexpected rewrite action. Ignored. %s - %s - %s - %s"%(byte_array_to_hs_string(field_match),byte_array_to_hs_string(field_mask),byte_array_to_hs_string(field_rewrite),byte_array_to_hs_string(new_byte_array)))
                     return None
                 elif next_bit == 0x02:
                     value = value + 2**(4*i+j)

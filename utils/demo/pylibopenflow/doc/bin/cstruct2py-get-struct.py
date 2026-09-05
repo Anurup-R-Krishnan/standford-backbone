@@ -13,13 +13,13 @@ import pylibopenflow.c2py as c2py
 def usage():
     """Display usage
     """
-    print "Usage "+sys.argv[0]+" <options> header_files... struct_name\n"+\
+    print("Usage "+sys.argv[0]+" <options> header_files... struct_name\n"+\
           "Options:\n"+\
           "-h/--help\n\tPrint this usage guide\n"+\
           "-c/--cstruct\n\tPrint C struct\n"+\
           "-n/--name\n\tPrint names of struct\n"+\
           "-s/--size\n\tPrint size of struct\n"+\
-          ""
+          "")
           
 #Parse options and arguments
 try:
@@ -52,7 +52,7 @@ for opt,arg in opts:
     elif (opt in ("-n","--names")): 
         printname = True
     else:
-        print "Unhandled option :"+opt
+        print("Unhandled option :"+opt)
         sys.exit(1)
 
 headerfile = cheader.cheaderfile(args[:-1])
@@ -62,15 +62,15 @@ pattern = cs2p.get_pattern(cstruct)
 
 #Print C struct
 if (printc):
-    print cstruct
+    print(cstruct)
 
 #Print pattern
-print "Python pattern = "+pattern
+print("Python pattern = "+pattern)
 
 #Print name
 if (printname):
-    print cstruct.get_names()
+    print(cstruct.get_names())
 
 #Print size
 if (printsize):
-    print "Size = "+str(cs2p.get_size(pattern))
+    print("Size = "+str(cs2p.get_size(pattern)))

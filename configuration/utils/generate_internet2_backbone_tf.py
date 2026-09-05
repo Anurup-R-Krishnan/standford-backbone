@@ -111,5 +111,5 @@ for (from_router,from_port,to_router,to_port) in topology:
     tf.add_link_rule(rule)
 tf.save_object_to_file(WORK_DIR+"backbone_topology.tf")
 en = time()
-print en - st
+print(en - st)
     

@@ -167,6 +167,6 @@ for port in root_tf_ports:
 ttf.save_object_to_file("%s/backbone_topology.tf"%output_dir)
 root_tf.save_object_to_file("%s/root.tf"%output_dir)
 en = time()
-print en - st
+print(en - st)
 f.close()
     

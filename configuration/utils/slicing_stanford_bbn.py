@@ -234,7 +234,7 @@ def run_slice_isolation(repeat):
 
         results.append(result)
 
-    print results
+    print(results)
 
 def run_slice_leakage_test(repeat):
     primary_slice_sizes = [10,50,250,1000]
@@ -283,10 +283,10 @@ def run_slice_leakage_test(repeat):
                 sum_sqr = (num-avg)**2
             std_dev = math.sqrt(sum_sqr)/repeat
             result.append((avg,std_dev))
-            print result
+            print(result)
             
         results.append(result)
-        print results
+        print(results)
                 
 #run_slice_isolation(5)
 run_slice_leakage_test(50)

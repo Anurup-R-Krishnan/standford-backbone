@@ -46,7 +46,7 @@ with open(inputFile) as f:
                         token = ports[1] + ":" + ports[0]
                     edges.add(token)
 
-print "Found %d edges, %d nodes" % (len(edges), len(nodes))
+print("Found %d edges, %d nodes" % (len(edges), len(nodes)))
 
 
 # Create graph
@@ -59,7 +59,7 @@ for edge in edges:
 	e = g.add_edge(v1, v2)
 	edge_names[e] = edge
 
-print g
+print(g)
 '''
         tokens = line.rstrip().split('|')
         v1 = addAS(tokens[0])
@@ -85,7 +85,7 @@ print "bfs"
 bfs_search(g, nodes["1"], VisitorExample(asNames, asFilters))
 '''
 # Plot
-print "draw"
+print("draw")
 g.set_vertex_filter(node_switch)
 #g.set_vertex_filter(asFilters)
 #pos = fruchterman_reingold_layout(g, n_iter=1000)

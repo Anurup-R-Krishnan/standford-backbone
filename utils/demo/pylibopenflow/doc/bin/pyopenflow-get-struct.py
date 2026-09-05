@@ -12,13 +12,13 @@ import pylibopenflow.openflow as openflow
 def usage():
     """Display usage
     """
-    print "Usage "+sys.argv[0]+" <options> struct_name\n"+\
+    print("Usage "+sys.argv[0]+" <options> struct_name\n"+\
           "Options:\n"+\
           "-h/--help\n\tPrint this usage guide\n"+\
           "-c/--cstruct\n\tPrint C struct\n"+\
           "-n/--name\n\tPrint names of struct\n"+\
           "-s/--size\n\tPrint size of struct\n"+\
-          ""
+          "")
           
 #Parse options and arguments
 try:
@@ -59,16 +59,16 @@ pattern = pyopenflow.get_pattern(cstruct)
 
 #Print C struct
 if (printc):
-    print cstruct
+    print(cstruct)
 
 #Print pattern
-print "Python pattern = "+str(pattern)
+print("Python pattern = "+str(pattern))
 
 #Print name
 if (printname):
-    print cstruct.get_names()
+    print(cstruct.get_names())
 
 #Print size
 if (printsize):
-    print "Size = "+str(pyopenflow.get_size(pattern))
+    print("Size = "+str(pyopenflow.get_size(pattern)))
 

@@ -12,10 +12,10 @@ import pylibopenflow.cheader as cheader
 def usage():
     """Display usage
     """
-    print "Usage "+sys.argv[0]+" <options> header_files... output_file\n"+\
+    print("Usage "+sys.argv[0]+" <options> header_files... output_file\n"+\
           "Options:\n"+\
           "-h/--help\n\tPrint this usage guide\n"+\
-          ""
+          "")
 
 #Parse options and arguments
 try:
@@ -31,7 +31,7 @@ for opt,arg in opts:
         usage()
         sys.exit(0)
     else:
-        print "Unhandled option :"+opt
+        print("Unhandled option :"+opt)
         sys.exit(2)
 
 #Check there is at least 1 input file with 1 output file

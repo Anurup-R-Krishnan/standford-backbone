@@ -60,9 +60,9 @@ def output(msg_mode, msg, who=None):
 
     #Print output 
     if (MODE[msg_mode] <= output_mode["global"]):
-        print msg_mode.ljust(4, ' ')+"|"+whostr+msg
+        print(msg_mode.ljust(4, ' ')+"|"+whostr+msg)
     elif (who in output_mode[msg_mode]):
-        print msg_mode.ljust(4, ' ')+"|"+whostr+msg
+        print(msg_mode.ljust(4, ' ')+"|"+whostr+msg)
         
 def err(msg, who=None):
     """Print error messages

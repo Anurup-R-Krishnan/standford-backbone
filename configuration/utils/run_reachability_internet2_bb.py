@@ -43,7 +43,7 @@ def find_reachability_multiprocess(in_port, input_pkt):
     #loop_count = 0
     while len(propagation)>0:
         #get the next node in propagation graph and apply it to NTF and TTF
-        print "Propagation has length: %d"%len(propagation)
+        print("Propagation has length: %d"%len(propagation))
         
         results = map(two_step, propagation)
         
@@ -132,14 +132,14 @@ def main():
     #paths = find_reachability(ntf_global, ttf_global, src_port_id, dst_port_ids_global, test_pkt)
     en = time()
     print_loops(paths, port_reverse_map)
-    print len(paths)
+    print(len(paths))
     
     #loops = detect_loop(ntf,ttf,loop_port_ids,port_reverse_map,None,output_port_addition)
     #en = time()
     #print_loops(loops, port_reverse_map)
     #print len(loops)
     
-    print en-st
+    print(en-st)
 
 if __name__ == "__main__":
     main()

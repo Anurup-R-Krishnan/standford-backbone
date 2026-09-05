@@ -31,7 +31,7 @@ def getMyIp():
     address = results[1].split()[1].lstrip('addr:')
     return address
 
-class MonitorClient():
+class MonitorClient:
     def __init__(self, client_names, server_name, threshold = 500, period = 1, udp_port = UDP_PORT):
         self.client_names = client_names
         self.server_name = server_name
@@ -60,7 +60,7 @@ class MonitorClient():
         
         self.socket.sendto( json.dumps(message), (self.server_name, self.udp_port) )            
         
-class MonitorServer():
+class MonitorServer:
     def __init__(self, client_names, udp_port = UDP_PORT):
         self.client_names = client_names
         self.udp_port = udp_port
@@ -70,7 +70,7 @@ class MonitorServer():
         self.socket.bind( ('0.0.0.0',self.udp_port) )
         while True:
             data, addr = self.socket.recvfrom( 1024 ) # buffer size is 1024 bytes
-            print "received message:", data
+            print("received message:", data)
         
 def main():
     description = "Simple Ping monitor"

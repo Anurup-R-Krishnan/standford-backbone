@@ -38,7 +38,7 @@ class StanfordTopo:
             
     def load_ports(self, filename):
         ports = {}
-        f = open(filename, 'r')
+        f = open(filename)
         for line in f:
             if line.startswith("$"):
                 switch_name = line[1:].strip()
@@ -62,7 +62,7 @@ class StanfordTopo:
         
     def load_topology(self, filename):
         links = set()
-        f = open(filename, 'r')
+        f = open(filename)
         for line in f:
             if line.startswith("link"):
                 tokens = line.split('$')
@@ -172,7 +172,7 @@ class Application:
         # http://faq.pygtk.org/index.py?req=show&file=faq20.006.htp 
         gobject.threads_init()
         self.running = True
-    	self.thread1 = threading.Thread(target=self.connectToController)
+        self.thread1 = threading.Thread(target=self.connectToController)
         self.thread1.start()
         
         # Thread to run pinpointer

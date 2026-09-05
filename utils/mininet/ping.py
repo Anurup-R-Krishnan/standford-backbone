@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 
 """
     A pure python ping implementation using raw sockets.
@@ -101,7 +100,7 @@ def to_ip(addr):
     return socket.gethostbyname(addr)
 
 
-class Ping(object):
+class Ping:
     def __init__(self, destination, timeout=1000, packet_size=55, own_id=None):
         self.destination = destination
         self.timeout = timeout
@@ -223,14 +222,15 @@ class Ping(object):
         """
         try: # One could use UDP here, but it's obscure
             current_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.getprotobyname("icmp"))
-        except socket.error, (errno, msg):
+        except OSError as xxx_todo_changeme:
+            (errno, msg) = xxx_todo_changeme.args
             if errno == 1:
                 # Operation not permitted - Add more information to traceback
                 etype, evalue, etb = sys.exc_info()
                 evalue = etype(
                     "%s - Note that ICMP messages can only be send from processes running as root." % evalue
                 )
-                raise etype, evalue, etb
+                raise evalue.with_traceback(etb)
             raise # raise the original error
 
         send_time = self.send_one_ping(current_socket)
@@ -288,7 +288,7 @@ class Ping(object):
 
         try:
             current_socket.sendto(packet, (self.destination, 1)) # Port number is irrelevant for ICMP
-        except socket.error as e:
+        except OSError as e:
             print("General failure (%s)" % (e.args[1]))
             current_socket.close()
             return
@@ -349,7 +349,7 @@ def verbose_ping(hostname, timeout=1000, count=3, packet_size=55):
 if __name__ == '__main__':
     # FIXME: Add a real CLI
     if len(sys.argv) == 1:
-        print "DEMO"
+        print("DEMO")
 
         # These should work:
         verbose_ping("heise.de")
@@ -370,4 +370,4 @@ if __name__ == '__main__':
     elif len(sys.argv) == 2:
         verbose_ping(sys.argv[1])
     else:
-        print "Error: call ./ping.py domain.tld"
+        print("Error: call ./ping.py domain.tld")

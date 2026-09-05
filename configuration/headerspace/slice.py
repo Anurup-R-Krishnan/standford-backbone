@@ -22,7 +22,7 @@ Created on Jan 26, 2011
 
 from headerspace.tf import TF
 
-class Slice(object):
+class Slice:
     '''
     classdocs
     '''

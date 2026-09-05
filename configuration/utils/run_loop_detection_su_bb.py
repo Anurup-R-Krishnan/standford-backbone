@@ -77,6 +77,6 @@ st = time()
 loops = detect_loop(ntf,ttf,loop_port_ids,port_reverse_map,None,output_port_addition)
 en = time()
 print_loops(loops, port_reverse_map)
-print len(loops)
+print(len(loops))
 
-print en-st
+print(en-st)

@@ -54,16 +54,16 @@ class StanfordTopo( Topo ):
         ports = self.load_ports(self.PORT_MAP_FILENAME)
         #print ports    
         links = self.load_topology(self.TOPO_FILENAME)
-        print links
+        print(links)
         switches = ports.keys()
 
         # Add default members to class.
-        super( StanfordTopo, self ).__init__()
+        super().__init__()
 
         # Create switch nodes
         for s in switches:
             # Jack
-            print "add_switch(): s%s" % s
+            print("add_switch(): s%s" % s)
             #self.add_switch( "s%s" % s )
 
         # Wire up switches       
@@ -75,9 +75,9 @@ class StanfordTopo( Topo ):
             # Edge ports
             for port in ports[s]:
                 # Jack
-                print "add_host(): h%s" % host_id
+                print("add_host(): h%s" % host_id)
                 #self.add_host( "h%s" % host_id )
-                print "add_link(): nodes h%s to s%s, ports %d to %d (host)" % (host_id, s, 0, port)
+                print("add_link(): nodes h%s to s%s, ports %d to %d (host)" % (host_id, s, 0, port))
                 #self.add_link( "h%s" % host_id, "s%s" % s, 0, port )
                 host_id += 1
 
@@ -86,7 +86,7 @@ class StanfordTopo( Topo ):
             
     def load_ports(self, filename):
         ports = {}
-        f = open(filename, 'r')
+        f = open(filename)
         for line in f:
             if not line.startswith("$") and line != "":
                 tokens = line.strip().split(":")
@@ -104,7 +104,7 @@ class StanfordTopo( Topo ):
         
     def load_topology(self, filename):
         links = set()
-        f = open(filename, 'r')
+        f = open(filename)
         for line in f:
             if line.startswith("link"):
                 tokens = line.split('$')
@@ -157,18 +157,18 @@ class StanfordTopo( Topo ):
                 self.generate_dummy_rules(dummy_switch_id, len(first_pass[(dpid,port)]))
 
                 # Jack
-                print "add_switch(): s%s (dummy)" % dummy_switch_id
+                print("add_switch(): s%s (dummy)" % dummy_switch_id)
                 #self.add_switch( "s%s" % dummy_switch_id )
                 self.dummy_switches.add(dummy_switch_id)
                 
                 # Jack
-                print "add_link(): nodes s%s to s%s, ports %d to %d (to dummy)" % (dpid, dummy_switch_id, port, 1)
+                print("add_link(): nodes s%s to s%s, ports %d to %d (to dummy)" % (dpid, dummy_switch_id, port, 1))
                 #self.add_link( node1="s%s" % dpid, node2="s%s" % dummy_switch_id, port1=port, port2=1 )
                 dummy_switch_port = 2
                 for (dst_dpid, dst_port) in first_pass[(dpid,port)]:
                     first_pass[(dst_dpid, dst_port)].discard((dpid,port))
                     # Jack
-                    print "add_link(): nodes s%s to s%s, ports %d to %d (from dummy)" % (dummy_switch_id, dst_dpid, dummy_switch_port, dst_port)
+                    print("add_link(): nodes s%s to s%s, ports %d to %d (from dummy)" % (dummy_switch_id, dst_dpid, dummy_switch_port, dst_port))
                     #self.add_link( node1="s%s" % dummy_switch_id, node2="s%s" % dst_dpid, port1=dummy_switch_port, port2=dst_port)
                     ports[dst_dpid].discard(dst_port)
                     dummy_switch_port += 1
@@ -180,7 +180,7 @@ class StanfordTopo( Topo ):
         for (dpid, port) in first_pass.keys():
             for (dst_dpid, dst_port) in first_pass[(dpid,port)]:
                 # Jack
-                print "add_link(): nodes s%s to s%s, ports %d to %d (normal)" % (dpid, dst_dpid, port, dst_port)
+                print("add_link(): nodes s%s to s%s, ports %d to %d (normal)" % (dpid, dst_dpid, port, dst_port))
                 #self.add_link( node1="s%s" % dpid, node2="s%s" % dst_dpid, port1=port, port2=dst_port )
                 ports[dst_dpid].discard(dst_port)     
             ports[dpid].discard(port) 
@@ -190,7 +190,7 @@ class StanfordTopo( Topo ):
 class StanfordMininet ( Mininet ):
 
     def build( self ):
-        super( StanfordMininet, self ).build()
+        super().build()
         
         # FIXME: One exception... Dual links between yoza and yozb
         # Need _manual_ modification for different topology files!!!
@@ -232,7 +232,7 @@ def StanfordTopoTest( controller_ip, controller_port, dummy_controller_ip, dummy
 
 if __name__ == '__main__':
     if getuid()!=0:
-        print "Please run this script as root / use sudo."
+        print("Please run this script as root / use sudo.")
         exit(-1)
 
     lg.setLogLevel( 'info')
@@ -251,9 +251,9 @@ if __name__ == '__main__':
                       default=6633,
                       help="Dummy ontroller's port")
     args = parser.parse_args()
-    print description
-    print "Starting with primary controller %s:%d" % (args.controller_name, args.controller_port)
-    print "Starting with dummy controller %s:%d" % (args.dummy_controller_name, args.dummy_controller_port)
+    print(description)
+    print("Starting with primary controller %s:%d" % (args.controller_name, args.controller_port))
+    print("Starting with dummy controller %s:%d" % (args.dummy_controller_name, args.dummy_controller_port))
     # Jack
     topo = StanfordTopo()
     #Mininet.init()

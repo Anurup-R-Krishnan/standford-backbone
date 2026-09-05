@@ -309,7 +309,7 @@ def byte_array_set_bytes(b_array, byte, value, num_bytes):
             b_array[byte+i] = (value >> i*8) & 0xff
         return True
 
-class headerspace(object):
+class headerspace:
     '''
     A headerspace object keeps a set of header space regions. it can be union of
     [0,1,x,z] expressions. It can also keep a list of headerspaces to be subtracted

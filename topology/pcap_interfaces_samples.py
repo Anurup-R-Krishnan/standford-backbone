@@ -15,4 +15,4 @@ with open(inputFile) as f:
                     # Tweak to avoid memory crash
                     # Only print relevant ports (s1,s2017)
                     if ports[0].startswith("s1-") or ports[0].startswith("s2017-"):
-                        print ports[0]
+                        print(ports[0])

@@ -16,12 +16,12 @@ import pylibopenflow.of.simu as of_simu
 def usage():
     """Display usage
     """
-    print "Usage "+sys.argv[0]+" <options> controller\n"+\
+    print("Usage "+sys.argv[0]+" <options> controller\n"+\
           "Options:\n"+\
           "-p/--port\n\tSpecify port number\n"+\
           "-v/--verbose\n\tPrint message exchange\n"+\
           "-h/--help\n\tPrint this usage guide\n"+\
-          ""
+          "")
           
 #Parse options and arguments
 try:

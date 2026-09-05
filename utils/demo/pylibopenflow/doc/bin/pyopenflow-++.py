@@ -15,13 +15,13 @@ import pylibopenflow.of.ppize as ofppize
 def usage():
     """Display usage
     """
-    print "Usage "+sys.argv[0]+" <options> output_file\n"+\
+    print("Usage "+sys.argv[0]+" <options> output_file\n"+\
           "Options:\n"+\
           "-h/--help\n\tPrint this usage guide\n"+\
           "-i/--input\n\tSpecify input header file\n"+\
           "-t/--headertemplate\n\tSpecify template for header file\n"+\
           "-c/--codetemplate\n\tSpecify template for code file\n"+\
-          ""
+          "")
           
 #Parse options and arguments
 try:
@@ -55,7 +55,7 @@ for opt,arg in opts:
     elif (opt in ("-t","--headertemplate")):
         htemplatefile=arg
     else:
-        print "Unhandled option:"+opt
+        print("Unhandled option:"+opt)
         sys.exit(2)
 
 #Generate Python code

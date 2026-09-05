@@ -52,7 +52,7 @@ rtr_names = [("bbra_rtr",0),
              ]
 
 def generate_fwd_table_tf(cisco_parser,tf):
-    print " * Generating IP forwarding transfer function... * "  
+    print(" * Generating IP forwarding transfer function... * ")  
     # generate the forwarding part of transfer fucntion, from the fwd_prt, to pre-output ports
     for subnet in range(32,-1,-1):
         for fwd_rule in cisco_parser.fwd_table:
@@ -89,7 +89,7 @@ def generate_fwd_table_tf(cisco_parser,tf):
                             out_ports.append(cisco_parser.port_to_id[m[0]])
                             vlan = int(m[1])
                         else:
-                            print "ERROR: unrecognized port %s"%m[0]
+                            print("ERROR: unrecognized port %s"%m[0])
                             return -1
                     # vlan outputs
                     elif fwd_rule[2].startswith('vlan'):
@@ -100,7 +100,7 @@ def generate_fwd_table_tf(cisco_parser,tf):
                                     out_ports.append(cisco_parser.port_to_id[p])
                             vlan = int(fwd_rule[2][4:])
                         else:
-                            print "ERROR: unrecognized vlan %s"%fwd_rule[2]
+                            print("ERROR: unrecognized vlan %s"%fwd_rule[2])
                             return -1
                     # physical ports - no vlan taging
                     else:
@@ -108,13 +108,13 @@ def generate_fwd_table_tf(cisco_parser,tf):
                             out_ports.append(cisco_parser.port_to_id[fwd_rule[2]])
                             vlan = 0
                         else:
-                            print "ERROR: unrecognized port %s"%fwd_rule[2]
+                            print("ERROR: unrecognized port %s"%fwd_rule[2])
                             return -1
 
                     tf_rule = TF.create_standard_rule(in_ports, match, out_ports, None, None,file_name,lines)
                     tf.add_fwd_rule(tf_rule) 
                         
-    print "=== Successfully Generated Transfer function ==="
+    print("=== Successfully Generated Transfer function ===")
     return 0     
 
 id = 1

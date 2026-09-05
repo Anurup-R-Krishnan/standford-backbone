@@ -11,7 +11,7 @@ import pylibopenflow.cheader as cheader
 def usage():
     """Display usage
     """
-    print "Usage "+sys.argv[0]+" <options> header_file_1 header_file_2 ...\n"+\
+    print("Usage "+sys.argv[0]+" <options> header_file_1 header_file_2 ...\n"+\
           "Options:\n"+\
           "-h/--help\n\tPrint this usage guide\n"+\
           "-E/--enums\n\tPrint all enumerations\n"+\
@@ -22,7 +22,7 @@ def usage():
           "-s/--struct\n\tPrint struct\n"+\
           "-n/--name-only\n\tPrint names only\n"+\
           "-P/--print-no-comment\n\tPrint with comment removed only\n"+\
-          ""
+          "")
           
 #Parse options and arguments
 try:
@@ -82,57 +82,57 @@ for opt,arg in opts:
 headerfile = cheader.cheaderfile(args)
 if (printNoComment):
     for line in headerfile.content:
-        print line
+        print(line)
     sys.exit(0)
     
 #Print all macros
 if (allMacros):
     for (macroname, value) in headerfile.macros.items():
         if (nameOnly):
-            print macroname
+            print(macroname)
         else:
-            print macroname+"\t=\t"+str(value)
+            print(macroname+"\t=\t"+str(value))
 #Print specified macro
 if (macro != ""):
     try:
-        print macro+"="+headerfile.macros[macro]
+        print(macro+"="+headerfile.macros[macro])
     except KeyError:
-        print "Macro "+macro+" not found!"
+        print("Macro "+macro+" not found!")
 
 #Print all structs
 if (allStructs):
     for (structname, value) in headerfile.structs.items():
         if (nameOnly):
-            print structname
+            print(structname)
         else:
-            print str(value)+"\n"
+            print(str(value)+"\n")
 
 #Print specified struct
 if (struct != ""):
     try:
-        print str(headerfile.structs[struct])
+        print(str(headerfile.structs[struct]))
     except KeyError:
-        print "Struct "+struct+" not found!"
+        print("Struct "+struct+" not found!")
 
 #Print all enumerations
 if (allEnums):
     for (enumname, values) in headerfile.enums.items():
-        print enumname
+        print(enumname)
         if (not nameOnly):
             for enumval in values:
                 try:
-                    print "\t"+enumval+"="+\
-                          str(headerfile.enum_values[enumval])
+                    print("\t"+enumval+"="+\
+                          str(headerfile.enum_values[enumval]))
                 except KeyError:
-                    print enumval+" not found in enum!";
+                    print(enumval+" not found in enum!");
 
 #Print specifed enum
 if (enum != ""):
     try:
         for enumval in headerfile.enums[enum]:
             try:
-                print enumval+"="+str(headerfile.enum_values[enumval])
+                print(enumval+"="+str(headerfile.enum_values[enumval]))
             except KeyError:
-                print enumval+" not found in enum!";
+                print(enumval+" not found in enum!");
     except KeyError:
-        print "Enumeration "+enum+" not found!"
+        print("Enumeration "+enum+" not found!")

@@ -107,7 +107,7 @@ class pythonizer:
         code.append("import struct")
         code.append("")
         if (preamble != None):
-            fileRef = open(preamble,"r")
+            fileRef = open(preamble)
             for l in fileRef:
                 code.append(l[:-1])
             fileRef.close()
@@ -281,25 +281,25 @@ class pythonizer:
     def gen_struct_map(self, file=None):
         if not file:
             file = sys.stdout
-        print >> file
-        print >> file, "# Class to array member map"
-        print >> file, "class_to_members_map = {"
+        print(file=file)
+        print("# Class to array member map", file=file)
+        print("class_to_members_map = {", file=file)
         for name, struct in self.cheader.structs.items():
             if not len(struct.members):
                 continue
             s =  "    '" + name + "'"
-            print >> file, s + _space_to(36, s) + ": ["
+            print(s + _space_to(36, s) + ": [", file=file)
             prev = None
             for member in struct.members:
                 if re.search('pad', member.name):
                     continue
                 if prev:
-                    print _space_to(39, "") + "'" + prev + "',"
+                    print(_space_to(39, "") + "'" + prev + "',")
                 prev = member.name
-            print >> file, _space_to(39, "") + "'" + prev + "'"
-            print >> file, _space_to(38, "") + "],"
-        print >> file, "    '_ignore' : []"
-        print >> file, "}"
+            print(_space_to(39, "") + "'" + prev + "'", file=file)
+            print(_space_to(38, "") + "],", file=file)
+        print("    '_ignore' : []", file=file)
+        print("}", file=file)
 
     def __structassert(self, cstruct, cstructname):
         """Return code to check for C array

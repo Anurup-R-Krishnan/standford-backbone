@@ -20,12 +20,15 @@ Created on May 11, 2011
 @author: Peyman Kazemian
 @author: James Hongyi Zeng
 '''
-from helper import *
+try:
+    from config_parser.helper import *
+except ImportError:
+    from .helper import *
 from headerspace.tf import *
 from headerspace.hs import *
 import re
 
-class ciscoRouter(object):
+class ciscoRouter:
     '''
     Cisco router parser.
     The generated transfer function will have three sub-layers: 
@@ -405,8 +408,8 @@ class ciscoRouter(object):
         Reads in the CISCO router config file and extracts access list entries and the ports/vlans 
         they apply to. 
         '''
-        print "=== Reading Cisco Router Config File ==="
-        f = open(file_path,'r')
+        print("=== Reading Cisco Router Config File ===")
+        f = open(file_path)
         last_iface = ""
         last_vlan = None
         line_counter = 0;
@@ -422,7 +425,7 @@ class ciscoRouter(object):
                     last_vlan = int(last_iface[4:])
                     self.config_vlans.append(last_vlan)
                 else:
-                    parts = re.split('\.',last_iface)
+                    parts = re.split(r'\.',last_iface)
                     if len(parts) > 1:
                         last_vlan = int(parts[1])
                         last_iface = parts[0]
@@ -461,16 +464,16 @@ class ciscoRouter(object):
         #print self.port_subnets
         #print self.acl
         #print self.acl_iface
-        print "=== DONE Reading Cisco Router Config File ==="
+        print("=== DONE Reading Cisco Router Config File ===")
                 
     def read_spanning_tree_file(self, file_path):
         '''
         Reads in, the CISCO router "sh spanning-tree" output and extracts the list of ports that
         are in FWD mode for each vlan.
         '''
-        print "=== Reading Cisco Router Spanning Tree File ==="
+        print("=== Reading Cisco Router Spanning Tree File ===")
         current_vlan = 0
-        f = open(file_path,'r')
+        f = open(file_path)
         for line in f:
             tokens = line.split()
             if len(tokens) == 0:
@@ -483,27 +486,27 @@ class ciscoRouter(object):
                 self.vlan_ports[current_vlan].append(tokens[0].lower())
         f.close()
         #print self.vlan_ports
-        print "=== DONE Reading Cisco Router Spanning Tree File ==="
+        print("=== DONE Reading Cisco Router Spanning Tree File ===")
         
     def read_arp_table_file(self, file_path):
         '''
         Reads in CISCO router arp table - sh arp
         '''
-        print "=== Reading Cisco Router ARP Table File ==="
-        f = open(file_path,'r')
+        print("=== Reading Cisco Router ARP Table File ===")
+        f = open(file_path)
         for line in f:
             tokens = line.split()
             if (len(tokens) >= 6 and tokens[4].lower() == "arpa"):
                 self.arp_table[tokens[1]] = (tokens[3].lower(),tokens[5].lower())
         f.close()
-        print "=== DONE Reading Cisco Router ARP Table File ==="
+        print("=== DONE Reading Cisco Router ARP Table File ===")
                     
     def read_mac_table_file(self, file_path):
         '''
         Reads in CISCO mac address table - sh mac-address-table
         '''
-        print "=== Reading Cisco Mac Address Table File ==="
-        f = open(file_path,'r')
+        print("=== Reading Cisco Mac Address Table File ===")
+        f = open(file_path)
         seen_star = False
         ports = []
         mac = ""
@@ -520,14 +523,14 @@ class ciscoRouter(object):
             elif (seen_star):
                 ports.extend(tokens[0].split(","))
         self.mac_table[mac] = ports
-        print "=== DONE Reading Cisco Mac Address Table File ==="
+        print("=== DONE Reading Cisco Mac Address Table File ===")
                     
     def read_route_file(self, file_path):
         '''
         Reads in the CISCO router "sh ip cef" output and extracts the forwarding table entries.
         '''            
-        print "=== Reading Cisco Router IP CEF File ==="
-        f = open(file_path,'r')
+        print("=== Reading Cisco Router IP CEF File ===")
+        f = open(file_path)
         port = ""
         line_counter = 0;
         for line in f:
@@ -558,7 +561,7 @@ class ciscoRouter(object):
                     elif port.lower().startswith("vlan"):
                         vlan = int(port[4:])
                     else:
-                        parts = re.split('\.',port)
+                        parts = re.split(r'\.',port)
                         if len(parts) > 1 and self.replaced_vlan != 0:
                             port = "%s.%d"%(parts[0],self.replaced_vlan)
                             vlan = self.replaced_vlan
@@ -575,7 +578,7 @@ class ciscoRouter(object):
             line_counter = line_counter + 1
         f.close()
         #print self.fwd_table
-        print "=== DONE Reading Cisco Router IP CEF File ==="
+        print("=== DONE Reading Cisco Router IP CEF File ===")
     
     def generate_port_ids(self, additional_ports):
         '''
@@ -586,7 +589,7 @@ class ciscoRouter(object):
         ports that exist on the switch but are not part of any vlan or output of 
         forwarding rules.
         '''
-        print "=== Generating port IDs ==="
+        print("=== Generating port IDs ===")
         s = set(additional_ports)
         for elem in self.config_ports:
             s.add(elem)
@@ -599,12 +602,12 @@ class ciscoRouter(object):
             self.port_to_id[p] = id
             suffix += 1
         #print self.port_to_id
-        print "=== DONE generating port IDs ==="
+        print("=== DONE generating port IDs ===")
         
     def generate_port_ids_only_for_output_ports(self):
         s = set()
         for fwd_rule in self.fwd_table:
-            m = re.split('\.',fwd_rule[2])
+            m = re.split(r'\.',fwd_rule[2])
             if len(m) > 1:
                 s.add(m[0])
             elif fwd_rule[2].startswith('vlan'):
@@ -628,10 +631,10 @@ class ciscoRouter(object):
             return None
         
     def optimize_forwarding_table(self):
-        print "=== Compressing forwarding table ==="
-        print " * Originally has %d ip fwd entries * "%len(self.fwd_table)
+        print("=== Compressing forwarding table ===")
+        print(" * Originally has %d ip fwd entries * "%len(self.fwd_table))
         n = compress_ip_list(self.fwd_table)
-        print " * After compression has %d ip fwd entries * "%len(n)
+        print(" * After compression has %d ip fwd entries * "%len(n))
         self.fwd_table = n
         '''
         for elem in n:
@@ -640,7 +643,7 @@ class ciscoRouter(object):
                 str = str + int_to_dotted_ip(e[0]) + "/%d, "%e[1]
             print str
         '''
-        print "=== DONE forwarding table compression ==="
+        print("=== DONE forwarding table compression ===")
         
     def generate_transfer_function(self, tf): 
         '''
@@ -649,10 +652,10 @@ class ciscoRouter(object):
         this method may be called to generate transfer function rules corresponding to this box.
         The rules will be added to transfer function tf passed to the function.
         ''' 
-        print "=== Generating Transfer Function ==="
+        print("=== Generating Transfer Function ===")
         # generate the input part of tranfer function from in_port to fwd_port
         # and output part from intermedite port s to output ports
-        print " * Generating ACL transfer function * " 
+        print(" * Generating ACL transfer function * ") 
         for acl in self.acl_iface.keys():
             if acl not in self.acl.keys():
                 continue
@@ -725,7 +728,7 @@ class ciscoRouter(object):
         trunk_ports = set()
         for vlan_name in self.vlan_ports.keys():
             cnf_vlan = int(vlan_name[4:])
-            if self.vlan_ports.has_key("vlan%d"%cnf_vlan):
+            if "vlan%d"%cnf_vlan in self.vlan_ports:
                 match = byte_array_get_all_x(self.hs_format["length"]*2)
                 self.set_field(match, "vlan", cnf_vlan, 0)
                 all_in_ports = []
@@ -806,7 +809,7 @@ class ciscoRouter(object):
             tf.add_fwd_rule(def_rule)
         
         ##################################
-        print " * Generating VLAN forwarding transfer function... * "
+        print(" * Generating VLAN forwarding transfer function... * ")
         # generate VLAN forwarding entries
         for vlan_num in self.port_subnets.keys():
             for (ip_addr,subnet_mask,file_name,lines,port) in self.port_subnets[vlan_num]:
@@ -827,9 +830,9 @@ class ciscoRouter(object):
                         out_ports.append(self.port_to_id[p]+self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST)
                 tf_rule = TF.create_standard_rule(in_port, match, out_ports, None, None,file_name,lines)
                 tf.add_fwd_rule(tf_rule)
-                   
+                    
         ###################################
-        print " * Generating IP forwarding transfer function... * "  
+        print(" * Generating IP forwarding transfer function... * ")  
         # generate the forwarding part of transfer fucntion, from the fwd_prt, to pre-output ports
         for subnet in range(32,-1,-1):
             for fwd_rule in self.fwd_table:
@@ -854,7 +857,7 @@ class ciscoRouter(object):
                     # set up out_ports
                     out_ports = []
                     vlan = 0
-                    m = re.split('\.',fwd_rule[2])
+                    m = re.split(r'\.',fwd_rule[2])
                     # drop rules:
                     if fwd_rule[2] == "self":
                         self_rule = TF.create_standard_rule(in_port,match,[],None,None,file_name,lines)
@@ -867,7 +870,7 @@ class ciscoRouter(object):
                                 out_ports.append(self.port_to_id[m[0]]+self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST)
                                 vlan = int(m[1])
                             else:
-                                print "ERROR: unrecognized port %s"%m[0]
+                                print("ERROR: unrecognized port %s"%m[0])
                                 return -1
                         # vlan outputs
                         elif fwd_rule[2].startswith('vlan'):
@@ -877,7 +880,7 @@ class ciscoRouter(object):
                                     out_ports.append(self.port_to_id[p]+self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST)
                                 vlan = int(fwd_rule[2][4:])
                             else:
-                                print "ERROR: unrecognized vlan %s"%fwd_rule[2]
+                                print("ERROR: unrecognized vlan %s"%fwd_rule[2])
                                 return -1
                         # physical ports - no vlan taging
                         else:
@@ -885,7 +888,7 @@ class ciscoRouter(object):
                                 out_ports.append(self.port_to_id[fwd_rule[2]] + self.PORT_TYPE_MULTIPLIER * self.INTERMEDIATE_PORT_TYPE_CONST)
                                 vlan = 0
                             else:
-                                print "ERROR: unrecognized port %s"%fwd_rule[2]
+                                print("ERROR: unrecognized port %s"%fwd_rule[2])
                                 return -1
                         # now set the fields
                         self.set_field(mask, 'vlan', 0, 0)
@@ -893,7 +896,7 @@ class ciscoRouter(object):
                         tf_rule = TF.create_standard_rule(in_port, match, out_ports, mask, rewrite,file_name,lines)
                         tf.add_rewrite_rule(tf_rule) 
                         
-        print "=== Successfully Generated Transfer function ==="
+        print("=== Successfully Generated Transfer function ===")
         #print tf
         return 0
     

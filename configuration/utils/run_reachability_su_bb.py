@@ -47,6 +47,6 @@ st = time()
 paths = find_reachability(ntf,ttf,src_port_id,dst_port_ids,test_pkt)
 en = time()
 print_loops(paths, port_reverse_map)
-print len(paths)
+print(len(paths))
 
-print en-st
+print(en-st)

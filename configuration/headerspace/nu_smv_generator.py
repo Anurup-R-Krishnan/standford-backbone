@@ -28,7 +28,7 @@ TMP_FILE_PATH = "../tmp.smv"
 PORT_VAR_LEN = 32
 HDR_VAR_LEN = 32
 
-class NuSMV(object):
+class NuSMV:
     '''
     A class that generates NuSMV input file from transfer function
     NOTE1: port 0 is a special port that shouldn't be used
@@ -197,11 +197,11 @@ class NuSMV(object):
             if not line:
                 break
             if not (line.startswith("WARNING") or line.startswith("***")):
-                print line
+                print(line)
                 if line.find("true") != -1:
                     result = True
             else:
-                print line
+                print(line)
         return result
     
     def run_nusmv_reachability(self,in_port,out_port):

@@ -12,15 +12,15 @@ import struct
 import pylibopenflow.openflow as openflow
 import time
 import pylibopenflow.output as output
-import pylibopenflow.of.msg as of.msg
-import pylibopenflow.of.simu as of.simu
-import pylibopenflow.of.network as of.network
+import pylibopenflow.of.msg as of_msg
+import pylibopenflow.of.simu as of_simu
+import pylibopenflow.of.network as of_network
 import dpkt.ethernet
 
 def usage():
     """Display usage
     """
-    print "Usage "+sys.argv[0]+" <options> controller\n"+\
+    print("Usage "+sys.argv[0]+" <options> controller\n"+\
           "Options:\n"+\
           "-p/--port\n\tSpecify port number\n"+\
           "-v/--verbose\n\tPrint message exchange\n"+\
@@ -28,7 +28,7 @@ def usage():
           "-d/--duration\n\tSpecify duration of load test in seconds (default=5)\n"+\
           "-s/--switch\n\tSpecify number of switches (default=1)\n"+\
           "-h/--help\n\tPrint this usage guide\n"+\
-          ""
+          "")
           
 #Parse options and arguments
 try:
@@ -70,7 +70,7 @@ for opt,arg in opts:
     elif (opt in ("-r","--rate")):
         rate=float(arg)
     else:
-        print "Unhandled option :"+opt
+        print("Unhandled option :"+opt)
         sys.exit(2)
 
 #Form packet

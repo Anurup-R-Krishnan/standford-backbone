@@ -74,7 +74,7 @@ def load_internet2_backbone_ttf():
     return f
 
 def load_internet2_backbone_port_to_id_map():
-    f = open("work/Internet2/port_map.txt",'r')
+    f = open("work/Internet2/port_map.txt")
     id_to_name = {}
     map = {}
     rtr = ""

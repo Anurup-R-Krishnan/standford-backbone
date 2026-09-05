@@ -462,9 +462,9 @@ for size in sizes:
     for expand in expands:
         my_NTF = make_NTF(size)
         my_TTF = make_TTF(size)
-        print "BEGIN EXPANSION"
+        print("BEGIN EXPANSION")
         expand_NTF(my_NTF,expand)
-        print "END EXPANSION"
+        print("END EXPANSION")
         all_x = byte_array_get_all_x(format["length"]*2)
         set_field(all_x, "stack_size", size+1, 0)
         test_pkt = headerspace(format["length"]*2)
@@ -475,17 +475,17 @@ for size in sizes:
         for loop in loops:
             loop_origins.append(find_loop_original_header(my_NTF,my_TTF,loop))
         en = time()
-        print "$$$$$$$$ time is %d"%(en-st)
+        print("$$$$$$$$ time is %d"%(en-st))
         for i in range(len(loops)):
-            print "---------------------"
-            print "PATH: %s"%loop_path_to_str(loops[i],reverse_map)
-            print "ORIGINATED BY:"
+            print("---------------------")
+            print("PATH: %s"%loop_path_to_str(loops[i],reverse_map))
+            print("ORIGINATED BY:")
             for h in loop_origins[i]:
-                print h
-        print len(loops)
+                print(h)
+        print(len(loops))
         result.append(en-st)
     results.append(result)
-print results
+print(results)
 
 #[[0.028717994689941406, 0.073533058166503906, 0.15058493614196777, 0.2507789134979248, 1.2491989135742188, 4.9717040061950684], [0.17177915573120117, 0.44383811950683594, 0.96145200729370117, 1.7296581268310547, 11.418015956878662, 89.984761953353882]]
 # [[1.126323938369751, 2.4239110946655273, 5.1174418926239014, 9.6081268787384033, 49.723267078399658, 244.03375601768494]]

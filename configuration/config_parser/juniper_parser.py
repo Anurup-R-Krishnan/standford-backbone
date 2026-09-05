@@ -20,13 +20,13 @@ Created on Mar 11, 2012
 @author: James Hongyi Zeng
 '''
 
-from helper import *
+from .helper import *
 from headerspace.tf import *
 from headerspace.hs import *
 from xml.etree.ElementTree import ElementTree
 import re
 
-class juniperRouter(object):
+class juniperRouter:
     '''
     classdocs
     '''
@@ -401,7 +401,7 @@ class juniperRouter(object):
         ports that exist on the switch but are not part of any vlan or output of 
         forwarding rules.
         '''
-        print "=== Generating port IDs ==="
+        print("=== Generating port IDs ===")
         s = set(additional_ports)
         for elem in self.config_ports:
             s.add(elem)
@@ -411,7 +411,7 @@ class juniperRouter(object):
             self.port_to_id[p] = id
             suffix += 1
         #print self.port_to_id
-        print "=== DONE generating port IDs ==="
+        print("=== DONE generating port IDs ===")
         
     def get_port_id(self,port_name):
         if port_name in self.port_to_id.keys():
@@ -420,11 +420,11 @@ class juniperRouter(object):
             return None
         
     def optimize_forwarding_table(self):
-        print "=== Compressing forwarding table ==="
-        print " * Originally has %d ip fwd entries * "%len(self.fwd_table)
+        print("=== Compressing forwarding table ===")
+        print(" * Originally has %d ip fwd entries * "%len(self.fwd_table))
 
         n = compress_ip_list(self.fwd_table)
-        print " * After compression has %d ip fwd entries * "%len(n)
+        print(" * After compression has %d ip fwd entries * "%len(n))
         self.fwd_table = n
 
         '''
@@ -434,7 +434,7 @@ class juniperRouter(object):
                 str = str + int_to_dotted_ip(e[0]) + "/%d, "%e[1]
             print str
         '''
-        print "=== DONE forwarding table compression ==="
+        print("=== DONE forwarding table compression ===")
         
     def generate_transfer_function(self, tf): 
         '''
@@ -443,10 +443,10 @@ class juniperRouter(object):
         this method may be called to generate transfer function rules corresponding to this box.
         The rules will be added to transfer function tf passed to the function.
         ''' 
-        print "=== Generating Transfer Function ==="
+        print("=== Generating Transfer Function ===")
         # generate the input part of tranfer function from in_port to fwd_port
         # and output part from intermedite ports to output ports
-        print " * Generating ACL transfer function * " 
+        print(" * Generating ACL transfer function * ") 
         for acl in self.acl_iface.keys():
             if acl not in self.acl.keys():
                 continue
@@ -494,7 +494,7 @@ class juniperRouter(object):
         # default rule for all vlans configured on this switch and un-vlan-tagged ports
         intermediate_port = [self.switch_id * self.SWITCH_ID_MULTIPLIER]
         for cnf_vlan in self.config_vlans:
-            if self.vlan_ports.has_key("vlan%d"%cnf_vlan):
+            if "vlan%d"%cnf_vlan in self.vlan_ports:
                 match = byte_array_get_all_x(self.hs_format["length"]*2)
                 self.set_field(match, "vlan", cnf_vlan, 0)
                 all_in_ports = []
@@ -552,7 +552,7 @@ class juniperRouter(object):
 #                tf.add_fwd_rule(tf_rule)
                    
         ###################################
-        print " * Generating IP forwarding transfer function... * "  
+        print(" * Generating IP forwarding transfer function... * ")  
         self.fwd_table.sort(key=lambda fwd_rule: fwd_rule[1], reverse=True)
    
         # generate the forwarding part of transfer fucntion, from the fwd_prt, to pre-output ports
@@ -605,7 +605,7 @@ class juniperRouter(object):
                                     out_ports.append(self.port_to_id[m[0]]+self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST)
                                     vlan = int(m[1])
                                 else:
-                                    print "ERROR: unrecognized port %s"%m[0]
+                                    print("ERROR: unrecognized port %s"%m[0])
                                     return -1
                             # vlan outputs
                             elif output_port.startswith('vlan'):
@@ -615,7 +615,7 @@ class juniperRouter(object):
                                         out_ports.append(self.port_to_id[p]+self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST)
                                     vlan = int(output_port[4:])
                                 else:
-                                    print "ERROR: unrecognized vlan %s"%output_port
+                                    print("ERROR: unrecognized vlan %s"%output_port)
                                     return -1
                             # physical ports - no vlan taging
                             else:
@@ -623,7 +623,7 @@ class juniperRouter(object):
                                     out_ports.append(self.port_to_id[output_port] + self.PORT_TYPE_MULTIPLIER * self.OUTPUT_PORT_TYPE_CONST)
                                     vlan = 0
                                 else:
-                                    print "ERROR: unrecognized port %s"%output_port
+                                    print("ERROR: unrecognized port %s"%output_port)
                                     return -1
                         
                         # now set the fields
@@ -634,28 +634,28 @@ class juniperRouter(object):
                 
                 self.fwd_table[index] = []
                 #Invalidate fwd_rule      
-        print "=== Successfully Generated Transfer function ==="
+        print("=== Successfully Generated Transfer function ===")
         #print tf
         return 0    
     
     def read_route_file(self, file_path):
-        print "=== Reading Juniper Router FIB File ==="
-        f = open(file_path,'r')
+        print("=== Reading Juniper Router FIB File ===")
+        f = open(file_path)
         line_counter = 0
 
         while True:
             # Garbage in the front
-            line = f.next()
+            line = next(f)
             line_counter += 1
             if line.startswith("Destination"):
                 while True:
-                    line = f.next()
+                    line = next(f)
                     line_counter += 1
                     tokens = line.split()
                     if len(tokens) == 6 and tokens[3]=="indr":
                         ip_subnet = dotted_subnet_to_int(tokens[0])
                         # Interface in the next line
-                        line = f.next()
+                        line = next(f)
                         line_counter += 1
                         port = line.split()[-1]
                         
@@ -678,40 +678,40 @@ class juniperRouter(object):
                         return
 
     def read_config_file(self, file_path, router_name, ns = "{http://xml.juniper.net/junos/10.4R9/junos-interface}"):
-        print "=== Reading Juniper Router Interface File ==="       
+        print("=== Reading Juniper Router Interface File ===")       
         tree = ElementTree(file=file_path)
         
         routers = tree.findall("router")
         for router in routers:
             if router.get("name") != router_name:
                 continue
-            physical_interfaces = router.findall("{0}interface-information/{0}physical-interface".format(ns))
+            physical_interfaces = router.findall(f"{ns}interface-information/{ns}physical-interface")
             
             for physical_interface in physical_interfaces:
-                physical_interface_name = physical_interface.find("{0}name".format(ns)).text
+                physical_interface_name = physical_interface.find(f"{ns}name").text
                 physical_interface_name = physical_interface_name.replace(":","-")
                 if physical_interface_name.startswith("ae"):
                     # Aggregated interface. We don't need to record it here
                     continue
                 
-                logical_interfaces = physical_interface.findall("{0}logical-interface".format(ns))
+                logical_interfaces = physical_interface.findall(f"{ns}logical-interface")
                 
                 if logical_interfaces != []:
                     # The port is up
                     self.config_ports.add(physical_interface_name)
                 
                 for logical_interface in logical_interfaces:
-                    logical_interface_name = logical_interface.find("{0}name".format(ns)).text
+                    logical_interface_name = logical_interface.find(f"{ns}name").text
                     logical_interface_name = logical_interface_name.replace(":","-")
                     
-                    addresses = logical_interface.findall("{0}address-family".format(ns))
+                    addresses = logical_interface.findall(f"{ns}address-family")
                     
                     for address in addresses:
-                        address_family = address.find("{0}address-family-name".format(ns)).text
+                        address_family = address.find(f"{ns}address-family-name").text
                         
                         if address_family == "aenet":
                             # This is part of an aggregate ethernet
-                            ae_bundle_name = address.find("{0}ae-bundle-name".format(ns)).text
+                            ae_bundle_name = address.find(f"{ns}ae-bundle-name").text
                             # Record the real interface name
                             # James: Hack for now to reduce the run-time. we don't need to multicast...
                             self.ae_bundles[ae_bundle_name] = [logical_interface_name]
@@ -737,8 +737,8 @@ class juniperRouter(object):
                             if "%d"%vlan not in self.port_subnets.keys():
                                 self.port_subnets["%d"%vlan] = []  
                                 
-                            ip_address = address.find("{0}interface-address/{0}ifa-local".format(ns))        
-                            subnet_address = address.find("{0}interface-address/{0}ifa-destination".format(ns))
+                            ip_address = address.find(f"{ns}interface-address/{ns}ifa-local")        
+                            subnet_address = address.find(f"{ns}interface-address/{ns}ifa-destination")
                                 
                             if ip_address==None or subnet_address==None:
                                 continue

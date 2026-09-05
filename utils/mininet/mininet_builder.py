@@ -54,7 +54,7 @@ class StanfordTopo( Topo ):
         switches = ports.keys()
 
         # Add default members to class.
-        super( StanfordTopo, self ).__init__()
+        super().__init__()
 
         # Create switch nodes
         for s in switches:
@@ -77,7 +77,7 @@ class StanfordTopo( Topo ):
             
     def load_ports(self, filename):
         ports = {}
-        f = open(filename, 'r')
+        f = open(filename)
         for line in f:
             if not line.startswith("$") and line != "":
                 tokens = line.strip().split(":")
@@ -95,7 +95,7 @@ class StanfordTopo( Topo ):
         
     def load_topology(self, filename):
         links = set()
-        f = open(filename, 'r')
+        f = open(filename)
         for line in f:
             if line.startswith("link"):
                 tokens = line.split('$')
@@ -158,7 +158,7 @@ class StanfordTopo( Topo ):
 class StanfordMininet ( Mininet ):
 
     def build( self ):
-        super( StanfordMininet, self ).build()
+        super().build()
         
         # FIXME: One exception... Dual links between yoza and yozb
         # Need _manual_ modification for different topology files!!!
@@ -196,7 +196,7 @@ def StanfordTopoTest( controller_ip, controller_port, dummy_controller_ip, dummy
 
 if __name__ == '__main__':
     if getuid()!=0:
-        print "Please run this script as root / use sudo."
+        print("Please run this script as root / use sudo.")
         exit(-1)
 
     lg.setLogLevel( 'info')
@@ -215,9 +215,9 @@ if __name__ == '__main__':
                       default=6633,
                       help="Dummy ontroller's port")
     args = parser.parse_args()
-    print description
-    print "Starting with primary controller %s:%d" % (args.controller_name, args.controller_port)
-    print "Starting with dummy controller %s:%d" % (args.dummy_controller_name, args.dummy_controller_port)
+    print(description)
+    print("Starting with primary controller %s:%d" % (args.controller_name, args.controller_port))
+    print("Starting with dummy controller %s:%d" % (args.dummy_controller_name, args.dummy_controller_port))
     Mininet.init()
     StanfordTopoTest(gethostbyname(args.controller_name), args.controller_port, gethostbyname(args.dummy_controller_name), args.dummy_controller_port)
 

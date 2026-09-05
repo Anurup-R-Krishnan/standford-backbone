@@ -21,7 +21,7 @@ Created on Aug 14, 2011
 '''
 from headerspace.hs import byte_array_list_contained_in
 
-class emulated_tf(object):
+class emulated_tf:
     
     def __init__(self,n_reapet,duplicate_removal=True):
         self.switch_id_mul = 100000
@@ -113,7 +113,7 @@ class emulated_tf(object):
         return phase
     def sp(self):
         tf = self.tf_list[10]
-        print "####################"
-        print tf
-        print "####################"
+        print("####################")
+        print(tf)
+        print("####################")
         

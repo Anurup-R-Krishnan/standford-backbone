@@ -269,7 +269,7 @@ def rule_lists_compress(rule_lists):
     
     en = time.time()
     
-    print "Global Compression: Start=%d, End=%d, Ratio=%f, Time=%f" % (start_packets, end_packets, float(end_packets)/start_packets, en-st)
+    print("Global Compression: Start=%d, End=%d, Ratio=%f, Time=%f" % (start_packets, end_packets, float(end_packets)/start_packets, en-st))
     print_rule_lists_to_database(result_rule_lists, TABLE_SCRATCHPAD)
 
 def find_test_packets(src_port_id):
@@ -285,7 +285,7 @@ def find_test_packets(src_port_id):
     
     print_paths_to_database(paths, port_reverse_map_global, TABLE_TEST_PACKETS)
     result_string = "Port:%d, Path No:%d, Time: %fs" % (src_port_id, len(paths), en - st)    
-    print result_string
+    print(result_string)
 
     # Compress
     st = time.time()
@@ -293,7 +293,7 @@ def find_test_packets(src_port_id):
     en = time.time()
 
     result_string = "Port:%d, Compressed Path No:%d, Time: %fs" % (src_port_id, len(paths), en - st)    
-    print result_string
+    print(result_string)
     
     print_paths_to_database(paths, port_reverse_map_global, TABLE_TEST_PACKETS_LOCALLY_COMPRESSED)
 
@@ -381,14 +381,14 @@ def main():
         for rule in tf.rules:
             query = "INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?)" % TABLE_NETWORK_RULES
             conn.execute(query, (rule['id'],' '.join(map(str, rule['in_ports'])), ' '.join(map(str, rule['out_ports'])), rule['action'], rule["file"], ' '.join(map(str, rule["line"]))))
-    print "Total Rules: %d" % rule_count
+    print("Total Rules: %d" % rule_count)
     conn.commit()
     
     rule_count = len(ttf_global.rules) 
     for rule in ttf_global.rules:
         query = "INSERT INTO %s VALUES (?, ?, ?)" % TABLE_TOPOLOGY_RULES 
         conn.execute(query, (rule['id'],' '.join(map(str, rule['in_ports'])), ' '.join(map(str, rule['out_ports']))))  
-    print "Total Links: %d" % rule_count
+    print("Total Links: %d" % rule_count)
    
     # Generate all ports
     for rtr in port_map_global.keys():
@@ -401,10 +401,10 @@ def main():
     
     new_length = len(src_port_ids_global)* args.percentage / 100
     src_port_ids_global = random.sample(src_port_ids_global, new_length)
-    print "Total Length: %d" % total_length
-    print "New Length: %d" % new_length
+    print("Total Length: %d" % total_length)
+    print("New Length: %d" % new_length)
     
-    print src_port_ids_global
+    print(src_port_ids_global)
     
     for port in src_port_ids_global:
         port += output_port_addition
@@ -430,10 +430,10 @@ def main():
     
     test_packet_count = result.get()
     total_paths = sum(test_packet_count)    
-    print "========== Before Compression ========="
-    print "Total Paths = %d" % total_paths
-    print "Average packets per port = %f" % (float(total_paths) / len(src_port_ids_global))
-    print "Total Time = %fs" % (end_time - start_time)
+    print("========== Before Compression =========")
+    print("Total Paths = %d" % total_paths)
+    print("Average packets per port = %f" % (float(total_paths) / len(src_port_ids_global)))
+    print("Total Time = %fs" % (end_time - start_time))
     
     #Global Compressing 
     start_time = time.time()
@@ -449,7 +449,7 @@ def main():
   
     chunk_size = 80000
     while(True):
-        print "Start a new round!"
+        print("Start a new round!")
         conn = sqlite3.connect(DATABASE_FILE, 6000)
         conn.execute('DROP TABLE IF EXISTS %s' % TABLE_SCRATCHPAD)
         conn.execute('CREATE TABLE %s (rules TEXT, no_of_rules INTEGER)' % TABLE_SCRATCHPAD)
@@ -457,7 +457,7 @@ def main():
         conn.close()
         
         start_len = len(result_rule_lists)
-        print start_len
+        print(start_len)
         
         pool = Pool()        
         no_of_chunks = len(result_rule_lists) / chunk_size + 1      
@@ -469,7 +469,7 @@ def main():
         pool.join()
         result.get()
         
-        print "End of this round."
+        print("End of this round.")
         
         result_rule_lists = read_rule_lists_from_database(TABLE_SCRATCHPAD)
         
@@ -498,11 +498,11 @@ def main():
     conn.commit()    
     conn.close()
     
-    print "========== After Compression ========="
-    print "Total Paths = %d" % total_paths
-    print "Average packets per port = %f" % (float(total_paths) / len(src_port_ids_global))
-    print "Average length of rule list = %f" % (float(total_length) / total_paths)
-    print "Total Time = %fs" % (end_time - start_time)
+    print("========== After Compression =========")
+    print("Total Paths = %d" % total_paths)
+    print("Average packets per port = %f" % (float(total_paths) / len(src_port_ids_global)))
+    print("Average length of rule list = %f" % (float(total_length) / total_paths))
+    print("Total Time = %fs" % (end_time - start_time))
     
 if __name__ == "__main__":
     main()

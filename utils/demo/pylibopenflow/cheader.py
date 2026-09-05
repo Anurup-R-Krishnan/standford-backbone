@@ -28,7 +28,7 @@ class textfile:
         """Read file
         """
         for filename in self.filename:
-            fileRef = open(filename, "r")
+            fileRef = open(filename)
             for line in fileRef:
                 self.content.append(line)
             fileRef.close()        

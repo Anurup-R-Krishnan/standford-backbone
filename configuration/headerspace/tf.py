@@ -24,7 +24,7 @@ from headerspace.hs import *
 from array import array
 from headerspace.wildcard_dictionary import wildcard_dictionary
 
-class TF(object):
+class TF:
     '''
     models a box transfer function, a network transfer function or a topology transfer function
     '''
@@ -134,15 +134,15 @@ class TF(object):
         in two separate lists.
         '''
         for rule in self.rules:
-            print "%s Rule Match: %s,%s"%(rule["action"],byte_array_to_pretty_hs_string(rule["match"]),rule["in_ports"])
-            print "Affected by:"
+            print("%s Rule Match: %s,%s"%(rule["action"],byte_array_to_pretty_hs_string(rule["match"]),rule["in_ports"]))
+            print("Affected by:")
             for aff in rule["affected_by"]:
-                print "%s: On Ports %s, Intersect= %s"%(byte_array_to_pretty_hs_string(aff[0]["match"]),aff[2],
-                                                        byte_array_to_pretty_hs_string(aff[1]))
-            print "Influence on:"
+                print("%s: On Ports %s, Intersect= %s"%(byte_array_to_pretty_hs_string(aff[0]["match"]),aff[2],
+                                                        byte_array_to_pretty_hs_string(aff[1])))
+            print("Influence on:")
             for aff in rule["influence_on"]:
-                print "%s"%(byte_array_to_pretty_hs_string(aff["match"]))
-            print "-------------------"
+                print("%s"%(byte_array_to_pretty_hs_string(aff["match"])))
+            print("-------------------")
             
     def to_string(self):
         strings = []
@@ -551,9 +551,9 @@ class TF(object):
                 rule_set = self.exact_match_hash["%d"%port]["default"]
         else:
             #TODO: Hack! fix it    
-            if self.inport_to_rule.has_key("%d"%port) and (not self.hash_table_active or len(hs.hs_list)>1):
+            if "%d"%port in self.inport_to_rule and (not self.hash_table_active or len(hs.hs_list)>1):
                 rule_set = self.inport_to_rule["%d"%port]
-            elif self.hash_table_active and self.inport_to_hash_table.has_key("%d"%port):
+            elif self.hash_table_active and "%d"%port in self.inport_to_hash_table:
                 tmp = []
                 for index in self.hash_nibble_indices:
                     tmp.append(hs.hs_list[0][index])
@@ -591,7 +591,7 @@ class TF(object):
         Output is a list of [hs,list_of_out_ports].
         '''
         result = []
-        if self.id_to_rule.has_key(rule_id):
+        if rule_id in self.id_to_rule:
             rule = self.id_to_rule[rule_id]
             if rule['action'] == "link":
                 result = self.apply_link_rule(rule, hs, port)
@@ -666,7 +666,7 @@ class TF(object):
         '''
         result = []
         
-        if self.outport_to_rule.has_key("%d"%port):
+        if "%d"%port in self.outport_to_rule:
             for rule in self.outport_to_rule["%d"%port]:
                 #check if rule qualifies for lazy eval
                 if (self.lazy_eval_active and self.is_qualified_for_lazy_eval(rule)):
@@ -695,7 +695,7 @@ class TF(object):
         Output is a list of [hs,list_of_out_ports].
         '''
         result = []
-        if self.id_to_rule.has_key(rule_id):
+        if rule_id in self.id_to_rule:
             rule = self.id_to_rule[rule_id]
             if rule['action'] == "link":
                 result = self.apply_inv_link_rule(rule, hs, port)
@@ -733,7 +733,7 @@ class TF(object):
         '''
         saves all the non-custom transfer function rules to a file
         '''
-        print "=== Saving transfer function to file %s ==="%file
+        print("=== Saving transfer function to file %s ==="%file)
         f = open(file, 'w')
         f.write("%d$%s$%d$%d$%d$\n"%(self.length,self.prefix_id,self.next_id,self.lazy_eval_active,self.send_on_receiving_port))
         for nibble in self.lazy_eval_nibbles:
@@ -760,14 +760,14 @@ class TF(object):
                 f.write("%d,"%ln)
             f.write("$%s$\n"%rule["id"])
         f.close()
-        print "=== Transfer function saved to file %s ==="%file
+        print("=== Transfer function saved to file %s ==="%file)
         
     def load_object_from_file(self, file):
         '''
         load object from file, and replace the current object.
         '''
-        print "=== Loading transfer function from file %s ==="%file
-        f = open(file,'r')
+        print("=== Loading transfer function from file %s ==="%file)
+        f = open(file)
         self.rules = []
         first_line = f.readline()
         tokens = first_line.split('$')
@@ -863,7 +863,7 @@ class TF(object):
             rule["affected_by"] = affects
             self.set_fast_lookup_pointers(indx)
             
-        print "=== Transfer function loaded from file %s ==="%file
+        print("=== Transfer function loaded from file %s ==="%file)
             
     def __str__(self):
         strs = self.to_string()

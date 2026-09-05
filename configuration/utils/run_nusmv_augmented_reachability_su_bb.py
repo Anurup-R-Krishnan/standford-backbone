@@ -31,6 +31,6 @@ via_ports = [port_map["bbrb_rtr1"]["te6/3"],port_map["bbrb_rtr1"]["te6/3"]+20000
 nusmv = load_augmented_tf_to_nusmv(16,net_dir)
 st = time()
 #print nusmv.run_nusmv_one_path_via_ports_reachability(src_port_id, dst_port_id,via_ports)
-print nusmv.run_nusmv_reachability(src_port_id, dst_port_id)
+print(nusmv.run_nusmv_reachability(src_port_id, dst_port_id))
 en = time()
-print en-st
+print(en-st)

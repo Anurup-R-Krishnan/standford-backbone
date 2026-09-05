@@ -95,7 +95,7 @@ def load_port_to_id_map(path):
     '''
     load the map from port ID to name of box-port name.
     '''
-    f = open("%s/port_map.txt"%path,'r')
+    f = open("%s/port_map.txt"%path)
     id_to_name = {}
     map = {}
     rtr = ""

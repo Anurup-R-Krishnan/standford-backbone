@@ -16,12 +16,12 @@ import pylibopenflow.of.pythonize as ofpythonize
 def usage():
     """Display usage
     """
-    print "Usage "+sys.argv[0]+" <options> output_file\n"+\
+    print("Usage "+sys.argv[0]+" <options> output_file\n"+\
           "Options:\n"+\
           "-i/--input\n\tSpecify (non-default) OpenFlow header\n"+\
           "-t/--template\n\tSpecify (non-default) template file\n"+\
           "-h/--help\n\tPrint this usage guide\n"+\
-          ""
+          "")
           
 #Parse options and arguments
 try:
@@ -50,7 +50,7 @@ for opt,arg in opts:
     elif (opt in ("-t","--template")):
         templatefile=arg
     else:
-        print "Unhandled option:"+opt
+        print("Unhandled option:"+opt)
         sys.exit(2)
 
 #Generate Python code

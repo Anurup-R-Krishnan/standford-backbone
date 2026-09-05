@@ -26,14 +26,14 @@ from headerspace.hs import *
 from headerspace.tf import TF
     
 def is_ip_address(str):
-    ips = re.match('(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', str)
+    ips = re.match(r'(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', str)
     if ips == None:
         return False
     else:
         return True
     
 def is_ip_subnet(str):
-    ips = re.match('(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})/(?:[\d]{1,2})', str)
+    ips = re.match(r'(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})/(?:[\d]{1,2})', str)
     if ips == None:
         return False
     else:
@@ -42,7 +42,7 @@ def is_ip_subnet(str):
 def int_to_dotted_ip( intip ):
         octet = ''
         for exp in [3,2,1,0]:
-            octet = octet + str(intip / ( 256 ** exp )) + "."
+            octet = octet + str(intip // ( 256 ** exp )) + "."
             intip = intip % ( 256 ** exp )
         return(octet.rstrip('.'))
  
@@ -102,7 +102,7 @@ def find_num_mask_bits_left_mak(mask):
             break
     return 32-count
     
-class node(object):
+class node:
     def __init__(self):
         self.zero = None;
         self.one = None;
@@ -116,13 +116,13 @@ class node(object):
         str_ip = "%sIPs: "%ind
         for i in self.ips:
             str_ip = str_ip + int_to_dotted_ip(i[0]) + "/%d"%i[1] + ", "
-        print str_ip
-        print "%sAction: %s"%(ind,self.action)
+        print(str_ip)
+        print("%sAction: %s"%(ind,self.action))
         if self.zero != None:
-            print "%sZero:"%(ind)
+            print("%sZero:"%(ind))
             self.zero.printSelf(indent+1)
         if self.one != None:
-            print "%sOne:"%(ind)
+            print("%sOne:"%(ind))
             self.one.printSelf(indent+1)
     
     def is_leaf(self):
