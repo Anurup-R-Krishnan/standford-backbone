@@ -1,4 +1,3 @@
-
 class ofsocket:
 	"""OpenFlow scoket
 	"""

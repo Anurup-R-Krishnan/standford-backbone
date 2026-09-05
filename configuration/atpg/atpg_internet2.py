@@ -410,8 +410,7 @@ def main():
     total_length = len(src_port_ids_global)
     if args.e == True:
         for rule in ttf_global.rules:
-            if rule['out_ports'][0] in src_port_ids_global:
-                src_port_ids_global.remove(rule['out_ports'][0])
+            src_port_ids_global.discard(rule['out_ports'][0])
 
     new_length = max(1, int(len(src_port_ids_global) * args.percentage // 100))
     src_port_ids_global = random.sample(sorted(src_port_ids_global), new_length)

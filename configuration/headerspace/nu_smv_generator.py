@@ -20,6 +20,7 @@ Created on Dec 31, 2011
 @author: Peyman Kazemian
 '''
 import os
+import subprocess
 
 from headerspace.tf import *
 
@@ -189,10 +190,10 @@ class NuSMV:
         #print self.generated_nusmv_input
         
     def execute_nusmv_file(self):    
-        p = os.popen(f"{MODEL_CHECKER_PATH} {TMP_FILE_PATH}", "r")
+        p = subprocess.Popen([MODEL_CHECKER_PATH, TMP_FILE_PATH], stdout=subprocess.PIPE, text=True)
         result = False
         while 1:
-            line = p.readline()
+            line = p.stdout.readline()
             if not line:
                 break
             if not (line.startswith(("WARNING", "***"))):
@@ -201,6 +202,7 @@ class NuSMV:
                     result = True
             else:
                 print(line)
+        p.wait()
         return result
     
     def run_nusmv_reachability(self,in_port,out_port):

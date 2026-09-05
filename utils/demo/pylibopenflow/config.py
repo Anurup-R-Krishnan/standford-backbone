@@ -1,4 +1,3 @@
-
 # of_message specific controls
 
 # Do not include any arrays marked [0]
